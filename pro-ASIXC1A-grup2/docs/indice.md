@@ -2,46 +2,43 @@
 
 ## Índice
 
-1. [01-cpd-fisic/1.1-infraestructura-electrica.md](01-cpd-fisic/1.1-infraestructura-electrica.md)
-2. [01-cpd-fisic/1.2-infraestructura-it.md](01-cpd-fisic/1.2-infraestructura-it.md)
-3. [01-cpd-fisic/1.3-prevencio-rrll.md](01-cpd-fisic/1.3-prevencio-rrll.md)
-4. [01-cpd-fisic/1.4-seguretat-fisica-logica.md](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
-5. [01-cpd-fisic/1.5-ubicacio.md](01-cpd-fisic/1.5-ubicacio.md)
-6. [02-aws/ansible.md](02-aws/ansible.md)
-   - Documento vacío
-7. [02-aws/arquitectura.md](02-aws/arquitectura.md)
-   - Documento vacío
-8. [02-aws/ldap.md](02-aws/ldap.md)
-   - Documento vacío
-9. [02-aws/logs-centralitzats.md](02-aws/logs-centralitzats.md)
-   - Documento vacío
-10. [02-aws/usuaris-admin.md](02-aws/usuaris-admin.md)
-   - Documento vacío
-11. [02-aws/web-sftp.md](02-aws/web-sftp.md)
-   - Documento vacío
-12. [03-audio/Descripció_de_la_funcionalitat_Audio.md](03-audio/Descripció_de_la_funcionalitat_Audio.md)
-13. [04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
-14. [05-videoconferencia/Descripció_Protocol_WebRTC.md](05-videoconferencia/Descripció_Protocol_WebRTC.md)
-15. [07-bd/backup-event.md](07-bd/backup-event.md)
-   - Documento vacío
-16. [07-bd/er-diagrama.md](07-bd/er-diagrama.md)
-   - Documento vacío
-17. [07-bd/model-relacional.md](07-bd/model-relacional.md)
-   - Documento vacío
-18. [07-bd/rols-permisos.md](07-bd/rols-permisos.md)
-   - Documento vacío
-19. [07-bd/triggers.md](07-bd/triggers.md)
-   - Documento vacío
-20. [08-1665/ra3-optimitzacio.md](08-1665/ra3-optimitzacio.md)
-   - Documento vacío
-21. [08-1665/ra5-seguretat-dades.md](08-1665/ra5-seguretat-dades.md)
-   - Documento vacío
-22. [08-1665/ra6-transformacio-digital.md](08-1665/ra6-transformacio-digital.md)
-   - Documento vacío
+01. [01-cpd-fisic](01-cpd-fisic)
+   1.1 [1.1-infraestructura-electrica.md](01-cpd-fisic/1.1-infraestructura-electrica.md)
+   1.2 [1.2-infraestructura-it.md](01-cpd-fisic/1.2-infraestructura-it.md)
+   1.3 [1.3-prevencio-rrll.md](01-cpd-fisic/1.3-prevencio-rrll.md)
+   1.4 [1.4-seguretat-fisica-logica.md](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
+   1.5 [1.5-ubicacio.md](01-cpd-fisic/1.5-ubicacio.md)
+02. [02-aws](02-aws)
+   2.1 [ansible.md](02-aws/ansible.md)
+   2.2 [arquitectura.md](02-aws/arquitectura.md)
+   2.3 [ldap.md](02-aws/ldap.md)
+   2.4 [logs-centralitzats.md](02-aws/logs-centralitzats.md)
+   2.5 [usuaris-admin.md](02-aws/usuaris-admin.md)
+   2.6 [web-sftp.md](02-aws/web-sftp.md)
+03. [03-audio](03-audio)
+   3.1 [Descripció_de_la_funcionalitat_Audio.md](03-audio/Descripció_de_la_funcionalitat_Audio.md)
+04. [04-video](04-video)
+   4.1 [Descripció_de_la_funcionalitat_Servei_de_Vídeo.md](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
+05. [05-videoconferencia](05-videoconferencia)
+   5.1 [Descripció_Protocol_WebRTC.md](05-videoconferencia/Descripció_Protocol_WebRTC.md)
+06. [06-amplada-banda](06-amplada-banda)
+   - Sin documentos disponibles
+07. [07-bd](07-bd)
+   7.1 [backup-event.md](07-bd/backup-event.md)
+   7.2 [er-diagrama.md](07-bd/er-diagrama.md)
+   7.3 [model-relacional.md](07-bd/model-relacional.md)
+   7.4 [rols-permisos.md](07-bd/rols-permisos.md)
+   7.5 [triggers.md](07-bd/triggers.md)
+08. [08-1665](08-1665)
+   8.1 [ra3-optimitzacio.md](08-1665/ra3-optimitzacio.md)
+   8.2 [ra5-seguretat-dades.md](08-1665/ra5-seguretat-dades.md)
+   8.3 [ra6-transformacio-digital.md](08-1665/ra6-transformacio-digital.md)
 
 ---
 
-## 1. 1. 01-cpd-fisic/1.1-infraestructura-electrica.md
+## 01. 01-cpd-fisic
+
+### 1.1 01-cpd-fisic/1.1-infraestructura-electrica.md
 
 # 1.1 Infraestructura elèctrica
 
@@ -112,9 +109,7 @@ Amb 2 mòduls EBM per SAI, l'autonomia estimada a plena càrrega (2.900 W) és:
 - **Autonomia**: il·limitada mentre hi hagi combustible (dipòsit per a 48–72 h d'operació).
 - **Commutació automàtica**: ATS (Automatic Transfer Switch) que commuta a la xarxa comercial quan es restableix el subministrament.
 
----
-
-## 2. 2. 01-cpd-fisic/1.2-infraestructura-it.md
+### 1.2 01-cpd-fisic/1.2-infraestructura-it.md
 
 # 1.2 Infraestructura IT
 
@@ -185,9 +180,7 @@ El CPD disposa de **4 servidors** instal·lats al Rack 1, cadascun dedicat a un 
 - **Rack 2 ↔ Rack 3**: Cat6A des del switch d'accés al NAS primari i secundari.
 - **Tots els racks**: connexió de fibra òptica per al trànsit d'alta velocitat entre racks.
 
----
-
-## 3. 3. 01-cpd-fisic/1.3-prevencio-rrll.md
+### 1.3 01-cpd-fisic/1.3-prevencio-rrll.md
 
 # Prevenció de riscos laborals (RRLL)
 
@@ -265,9 +258,7 @@ La sala del CPD incorpora les mesures de prevenció de riscos laborals obligatò
 - Norma UNE-EN 12464-1: il·luminació de llocs de treball interiors.
 - Norma TIA-942: estàndard d'infraestructura de telecomunicacions per a CPDs.
 
----
-
-## 4. 4. 01-cpd-fisic/1.4-seguretat-fisica-logica.md
+### 1.4 01-cpd-fisic/1.4-seguretat-fisica-logica.md
 
 # Seguretat física i lògica
 
@@ -387,9 +378,7 @@ S'aplica la **regla 3-2-1**:
 
 > Els RAIDs proporcionen **continuïtat del servei** davant de fallada de disc, però **no substitueixen els backups**.
 
----
-
-## 5. 5. 01-cpd-fisic/1.5-ubicacio.md
+### 1.5 01-cpd-fisic/1.5-ubicacio.md
 
 # Ubicació física del CPD
 
@@ -464,7 +453,9 @@ La disposició segueix el patró:
 
 ---
 
-## 6. 6. 02-aws/ansible.md
+## 02. 02-aws
+
+### 2.1 02-aws/ansible.md
 
 # 2.1 Gestió de les màquines amb Ansible
 
@@ -492,27 +483,31 @@ Aquest usuari té les característiques següents:
 El node de gestió de Ansible serà una màquina externa al CPD que tindrà la següent estructura de carpetes i arxius per a aquesta gestió:
 
 
-## 7. 7. 02-aws/arquitectura.md
+### 2.2 02-aws/arquitectura.md
 
 *Documento vacío.*
 
-## 8. 8. 02-aws/ldap.md
+### 2.3 02-aws/ldap.md
 
 *Documento vacío.*
 
-## 9. 9. 02-aws/logs-centralitzats.md
+### 2.4 02-aws/logs-centralitzats.md
 
 *Documento vacío.*
 
-## 10. 10. 02-aws/usuaris-admin.md
+### 2.5 02-aws/usuaris-admin.md
 
 *Documento vacío.*
 
-## 11. 11. 02-aws/web-sftp.md
+### 2.6 02-aws/web-sftp.md
 
 *Documento vacío.*
 
-## 12. 12. 03-audio/Descripció_de_la_funcionalitat_Audio.md
+---
+
+## 03. 03-audio
+
+### 3.1 03-audio/Descripció_de_la_funcionalitat_Audio.md
 
 # Servei d'Àudio
 
@@ -555,7 +550,9 @@ sudo apt install vlc
 
 ---
 
-## 13. 13. 04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md
+## 04. 04-video
+
+### 4.1 04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md
 
 # Servei de Vídeo
 
@@ -600,7 +597,9 @@ sudo apt install vlc
 
 ---
 
-## 14. 14. 05-videoconferencia/Descripció_Protocol_WebRTC.md
+## 05. 05-videoconferencia
+
+### 5.1 05-videoconferencia/Descripció_Protocol_WebRTC.md
 
 # Protocol WebRTC
 
@@ -646,34 +645,46 @@ sudo apt install nginx
 
 ---
 
-## 15. 15. 07-bd/backup-event.md
+## 06. 06-amplada-banda
+
+*Sin documentos disponibles en esta carpeta.*
+
+## 07. 07-bd
+
+### 7.1 07-bd/backup-event.md
 
 *Documento vacío.*
 
-## 16. 16. 07-bd/er-diagrama.md
+### 7.2 07-bd/er-diagrama.md
 
 *Documento vacío.*
 
-## 17. 17. 07-bd/model-relacional.md
+### 7.3 07-bd/model-relacional.md
 
 *Documento vacío.*
 
-## 18. 18. 07-bd/rols-permisos.md
+### 7.4 07-bd/rols-permisos.md
 
 *Documento vacío.*
 
-## 19. 19. 07-bd/triggers.md
+### 7.5 07-bd/triggers.md
 
 *Documento vacío.*
 
-## 20. 20. 08-1665/ra3-optimitzacio.md
+---
+
+## 08. 08-1665
+
+### 8.1 08-1665/ra3-optimitzacio.md
 
 *Documento vacío.*
 
-## 21. 21. 08-1665/ra5-seguretat-dades.md
+### 8.2 08-1665/ra5-seguretat-dades.md
 
 *Documento vacío.*
 
-## 22. 22. 08-1665/ra6-transformacio-digital.md
+### 8.3 08-1665/ra6-transformacio-digital.md
 
 *Documento vacío.*
+
+---
