@@ -1,0 +1,68 @@
+# Infraestructura elèctrica
+
+## Sistemes d'alimentació redundant
+
+El CPD disposa de **dues línies elèctriques independents** (Línia A i Línia B) que garanteixen la continuïtat del servei en cas de fallada d'una d'elles. A més, com a última capa de protecció, s'incorpora un **grup electrogen de dièsel**.
+
+```
+Xarxa elèctrica
+      │
+   ┌──┴──┐
+Línia A  Línia B
+   │        │
+   └──┬─────┘
+      │
+   [SAI 1]  [SAI 2]  [SAI 3]
+      │        │        │
+   Rack 1   Rack 2   Rack 3
+                            \
+                      [Grup electrogen]
+                       Arrenca en < 30 s
+```
+
+## SAI (Sistemes d'Alimentació Ininterrompuda)
+
+### Càlcul de la càrrega
+
+| Equip | Unitats | W/unitat | Total W |
+|---|---|---|---|
+| Servidors (4 EC2 equiv.) | 4 | 300 W | 1.200 W |
+| Switches (core + accés) | 2 | 80 W | 160 W |
+| NAS primari + secundari | 2 | 120 W | 240 W |
+| KVM + patch panels | 1 | 30 W | 30 W |
+| Unitats CRAC (climatitz.) | 2 | 400 W | 800 W |
+| **Subtotal** | | | **2.430 W** |
+| **Factor de seguretat +20%** | | | **+486 W** |
+| **Càrrega total estimada** | | | **≈ 2.900 W** |
+
+### SAI seleccionats
+
+S'instal·len **3 SAI de 3.000 VA / 2.700 W**, un per rack:
+
+| SAI | Rack | Càrrega protegida | Mòduls EBM |
+|---|---|---|---|
+| SAI 1 | Rack 1 — Servidors | Servidors 1–4 | 2 mòduls |
+| SAI 2 | Rack 2 — Xarxa | Switches, firewall, KVM | 2 mòduls |
+| SAI 3 | Rack 3 — Emmagatzematge | NAS primari i secundari | 1 mòdul |
+
+### Càlcul d'autonomia
+
+Amb 2 mòduls EBM per SAI, l'autonomia estimada a plena càrrega (2.900 W) és:
+
+| Fase | Temps | Acció |
+|---|---|---|
+| 0 min | Tall elèctric | SAI entra en funcionament automàticament |
+| 0–2 min | SAI actiu | Subministrament ininterromput als equips |
+| 2–5 min | Alarma | Notificació automàtica als administradors |
+| 5–10 min | Transició | El grup electrogen arrenca (< 30 s d'arrencada) |
+| 10–25 min | Operació normal | Servidors alimentats pel grup electrogen |
+| 25 min | Màxim SAI | Apagat controlat si el generador no ha arrencat |
+
+> **Conclusió**: els SAI garanteixen un mínim de **25 minuts d'autonomia**, suficients per a un apagat ordenat o per a l'arrencada del grup electrogen.
+
+## Grup electrogen
+
+- **Combustible**: dièsel.
+- **Temps d'arrencada**: < 30 segons des de la detecció de fallada.
+- **Autonomia**: il·limitada mentre hi hagi combustible (dipòsit per a 48–72 h d'operació).
+- **Commutació automàtica**: ATS (Automatic Transfer Switch) que commuta a la xarxa comercial quan es restableix el subministrament.
