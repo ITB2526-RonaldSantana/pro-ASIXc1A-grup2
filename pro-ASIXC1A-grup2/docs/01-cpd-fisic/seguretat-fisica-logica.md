@@ -34,6 +34,35 @@
 - Porta d'emergència amb barra antipànic (fail-open en cas d'incendi).
 - Pla d'evacuació visible a l'entrada de la sala.
 
+### Control d'humitat
+
+Els nivells objectiu de humitat relativa (HR) se situen entre el **40% i el 60%**:
+
+- Per sota del 40%: risc d'electricitat estàtica que pot danyar components electrònics.
+- Per sobre del 60%: risc de condensació sobre circuits i connectors.
+
+**Mesures preventives:**
+
+- Les unitats **CRAC** ja incorporen control d'humitat integrat — deshumidifiquen quan la HR puja i humidifiquen quan baixa. És la primera línia de defensa.
+- **Segellat de forats i passacables**: totes les entrades de cables al sòl tècnic, parets i sostre tècnic han d'estar segellades amb escuma ignífuga o masilla tallafoc. Els forats sense segellar són la principal via d'entrada d'humitat exterior.
+- **Vapor barrier**: làmina de polietilè sota el sòl tècnic si l'edifici té risc d'humitat ascendent.
+- **Porta hermètica**: la porta blindada disposa de junta de goma perimetral per evitar la infiltració d'aire humit de l'exterior.
+- **Cap canonada d'aigua** sobre els racks ni passant per la sala. Les unitats CRAC tenen circuit tancat propi.
+
+**Detecció:**
+
+- **Sensors de temperatura i humitat** en tres punts: entrada d'aire fred (sota el sòl tècnic), sortida d'aire calent (sostre) i zona central de la sala.
+- **Cable detector d'aigua** sota el sòl tècnic, especialment sota les unitats CRAC, on pot haver-hi condensació. Genera alarma en contacte amb qualsevol líquid.
+- **Integració amb Zabbix/Grafana**: alerta automàtica si la HR surt del rang 40–60% durant més de 15 minuts.
+
+| Mesura | Tipus | Especificació |
+|---|---|---|
+| Unitats CRAC amb control HR | Preventiva | Manté 40–60% HR |
+| Segellat de forats i passacables | Preventiva | 100% dels orificis |
+| Sensors HR + temperatura | Detecció | Alerta si HR < 40% o > 60% |
+| Cable detector d'aigua | Detecció | Sota sòl tècnic i CRAC |
+| Cap canonada d'aigua sobre racks | Preventiva | Norma de disseny |
+
 ---
 
 ## Seguretat lògica

@@ -7,7 +7,7 @@ El CPD disposa de **4 servidors** instal·lats al Rack 1, cadascun dedicat a un 
 | Servidor | Servei | Instància AWS |
 |---|---|---|
 | Servidor 1 | Servei web (Apache/Nginx) + SFTP (OpenSSH autenticat via LDAP) | EC2 t3.small |
-| Servidor 2 | Directori actiu LDAP (OpenLDAP / Samba AD) + Centralització de logs (Graylog / ELK) | EC2 t3.small |
+| Servidor 2 | Directori actiu LDAP (OpenLDAP / Samba AD) + Centralització de logs (Graylog + Opensearch) | EC2 t3.small |
 | Servidor 3 | Streaming àudio (Icecast) + Vídeo (NGINX-RTMP) + Base de dades (MySQL/MariaDB) | EC2 t3.medium |
 | Servidor 4 | Backups automatitzats | EC2 t3.micro |
 
