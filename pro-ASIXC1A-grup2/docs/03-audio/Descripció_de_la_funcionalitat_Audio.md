@@ -29,11 +29,11 @@ Aquest sistema permet millorar la comunicació interna de l’empresa i facilita
 ## Paquets utilitzats
 
 ### Servidor
-```bash
+
 sudo apt install icecast2
-```
+
 
 ### Client multimèdia
-```bash
+
 sudo apt install vlc
-```
+
