@@ -26,5 +26,14 @@ El servei és compatible amb formats digitals d’àudio com:
 
 Aquest sistema permet millorar la comunicació interna de l’empresa i facilitar la distribució de contingut multimèdia als clients de forma eficient i escalable.
 
-### Paquets necessaris per a la instal·lació via bash
-sudo apt install icecast2 vlc
+## Paquets utilitzats
+
+### Servidor
+```bash
+sudo apt install icecast2
+```
+
+### Client multimèdia
+```bash
+sudo apt install vlc
+```
