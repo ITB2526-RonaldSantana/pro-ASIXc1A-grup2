@@ -461,8 +461,8 @@ La disposició segueix el patró:
 
 ## 2.1.1 Decisió adoptada
 
-Per a la gestió i configuració dels servidors del CPD he decidit utilitzar **Ansible** com a eina d'automatització. Això significa que totes les instal·lacions, configuracions i desplegaments es fan des d'una màquina de control mitjançant playbooks, sense haver d'accedir manualment a cada servidor.
-S'administressin i configuressin 3 maquines i 4 serveis amb ansible, aquesta és la distribució:
+Per a la gestió i configuració dels servidors del CPD hem decidit utilitzar **Ansible** com a eina d'automatització. Això significa que totes les instal·lacions, configuracions i desplegaments es fan des d'una màquina de control mitjançant playbooks, sense haver d'accedir manualment a cada servidor.
+S'administraran i configuraran 3 maquines i 4 serveis amb ansible, aquesta és la distribució:
 
 - Servidor 1 ( Servei Web + SFTP )
 - Servidor 2A ( LDAP )
