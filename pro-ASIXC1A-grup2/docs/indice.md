@@ -36,6 +36,51 @@
 
 ---
 
+   ## Capturas (carpeta capturas/)
+
+   La carpeta `capturas/` contiene imatges i captures organitzades per temàtiques. A continuació s'inclouen les imatges més rellevants agrupades per secció i amb una breu explicació perquè serveixen. Les imatges s'han enllaçat aquí i també poden inserir-se a les pàgines específiques quan calgui.
+
+   ### CPD físic
+   - **Diagrames del CPD**: imatges que mostren la `vista isomètrica`, `vista 2D` i el `diagrama lògic` del CPD. Són útils per a les seccions d'infraestructura i ubicació.
+
+   ![CPD - Diagrama lògic](../capturas/01-cpd-fisic/CPD-LOGICA.svg)
+   ![CPD - Vista isomètrica](../capturas/01-cpd-fisic/VISTAISOMETRICA.svg)
+   ![CPD - Vista 2D](../capturas/01-cpd-fisic/VISTA2D.svg)
+   ![CPD - Logica SAIs](../capturas/01-cpd-fisic/LOGICA-SAIS.svg)
+   ![CPD - Infraestructura IT](../capturas/01-cpd-fisic/infraestructura-it.png)
+
+   Referència: [01-cpd-fisic](01-cpd-fisic)
+
+   ### AWS — Xarxa (VPC / Subnets / Rutes)
+   - **Topologia de xarxa**: imatges de la VPC, subnets públiques i privades, taules de rutes i components (IGW, NAT). Inserteu aquestes imatges a la secció d'arquitectura per il·lustrar la topologia desplegada.
+
+   ![VPC](../capturas/02-aws/RED/VPC.png)
+   ![Subnet pública](../capturas/02-aws/RED/SUBNETPublica.png)
+   ![Subnet privada](../capturas/02-aws/RED/SUBNETPrivada.png)
+   ![IGW públic](../capturas/02-aws/RED/IGW-Publico.png)
+   ![NAT privat](../capturas/02-aws/RED/NAT-Privado.png)
+   ![Taula privada](../capturas/02-aws/RED/TABLAPRIVADA.png)
+   ![Ruta pública](../capturas/02-aws/RED/ROUTEPUBLICA.png)
+   ![Ruta NAT](../capturas/02-aws/RED/ROUTENAT.png)
+
+   Referència: [02-aws](02-aws)
+
+   ### AWS — Servidors i serveis
+   - **Captures dels servidors**: imatges dels servidors LDAP, BBDD, LOGS i el procés de creació del servei web/SFTP. Inserteu aquestes imatges a les pàgines de servei corresponents per facilitar la comprensió dels passos i la topologia.
+
+   ![Servidor LDAP](../capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png)
+   ![Servidor BBDD](../capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png)
+   ![Servidor Logs](../capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png)
+
+   #### Web / SFTP — procés de creació
+   ![Creació 1](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png)
+   ![Creació 2](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png)
+   ![Creació 3](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png)
+   ![Creació 4](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png)
+
+   Referència: [02-aws](02-aws)
+
+
 ## 01. 01-cpd-fisic
 
 ### 1.1 01-cpd-fisic/1.1-infraestructura-electrica.md
@@ -480,7 +525,7 @@ Aquest usuari té les característiques següents:
 
 ## 2.1.3 Estructura de carpetes node de gestió Ansible
 
-El node de gestió de Ansible serà una màquina externa al CPD que tindrà la següent estructura de carpetes i arxius per a aquesta gestió:
+El node de gestió de Ansible serà una màquina interna al CPD que tindrà la següent estructura de carpetes i arxius per a aquesta gestió:
 
 ```
 ansible-cpd/
@@ -525,6 +570,12 @@ Un dels aspectes més importants és que Ansible no només instal·la els paquet
 - **slapd** — fitxers LDIF per crear l'estructura del directori (`ou=users`, `ou=groups`) i els usuaris inicials
 - **Graylog** — `server.conf` amb la connexió a MongoDB i OpenSearch, i `opensearch.yml` ajustat per al tipus d'instància t3.small
 Aquests fitxers s'escriuen com a plantilles Jinja2 (extensió `.j2`). Contenen variables com `{{ ldap_base_dn }}` o `{{ ldap_server_ip }}` que Ansible substitueix pels valors reals de `group_vars/all.yml` en el moment del desplegament. Així, si canvia una IP o un domini, només cal modificar un valor i tornar a llançar el playbook.
+
+## 2.1.5 Captures de pantalla de la preparació de l'entorn Ansible:
+
+| <img src="" alt="captura1_ansible" width="500"> |
+| :---: |
+| Creació estructura de carpetes, fitxers i assignació de permisos |
 
 ### 2.2 02-aws/arquitectura.md
 
