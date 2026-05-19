@@ -480,7 +480,7 @@ Aquest usuari té les característiques següents:
 
 ## 2.1.3 Estructura de carpetes node de gestió Ansible
 
-El node de gestió de Ansible serà una màquina externa al CPD que tindrà la següent estructura de carpetes i arxius per a aquesta gestió:
+El node de gestió de Ansible serà una màquina interna al CPD que tindrà la següent estructura de carpetes i arxius per a aquesta gestió:
 
 ```
 ansible-cpd/
@@ -525,6 +525,12 @@ Un dels aspectes més importants és que Ansible no només instal·la els paquet
 - **slapd** — fitxers LDIF per crear l'estructura del directori (`ou=users`, `ou=groups`) i els usuaris inicials
 - **Graylog** — `server.conf` amb la connexió a MongoDB i OpenSearch, i `opensearch.yml` ajustat per al tipus d'instància t3.small
 Aquests fitxers s'escriuen com a plantilles Jinja2 (extensió `.j2`). Contenen variables com `{{ ldap_base_dn }}` o `{{ ldap_server_ip }}` que Ansible substitueix pels valors reals de `group_vars/all.yml` en el moment del desplegament. Així, si canvia una IP o un domini, només cal modificar un valor i tornar a llançar el playbook.
+
+## 2.1.5 Captures de pantalla de la preparació de l'entorn Ansible:
+
+| <img src="" alt="captura1_ansible" width="500"> |
+| :---: |
+| Creació estructura de carpetes, fitxers i assignació de permisos |
 
 ### 2.2 02-aws/arquitectura.md
 
