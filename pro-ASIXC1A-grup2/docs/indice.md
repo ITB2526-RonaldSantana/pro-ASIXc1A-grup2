@@ -36,50 +36,84 @@
 
 ---
 
-   ## Capturas (carpeta capturas/)
+## Capturas (carpeta capturas/)
 
-   La carpeta `capturas/` contiene imatges i captures organitzades per temàtiques. A continuació s'inclouen les imatges més rellevants agrupades per secció i amb una breu explicació perquè serveixen. Les imatges s'han enllaçat aquí i també poden inserir-se a les pàgines específiques quan calgui.
+La carpeta `capturas/` conté imatges i captures organitzades per temàtiques. Aquestes figures es poden utilitzar com a suport visual en les pàgines corresponents de la documentació.
 
-   ### CPD físic
-   - **Diagrames del CPD**: imatges que mostren la `vista isomètrica`, `vista 2D` i el `diagrama lògic` del CPD. Són útils per a les seccions d'infraestructura i ubicació.
+### 01-cpd-fisic
+- `capturas/01-cpd-fisic/CPD-LOGICA.svg` — Diagrama lògic del CPD.
+- `capturas/01-cpd-fisic/VISTAISOMETRICA.svg` — Vista isomètrica del CPD.
+- `capturas/01-cpd-fisic/VISTA2D.svg` — Vista 2D del CPD.
+- `capturas/01-cpd-fisic/LOGICA-SAIS.svg` — Diagrama de l'alimentació i dels SAIs.
+- `capturas/01-cpd-fisic/infraestructura-it.png` — Esquema d'infraestructura IT i distribució dels racks.
+- `capturas/01-cpd-fisic/RED.png` — Topologia de xarxa del CPD.
 
-   ![CPD - Diagrama lògic](../capturas/01-cpd-fisic/CPD-LOGICA.svg)
-   ![CPD - Vista isomètrica](../capturas/01-cpd-fisic/VISTAISOMETRICA.svg)
-   ![CPD - Vista 2D](../capturas/01-cpd-fisic/VISTA2D.svg)
-   ![CPD - Logica SAIs](../capturas/01-cpd-fisic/LOGICA-SAIS.svg)
-   ![CPD - Infraestructura IT](../capturas/01-cpd-fisic/infraestructura-it.png)
+![CPD - Diagrama lògic](../capturas/01-cpd-fisic/CPD-LOGICA.svg)
+![CPD - Vista isomètrica](../capturas/01-cpd-fisic/VISTAISOMETRICA.svg)
+![CPD - Vista 2D](../capturas/01-cpd-fisic/VISTA2D.svg)
+![CPD - SAI](../capturas/01-cpd-fisic/LOGICA-SAIS.svg)
+![CPD - Infraestructura IT](../capturas/01-cpd-fisic/infraestructura-it.png)
+![CPD - Xarxa](../capturas/01-cpd-fisic/RED.png)
 
-   Referència: [01-cpd-fisic](01-cpd-fisic)
+Referència: [01-cpd-fisic](01-cpd-fisic)
 
-   ### AWS — Xarxa (VPC / Subnets / Rutes)
-   - **Topologia de xarxa**: imatges de la VPC, subnets públiques i privades, taules de rutes i components (IGW, NAT). Inserteu aquestes imatges a la secció d'arquitectura per il·lustrar la topologia desplegada.
+### 02-aws
+- `capturas/02-aws/RED/VPC.png` — Diagrama de la VPC.
+- `capturas/02-aws/RED/SUBNETPublica.png` — Subnet pública.
+- `capturas/02-aws/RED/SUBNETPrivada.png` — Subnet privada.
+- `capturas/02-aws/RED/IGW-Publico.png` — Gateway d'internet públic.
+- `capturas/02-aws/RED/NAT-Privado.png` — NAT per a subnets privades.
+- `capturas/02-aws/RED/TABLAPRIVADA.png` — Taula de rutes de la subnet privada.
+- `capturas/02-aws/RED/ROUTEPUBLICA.png` — Regla de ruta pública.
+- `capturas/02-aws/RED/ROUTENAT.png` — Regla de ruta NAT.
+- `capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png` — Captura del servidor Ansible.
+- `capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png` — Captura del servidor LDAP.
+- `capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png` — Captura del servidor de bases de dades.
+- `capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png` — Captura del servidor de logs.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png` — Procés de creació Web/SFTP, pas 1.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png` — Procés de creació Web/SFTP, pas 2.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png` — Procés de creació Web/SFTP, pas 3.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png` — Procés de creació Web/SFTP, pas 4.
 
-   ![VPC](../capturas/02-aws/RED/VPC.png)
-   ![Subnet pública](../capturas/02-aws/RED/SUBNETPublica.png)
-   ![Subnet privada](../capturas/02-aws/RED/SUBNETPrivada.png)
-   ![IGW públic](../capturas/02-aws/RED/IGW-Publico.png)
-   ![NAT privat](../capturas/02-aws/RED/NAT-Privado.png)
-   ![Taula privada](../capturas/02-aws/RED/TABLAPRIVADA.png)
-   ![Ruta pública](../capturas/02-aws/RED/ROUTEPUBLICA.png)
-   ![Ruta NAT](../capturas/02-aws/RED/ROUTENAT.png)
+![VPC](../capturas/02-aws/RED/VPC.png)
+![Subnet pública](../capturas/02-aws/RED/SUBNETPublica.png)
+![Subnet privada](../capturas/02-aws/RED/SUBNETPrivada.png)
+![IGW públic](../capturas/02-aws/RED/IGW-Publico.png)
+![NAT privat](../capturas/02-aws/RED/NAT-Privado.png)
+![Taula privada](../capturas/02-aws/RED/TABLAPRIVADA.png)
+![Ruta pública](../capturas/02-aws/RED/ROUTEPUBLICA.png)
+![Ruta NAT](../capturas/02-aws/RED/ROUTENAT.png)
 
-   Referència: [02-aws](02-aws)
+#### Servidors AWS
+![Servidor Ansible](../capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png)
+![Servidor LDAP](../capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png)
+![Servidor BBDD](../capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png)
+![Servidor Logs](../capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png)
 
-   ### AWS — Servidors i serveis
-   - **Captures dels servidors**: imatges dels servidors LDAP, BBDD, LOGS i el procés de creació del servei web/SFTP. Inserteu aquestes imatges a les pàgines de servei corresponents per facilitar la comprensió dels passos i la topologia.
+#### Web / SFTP — procés de creació
+![Creació 1](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png)
+![Creació 2](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png)
+![Creació 3](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png)
+![Creació 4](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png)
 
-   ![Servidor LDAP](../capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png)
-   ![Servidor BBDD](../capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png)
-   ![Servidor Logs](../capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png)
+Referència: [02-aws](02-aws)
 
-   #### Web / SFTP — procés de creació
-   ![Creació 1](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png)
-   ![Creació 2](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png)
-   ![Creació 3](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png)
-   ![Creació 4](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png)
+### 07-bd
+- `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
+- `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
 
-   Referència: [02-aws](02-aws)
+Referència: [07-bd](07-bd)
 
+### Altres carpetes
+- `capturas/03-audio/README.md`
+- `capturas/04-video/README.md`
+- `capturas/05-videoconferencia/README.md`
+- `capturas/06-amplada-banda/README.md`
+- `capturas/08-1665/README.md`
+
+Aquestes carpetes estan presents però no contenen imatges addicionals per a la documentación actual.
+
+---
 
 ## 01. 01-cpd-fisic
 
