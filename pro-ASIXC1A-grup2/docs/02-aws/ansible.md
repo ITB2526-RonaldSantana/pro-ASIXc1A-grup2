@@ -25,7 +25,7 @@ Aquest usuari té les característiques següents:
 
 ## 2.1.3 Estructura de carpetes node de gestió Ansible
 
-El node de gestió de Ansible serà una màquina externa al CPD que tindrà la següent estructura de carpetes i arxius per a aquesta gestió:
+El node de gestió de Ansible serà una màquina interna al CPD que tindrà la següent estructura de carpetes i arxius per a aquesta gestió:
 
 ```
 ansible-cpd/
@@ -73,8 +73,6 @@ Aquests fitxers s'escriuen com a plantilles Jinja2 (extensió `.j2`). Contenen v
 
 ## 2.1.5 Captures de pantalla de la preparació de l'entorn Ansible:
 
-Creació de l'estructura de carpetes:
-
-| <img src="" alt="Descripción" width="500"> |
+| <img src="" alt="captura1_ansible" width="500"> |
 | :---: |
-| Este es el pie de foto |
+| Creació estructura de carpetes, fitxers i assignació de permisos |
