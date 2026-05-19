@@ -75,4 +75,4 @@ Aquests fitxers s'escriuen com a plantilles Jinja2 (extensió `.j2`). Contenen v
 
 | <img src="" alt="captura1_ansible" width="500"> |
 | :---: |
-| Creació estructura de carpetes, fitxers i assignació de permisos |
+| Creació de l'instància del node de gestio d'Ansible |
