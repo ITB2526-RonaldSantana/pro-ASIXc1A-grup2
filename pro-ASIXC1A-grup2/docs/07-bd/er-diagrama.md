@@ -43,4 +43,8 @@ Vam executar l’script a la base de dades local i després vam fer servir l’e
 
 ### 5. Ajust manual i exportació
 
-Vam reorganitzar les taules perquè fossin llegibles, vam verificar les cardinalitats (especialment la relació opcional USUARI-EMPLEAT) i vam exportar el diagrama com a diagrama_ER.png.
+Vam reorganitzar les taules perquè fossin llegibles, vam verificar les cardinalitats (especialment la relació opcional USUARI-EMPLEAT) i vam exportar el diagrama 
+
+| <img src="../../capturas/07-bd/er-diagrama/RAPJ-E-R.png" alt="Captura-E-R" width="500"> |
+| :---: |
+| Diagrama Entitat Relacio |

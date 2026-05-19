@@ -50,4 +50,9 @@ Per a cada relació detectada en el diagrama E/R, vam afegir una `FOREIGN KEY` a
 
 Vam escriure un script complet (`InnovateTech.sql`) que conté totes les sentències `CREATE TABLE` en l’ordre correcte (primer les taules sense dependències, després les que tenen FK). Aquest script és l’evidència pràctica de la transformació al model relacional.
 
+| <img src="../../capturas/07-bd/er-diagrama/RAPJ-SQL.png" alt="Captura-E-R" width="500"> |
+| :---: |
+| SCRIP SQL MODEL RELACIONAL |
+
+
 > Pots revisar el disseny complet de la base de dades en el [Script RAPJ.sql](../07-bd/RAPJ.sql).
