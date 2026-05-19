@@ -55,4 +55,4 @@ Vam escriure un script complet (`InnovateTech.sql`) que conté totes les sentèn
 | SCRIP SQL MODEL RELACIONAL |
 
 
-> Pots revisar el disseny complet de la base de dades en el [Script RAPJ.sql](../07-bd/RAPJ.sql).
+> Pots revisar el disseny complet de la base de dades en el [Script RAPJ.sql](../../sql/01-schema.sql).
