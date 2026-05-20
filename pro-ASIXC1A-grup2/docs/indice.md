@@ -943,11 +943,117 @@ sudo apt install nginx
 
 ### 7.2 07-bd/er-diagrama.md
 
-*Documento vacío.*
+# Model Entitat-Relació
+
+## Introduccio
+
+El següent model Entitat-Relació representa l'estructura de dades necessària per gestionar el sistema de comunicació interna d'InnovateTech. La base de dades emmagatzema informació sobre:
+
+- Personal i organització: empleats i departaments.
+- Comunicació: usuaris (interns i externs), trucades i configuració de qualitat.
+- Streaming: catàleg de vídeos disponibles.
+- Monitorització: proves d'amplada de banda realitzades pels operaris.
+- Seguretat i auditoria: rols d'usuaris, control d'accés i registre d'avisos.
+
+El model s'ha dissenyat seguint els requisits de l'apartat 3.2 i 3.3 de l'enunciat del projecte.
+
+## Com hem creat el diagrama E/R (resum del procés)
+
+### 7.2.1 Extracció de requisits
+
+Vam llegir l’enunciat (apartats 3.2 i 3.3) i vam identificar 12 entitats amb els seus atributs, claus primàries i obligatorietat (NOT NULL). També vam detectar totes les relacions i els seus tipus (1:N, N:M, 0..1:1).
+
+### 7.2.2 Disseny lògic
+
+Vam dibuixar un esborrany inicial on vam:
+
+- Assignar PK a cada entitat (codi, dni, id_usuari, nom_rol, etc.)
+- Definir FK per a cada relació (p. ex., codi_departament a EMPLEAT)
+- Resoldre la relació N:M entre USUARI i ROL mitjançant la taula associativa USUARI_ROL
+- Establir cardinalitats explícites (ex: EMPLEAT → DEPARTAMENT és N:1; USUARI → EMPLEAT és 0..1:1)
+
+### 7.2.3 Implementació al SGBD (MySQL)
+
+Vam escriure un script SQL que crea totes les taules amb:
+
+- PRIMARY KEY, FOREIGN KEY
+- NOT NULL als atributs obligatoris
+- UNIQUE a l’email d’usuari i al nom de departament
+- CHECK per a valors (puntuació entre 1 i 5, durada >=0, etc.)
+- Dades de prova significatives
+
+### 7.2.4 Generació automàtica del diagrama
+
+Vam executar l’script a la base de dades local i després vam fer servir l’eina Reverse Engineer del MySQL Workbench. Aquesta va llegir l’esquema i va dibuixar automàticament les taules, atributs i cla
+
+### 7.2.5 Ajust manual i exportació
+
+Vam reorganitzar les taules perquè fossin llegibles, vam verificar les cardinalitats (especialment la relació opcional USUARI-EMPLEAT) i vam exportar el diagrama 
+
+| <img src="../../pro-ASIXC1A-grup2/capturas/07-bd/er-diagrama/RAPJ-E-R.png" alt="Captura-E-R" width="500"> |
+| :---: |
+| Diagrama Entitat Relacio |
 
 ### 7.3 07-bd/model-relacional.md
 
-*Documento vacío.*
+# Model relacional: transformació de l’E/R
+
+## Introducció
+
+Un cop vam tenir el diagrama Entitat-Relació complet (amb totes les entitats, atributs i cardinalitats), el següent pas va ser convertir-lo a un esquema relacional que es pogués implementar directament en un SGBD (en el nostre cas, MySQL). Aquesta transformació consisteix a:
+
+1. Crear una taula per cada entitat.
+2. Definir les claus primàries (PK) per identificar cada fila de manera única.
+3. Establir les claus foranes (FK) per representar les relacions entre taules.
+
+L’objectiu és obtenir un conjunt de sentències `CREATE TABLE` que respectin exactament el disseny lògic del diagrama.
+
+## Com hem realitzat aquesta transformació
+
+### 7.3.1 De cada entitat a una taula
+
+Per cada entitat del diagrama E/R, vam crear una taula amb el mateix nom i els mateixos atributs, respectant els tipus de dades i les restriccions de `NULL` / `NOT NULL` que havíem definit.
+
+- L’entitat `DEPARTAMENT` amb atributs `codi`, `nom`, `telefon` → taula `DEPARTAMENT` amb les mateixes columnes.
+
+### 7.3.2 Assignació de claus primàries
+
+Vam marcar com a `PRIMARY KEY` l’atribut o atributs que identifiquen de manera única cada fila:
+
+- `codi` a `DEPARTAMENT`
+- `dni` a `EMPLEAT`
+- `id_usuari` a `USUARI`
+- `nom_rol` a `ROL`
+- etc.
+
+Quan una relació N:M necessitava una taula associativa (com `USUARI_ROL`), vam definir una **clau primària composta** formada per les dues claus foranes.
+
+### 7.3.3 Definició de claus foranes
+
+Per a cada relació detectada en el diagrama E/R, vam afegir una `FOREIGN KEY` a la taula filla que referenciés la clau primària de la taula pare, indicant les accions `ON DELETE` i `ON UPDATE` (normalment `RESTRICT` i `CASCADE`).
+
+**Exemples de relacions transformades a FK:**
+
+- `EMPLEAT.codi_departament` → `DEPARTAMENT.codi`
+- `USUARI.dni_empleat` → `EMPLEAT.dni`
+- `USUARI_ROL.id_usuari` → `USUARI.id_usuari`
+- `USUARI_ROL.nom_rol` → `ROL.nom_rol`
+- `TRUCADA.usuari_originador` → `USUARI.id_usuari`
+- `TRUCADA.usuari_destinatari` → `USUARI.id_usuari`
+- `TRUCADA.id_grup_qualitat` → `GRUP_QUALITAT.id_grup`
+- `MESURA_AMPLADA_BANDA.operari_id` → `USUARI.id_usuari`
+- `AVIS.usuari_id` → `USUARI.id_usuari`
+
+### 7.3.4 Generació del script SQL
+
+Vam escriure un script complet (`InnovateTech.sql`) que conté totes les sentències `CREATE TABLE` en l’ordre correcte (primer les taules sense dependències, després les que tenen FK). Aquest script és l’evidència pràctica de la transformació al model relacional.
+
+| <img src="../../../pro-ASIXc1A-grup2/pro-ASIXC1A-grup2/capturas/07-bd/er-diagrama/RAPJ-SQL.png" alt="Captura-E-R" width="500"> |
+| :---: |
+| SCRIP SQL MODEL RELACIONAL |
+
+
+> Pots revisar el disseny complet de la base de dades en el [Script RAPJ.sql](../../pro-ASIXC1A-grup2/docs/07-bd/model-relacional.md).
 
 ### 7.4 07-bd/rols-permisos.md
 
