@@ -3,36 +3,34 @@
 ## Índice
 
 01. [01-cpd-fisic](01-cpd-fisic)
-   1.1 [1.1-infraestructura-electrica.md](01-cpd-fisic/1.1-infraestructura-electrica.md)
-   1.2 [1.2-infraestructura-it.md](01-cpd-fisic/1.2-infraestructura-it.md)
-   1.3 [1.3-prevencio-rrll.md](01-cpd-fisic/1.3-prevencio-rrll.md)
-   1.4 [1.4-seguretat-fisica-logica.md](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
-   1.5 [1.5-ubicacio.md](01-cpd-fisic/1.5-ubicacio.md)
+  1.1 [1.1-infraestructura-electrica.md](01-cpd-fisic/1.1-infraestructura-electrica.md)
+  1.2 [1.2-infraestructura-it.md](01-cpd-fisic/1.2-infraestructura-it.md)
+  1.3 [1.3-prevencio-rrll.md](01-cpd-fisic/1.3-prevencio-rrll.md)
+  1.4 [1.4-seguretat-fisica-logica.md](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
+  1.5 [1.5-ubicacio.md](01-cpd-fisic/1.5-ubicacio.md)
+
 02. [02-aws](02-aws)
-   2.1 [ansible.md](02-aws/ansible.md)
-   2.2 [arquitectura.md](02-aws/arquitectura.md)
-   2.3 [ldap.md](02-aws/ldap.md)
-   2.4 [logs-centralitzats.md](02-aws/logs-centralitzats.md)
-   2.5 [usuaris-admin.md](02-aws/usuaris-admin.md)
-   2.6 [web-sftp.md](02-aws/web-sftp.md)
+  2.1 [ansible.md](02-aws/ansible.md)
+  2.2 [graylog.md](02-aws/graylog.md)
+
 03. [03-audio](03-audio)
-   3.1 [Descripció_de_la_funcionalitat_Audio.md](03-audio/Descripció_de_la_funcionalitat_Audio.md)
+  3.1 [Descripció_de_la_funcionalitat_Audio.md](03-audio/Descripció_de_la_funcionalitat_Audio.md)
+
 04. [04-video](04-video)
-   4.1 [Descripció_de_la_funcionalitat_Servei_de_Vídeo.md](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
+  4.1 [Descripció_de_la_funcionalitat_Servei_de_Vídeo.md](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
+
 05. [05-videoconferencia](05-videoconferencia)
-   5.1 [Descripció_Protocol_WebRTC.md](05-videoconferencia/Descripció_Protocol_WebRTC.md)
+  5.1 [Descripció_Protocol_WebRTC.md](05-videoconferencia/Descripció_Protocol_WebRTC.md)
+
 06. [06-amplada-banda](06-amplada-banda)
-   - Sin documentos disponibles
+  - Sin documentos disponibles
+
 07. [07-bd](07-bd)
-   7.1 [backup-event.md](07-bd/backup-event.md)
-   7.2 [er-diagrama.md](07-bd/er-diagrama.md)
-   7.3 [model-relacional.md](07-bd/model-relacional.md)
-   7.4 [rols-permisos.md](07-bd/rols-permisos.md)
-   7.5 [triggers.md](07-bd/triggers.md)
+  7.1 [er-diagrama.md](07-bd/er-diagrama.md)
+  7.2 [model-relacional.md](07-bd/model-relacional.md)
+
 08. [08-1665](08-1665)
-   8.1 [ra3-optimitzacio.md](08-1665/ra3-optimitzacio.md)
-   8.2 [ra5-seguretat-dades.md](08-1665/ra5-seguretat-dades.md)
-   8.3 [ra6-transformacio-digital.md](08-1665/ra6-transformacio-digital.md)
+  - Sin documentos disponibles
 
 ---
 
@@ -57,46 +55,11 @@ La carpeta `capturas/` conté imatges i captures organitzades per temàtiques. A
 
 Referència: [01-cpd-fisic](01-cpd-fisic)
 
-### 02-aws
-- `capturas/02-aws/RED/VPC.png` — Diagrama de la VPC.
-- `capturas/02-aws/RED/SUBNETPublica.png` — Subnet pública.
-- `capturas/02-aws/RED/SUBNETPrivada.png` — Subnet privada.
-- `capturas/02-aws/RED/IGW-Publico.png` — Gateway d'internet públic.
-- `capturas/02-aws/RED/NAT-Privado.png` — NAT per a subnets privades.
-- `capturas/02-aws/RED/TABLAPRIVADA.png` — Taula de rutes de la subnet privada.
-- `capturas/02-aws/RED/ROUTEPUBLICA.png` — Regla de ruta pública.
-- `capturas/02-aws/RED/ROUTENAT.png` — Regla de ruta NAT.
-- `capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png` — Captura del servidor Ansible.
-- `capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png` — Captura del servidor LDAP.
-- `capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png` — Captura del servidor de bases de dades.
-- `capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png` — Captura del servidor de logs.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png` — Procés de creació Web/SFTP, pas 1.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png` — Procés de creació Web/SFTP, pas 2.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png` — Procés de creació Web/SFTP, pas 3.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png` — Procés de creació Web/SFTP, pas 4.
+### 07-bd
+ - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
+ - `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
 
-![VPC](../capturas/02-aws/RED/VPC.png)
-![Subnet pública](../capturas/02-aws/RED/SUBNETPublica.png)
-![Subnet privada](../capturas/02-aws/RED/SUBNETPrivada.png)
-![IGW públic](../capturas/02-aws/RED/IGW-Publico.png)
-![NAT privat](../capturas/02-aws/RED/NAT-Privado.png)
-![Taula privada](../capturas/02-aws/RED/TABLAPRIVADA.png)
-![Ruta pública](../capturas/02-aws/RED/ROUTEPUBLICA.png)
-![Ruta NAT](../capturas/02-aws/RED/ROUTENAT.png)
-
-#### Servidors AWS
-![Servidor Ansible](../capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png)
-![Servidor LDAP](../capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png)
-![Servidor BBDD](../capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png)
-![Servidor Logs](../capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png)
-
-#### Web / SFTP — procés de creació
-![Creació 1](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png)
-![Creació 2](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png)
-![Creació 3](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png)
-![Creació 4](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png)
-
-Referència: [02-aws](02-aws)
+Referència: [07-bd](07-bd)
 
 ### 07-bd
 - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
@@ -784,6 +747,47 @@ hola
 ### 2.6 02-aws/web-sftp.md
 
 *Documento vacío.*
+
+### Capturas 02-aws
+- `capturas/02-aws/RED/VPC.png` — Diagrama de la VPC.
+- `capturas/02-aws/RED/SUBNETPublica.png` — Subnet pública.
+- `capturas/02-aws/RED/SUBNETPrivada.png` — Subnet privada.
+- `capturas/02-aws/RED/IGW-Publico.png` — Gateway d'internet públic.
+- `capturas/02-aws/RED/NAT-Privado.png` — NAT per a subnets privades.
+- `capturas/02-aws/RED/TABLAPRIVADA.png` — Taula de rutes de la subnet privada.
+- `capturas/02-aws/RED/ROUTEPUBLICA.png` — Regla de ruta pública.
+- `capturas/02-aws/RED/ROUTENAT.png` — Regla de ruta NAT.
+- `capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png` — Captura del servidor Ansible.
+- `capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png` — Captura del servidor LDAP.
+- `capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png` — Captura del servidor de bases de dades.
+- `capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png` — Captura del servidor de logs.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png` — Procés de creació Web/SFTP, pas 1.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png` — Procés de creació Web/SFTP, pas 2.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png` — Procés de creació Web/SFTP, pas 3.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png` — Procés de creació Web/SFTP, pas 4.
+
+![VPC](../capturas/02-aws/RED/VPC.png)
+![Subnet pública](../capturas/02-aws/RED/SUBNETPublica.png)
+![Subnet privada](../capturas/02-aws/RED/SUBNETPrivada.png)
+![IGW públic](../capturas/02-aws/RED/IGW-Publico.png)
+![NAT privat](../capturas/02-aws/RED/NAT-Privado.png)
+![Taula privada](../capturas/02-aws/RED/TABLAPRIVADA.png)
+![Ruta pública](../capturas/02-aws/RED/ROUTEPUBLICA.png)
+![Ruta NAT](../capturas/02-aws/RED/ROUTENAT.png)
+
+#### Servidors AWS
+![Servidor Ansible](../capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png)
+![Servidor LDAP](../capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png)
+![Servidor BBDD](../capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png)
+![Servidor Logs](../capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png)
+
+#### Web / SFTP — procés de creació
+![Creació 1](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png)
+![Creació 2](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png)
+![Creació 3](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png)
+![Creació 4](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png)
+
+Referència: [02-aws](02-aws)
 
 ---
 
