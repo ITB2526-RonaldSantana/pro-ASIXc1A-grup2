@@ -548,7 +548,7 @@ S'administressin i configuressin 3 maquines i 4 serveis amb ansible, aquesta és
 
 ## 2.1.2 Usuari de gestió
 
-Per no utilitzar l'usuari per defecte d'AWS, per a les tasques d'Ansible, s'ha creat un usuari dedicat anomenat **`ansible`** a cada servidor.
+Per no utilitzar l'usuari per defecte d'AWS, per a les tasques d'Ansible, s'ha creat un usuari dedicat anomenat **`usuari_gestiorapj`** a cada servidor.
 
 Aquest usuari té les característiques següents:
 
@@ -694,31 +694,54 @@ Ara el tasks/main.yml del rol, que és on passa tot, en aquest cas deixo el play
 
 ```yaml
 ---
+---
+# ─────────────────────────────────────
+# CREAR INSTÀNCIES EC2
+# ─────────────────────────────────────
+
 - name: Crear instancias EC2
   amazon.aws.ec2_instance:
+
     name: "{{ item.name }}"
     region: "{{ aws_region }}"
+
     instance_type: "{{ item.type }}"
     image_id: "{{ aws_ami }}"
+
     key_name: "{{ aws_key_name }}"
     subnet_id: "{{ aws_subnet_id }}"
+
     security_groups: "{{ item.security_groups }}"
+
     tags: "{{ item.tags | combine({
       'Project': aws_tag_project,
       'Env': aws_tag_env
     }) }}"
+
     state: running
     wait: true
+
   loop: "{{ ec2_instancies }}"
   register: ec2_result
+
+
+# ─────────────────────────────────────
+# RESERVAR ELASTIC IP
+# ─────────────────────────────────────
 
 - name: Reservar Elastic IP
   amazon.aws.ec2_eip:
     region: "{{ aws_region }}"
     in_vpc: true
     state: present
+
   loop: "{{ ec2_result.results }}"
   register: eip_result
+
+
+# ─────────────────────────────────────
+# ASOCIAR ELASTIC IP
+# ─────────────────────────────────────
 
 - name: Asociar Elastic IP
   amazon.aws.ec2_eip:
@@ -727,12 +750,21 @@ Ara el tasks/main.yml del rol, que és on passa tot, en aquest cas deixo el play
     public_ip: "{{ item.1.public_ip }}"
     in_vpc: true
     state: present
-  loop: "{{ ec2_result.results | zip(eip_result.results) | list }}
+
+  loop: "{{ ec2_result.results | zip(eip_result.results) | list }}"
+
+
+# ─────────────────────────────────────
+# RESUMEN FINAL
+# ─────────────────────────────────────
 
 - name: Mostrar resumen de instancias creadas
   debug:
-    msg: "{{ item.0.item.name }} → {{ item.1.public_ip }}"
+    msg: >
+      {{ item.0.item.name }} → {{ item.1.public_ip }}
+
   loop: "{{ ec2_result.results | zip(eip_result.results) | list }}"
+
 ```
 
 ## Execució del playbook y verificació de que tot ha funcionat correctament:
@@ -763,8 +795,146 @@ Captures de pantalla de verificació:
 | <img src="../capturas/02-aws/VERIFICACION3.png" alt="captura11_ansible" width="700"> |
 | :---: |
 | Verificacions |
-hola
+  
+## Configuracions comuns als servidors
 
+Ara es deixa completament preparat l'entorn realizant les següents tasques comuns als servidors:
+
+- Creació d'usuari de gestió amb permisos d'administrador sense contrasenya
+- Creació d'una clau per a que l'acces a les màquines sigui exclusivament per SSH sense contraenya.
+- Instal·lació de rsyslog i enviament de logs al servidor que els centralitza
+
+Primer cal editar el inventari, perque les màquines ja estan operatives i tenim les seves dades, també farem una agrupació al inventari per facilitar la gestió de tasques comuns:
+
+| <img src="../capturas/02-aws/INVENTARI_ACTUALITZAT2.png" alt="captura12_ansible" width="500"> |
+| :---: |
+| Inventari actualitzat |
+
+Generar la clau que es distribuira:
+
+| <img src="../capturas/02-aws/GENERAR_CLAU.png" alt="captura13_ansible" width="500"> |
+| :---: |
+| Genreació de la clau |
+
+Editar el fitxer de variables locals, afegim el nom del usuari que es crearà, el nom de la clau i on es copiarà, es copia automàticament al fitxer authorized_keys de l'usuari **`usuari_gestiorapj`** a cada servidor.  
+Això permet que **`usuari_gestiorapj`** entri per SSH sense haver d'introduir cap contrasenya.:
+
+| <img src="../capturas/02-aws/VARIABLES_COMUNS.png" alt="captura14_ansible" width="500"> |
+| :---: |
+| Fitxer group_vars/all.yml |
+
+Editar el site.yml i afegir el següent:
+
+| <img src="../capturas/02-aws/SITE_ACTUALITZAT.png" alt="captura15_ansible" width="500"> |
+| :---: |
+| Fitxer site.yml |
+
+Editar el fitxer handler del rol per reiniciar serveis:
+
+| <img src="../capturas/02-aws/HANDLERCOMUN.png" alt="captura15_ansible" width="500"> |
+| :---: |
+| Fitxer handlers/main.yml |
+
+Utilitzarem el rol common hi ha que editar el tasks/main.yml del rol:
+
+```yaml
+---
+# ── 1. Actualització del sistema ─────────────────────────────────────
+- name: Actualitzar la llista i tots els paquets del sistema
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+    update_cache: true
+
+- name: Eliminar paquets i dependències obsoletes (Autoremove)
+  ansible.builtin.dnf:
+    autoremove: true
+
+# ── 2. Crear usuari i fer que no necessiti contrasenya ─────────────────────────────────────
+- name: Create user ansible
+  ansible.builtin.user:
+    name: "{{ created_username }}"
+    shell: /bin/bash
+    state: present
+    create_home: yes
+
+- name: Setup passwordless sudo for user ansible
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/90-cloud-init-users
+    state: present
+    line: "{{ created_username }} ALL=(ALL) NOPASSWD:ALL"
+    insertafter: EOF
+
+# ── 3. Distribuir i copiar la clau ─────────────────────────────────────
+- name: Set authorized keys taken from url
+  ansible.posix.authorized_key:
+    user: "{{ created_username }}"
+    state: present
+    key: "{{ copy_local_key }}"
+
+# ── 4. Canviar el Hostname del sistema ─────────────────────────────────────
+- name: Configurar el hostname permanent de la màquina
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname | lower }}"
+
+# ── 5. Instal·lació i configuració de Rsyslog ──────────────────────────────
+- name: Assegurar que rsyslog està instal·lat
+  ansible.builtin.dnf:
+    name: rsyslog
+    state: present
+
+- name: Assegurar que el servei rsyslog està actiu i arrenca amb el sistema
+  ansible.builtin.service:
+    name: rsyslog
+    state: started
+    enabled: true
+
+- name: Afegir la regla de reenviament al rsyslog.conf
+  ansible.builtin.lineinfile:
+    path: /etc/rsyslog.conf
+    state: present
+    line: '*.* @10.0.4.242:514;RSYSLOG_SyslogProtocol23Format'
+    insertafter: EOF
+  notify: Reiniciar rsyslog
+
+- name: Forçar l'execució immediata del handler si hi ha hagut canvis
+  ansible.builtin.meta: flush_handlers
+
+- name: Enviar un log de prova
+  ansible.builtin.command:
+    cmd: 'logger -p syslog.info "Test log des de {{ ansible_facts[\"hostname\"] }}"'
+```
+## Execució del playbook y verificació de que tot ha funcionat correctament:
+
+Primer cal fer un ping per verificar que l'inventari esta responent, auqesta vegada cal indicar la clau perquè son màquines remotes:
+
+| <img src="../capturas/02-aws/PING_INVENTARI2.png" alt="captura16_ansible" width="500"> |
+| :---: |
+| Ping al inventari |
+
+Ara desde el directori base d'ansible ja podem executar el playbook indicant el nom del arxiu site.yml:
+
+| <img src="../capturas/02-aws/EXECUCIO_COMU.png" alt="captura17_ansible" width="500"> |
+| :---: |
+| Execució playbook |
+
+Verificació de que tot ha funcionat correctament:
+
+La connexió ssh amb la clau creada respon root tot esta correcte:
+
+| <img src="../capturas/02-aws/VERIFICACIONCOMUN.png" alt="captura18_ansible" width="800"> |
+| :---: |
+| Verificació |
+
+També verifiquem que s'ha canviat el hostname:
+
+| <img src="../capturas/02-aws/VERIFICACIONHOSTNAMEWEB.png" alt="captura19_ansible" width="800"> |
+| :---: |
+| Verificació Hostname WEBFTP|
+
+| <img src="../capturas/02-aws/VERIFICACIONHOSTNAMELADP.png" alt="captura19_ansible" width="800"> |
+| :---: |
+| Verificació Hostname LDAP|
 ### 2.2 02-aws/arquitectura.md
 
 *Documento vacío.*
