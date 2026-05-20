@@ -763,6 +763,7 @@ Captures de pantalla de verificació:
 | <img src="../capturas/02-aws/VERIFICACION3.png" alt="captura11_ansible" width="700"> |
 | :---: |
 | Verificacions |
+hola
 
 ### 2.2 02-aws/arquitectura.md
 
