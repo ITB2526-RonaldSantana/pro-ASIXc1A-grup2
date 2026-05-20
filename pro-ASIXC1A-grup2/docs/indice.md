@@ -545,7 +545,6 @@ S'administressin i configuressin 3 maquines i 4 serveis amb ansible, aquesta és
 
 - Servidor 1 ( Servei Web + SFTP )
 - Servidor 2A ( LDAP )
-- Servidor 2B ( Centralització de Logs )
 
 ## 2.1.2 Usuari de gestió
 
@@ -563,16 +562,31 @@ El node de gestió de Ansible serà una màquina interna al CPD que tindrà la s
 
 ```
 ansible-cpd/
-├── inventory.ini          # Llista de servidors i les seves IPs
-├── site.yml               # Assignació de rols a cada servidor
+├── inventory.ini
+├── site.yml
 ├── group_vars/
-│   └── all.yml            # Variables compartides per tots els servidors
+│   └── all.yml                      ← variables compartidas (AMI, región, claves, etc.)
 └── roles/
-    ├── common/            # Configuració base aplicada als 3 servidors
-    ├── nginx/             # Servidor web (Servidor 1)
-    ├── proftpd/           # SFTP amb autenticació LDAP (Servidor 1)
-    ├── slapd/             # Directori actiu OpenLDAP (Servidor 2A)
-    └── graylog/           # Centralització de logs (Servidor 2B)
+    ├── common/
+    │   └── tasks/main.yml           ← tareas comunes a todos los servidores
+    ├── ec2/
+    │   ├── tasks/main.yml           ← creación de instancias EC2 en AWS
+    │   └── vars/main.yml            ← variables específicas de EC2
+    ├── nginx/
+    │   ├── tasks/main.yml           ← instalación y configuración de Nginx
+    │   ├── handlers/main.yml        ← handlers (restart/reload nginx)
+    │   ├── templates/vhost.conf.j2  ← template del virtualhost
+    │   └── vars/main.yml            ← variables específicas de Nginx
+    ├── proftpd/
+    │   ├── tasks/main.yml           ← instalación y configuración de ProFTPD (SFTP)
+    │   ├── templates/proftpd.conf.j2← template configuración ProFTPD
+    │   ├── templates/ldap.conf.j2   ← template integración LDAP
+    │   └── vars/main.yml            ← variables específicas de ProFTPD
+    ├── slapd/
+    │   ├── tasks/main.yml           ← instalación y configuración de OpenLDAP
+    │   ├── templates/base.ldif.j2   ← template estructura base LDAP
+    │   ├── templates/usuarios.ldif.j2← template usuarios LDAP
+    │   └── vars/main.yml            ← variables específicas de OpenLDAP
 ```
 ### inventory.ini
  
@@ -602,14 +616,154 @@ Un dels aspectes més importants és que Ansible no només instal·la els paquet
 - **Nginx** — virtualhost configurat amb el domini i el directori arrel del projecte
 - **ProFTPD** — `proftpd.conf` amb mode SFTP, chroot per usuari i connexió al servidor LDAP
 - **slapd** — fitxers LDIF per crear l'estructura del directori (`ou=users`, `ou=groups`) i els usuaris inicials
-- **Graylog** — `server.conf` amb la connexió a MongoDB i OpenSearch, i `opensearch.yml` ajustat per al tipus d'instància t3.small
-Aquests fitxers s'escriuen com a plantilles Jinja2 (extensió `.j2`). Contenen variables com `{{ ldap_base_dn }}` o `{{ ldap_server_ip }}` que Ansible substitueix pels valors reals de `group_vars/all.yml` en el moment del desplegament. Així, si canvia una IP o un domini, només cal modificar un valor i tornar a llançar el playbook.
 
-## 2.1.5 Captures de pantalla de la preparació de l'entorn Ansible:
+## 2.1.5 Preparació de l'entorn Ansible:
 
-| <img src="" alt="captura1_ansible" width="500"> |
+Desde aquesta màquina creada s'administraran i crearan les màquines del servidor web + sftp i LDAP
+
+| <img src="../capturas/02-aws/CREACION-NODO-ANSIBLE.png" alt="captura1_ansible" width="500"> |
 | :---: |
-| Creació estructura de carpetes, fitxers i assignació de permisos |
+| Comanda de creació de la instància Node de Gestió Ansible |
+
+| <img src="../capturas/02-aws/ASIGNACION-IP-FIJA-PUBLICA.png" alt="captura2_ansible" width="600"> |
+| :---: |
+| Assignació de ip pública a la màquina |
+---
+Accedim al node de gestió i preparem l'entorn:
+
+| <img src="../capturas/02-aws/ESTRUCTURA-CARPETAS.png" alt="captura3_ansible" width="500"> |
+| :---: |
+| Estructura de carpetes creada |
+---
+### Configuració de credencials AWS al node de gestió
+El primer que es farà es crear les instàncies tant del servei web + sftp com del LDAP amb un playbook.  
+Abans de poder utilitzar Ansible per crear instàncies EC2 a AWS, cal configurar
+les credencials d'accés al node de gestió. Com que s'utilitza AWS Academy,
+les credencials (Access Key, Secret Key i Session Token) es generen
+temporalment a cada sessió del Learner Lab i s'han de renovar cada cop que
+es reinicia el laboratori.
+
+Les credencials s'emmagatzemen al fitxer `~/.aws/credentials` del node de
+gestió, que és el lloc estàndard on tant la CLI d'AWS com Ansible (a través
+de boto3) van a buscar-les automàticament per autenticar-se contra l'API d'AWS.
+
+Un cop configurades, Ansible podrà interactuar amb AWS per crear i configurar
+les instàncies EC2 sense necessitat de introduir cap credencial manualment
+durant l'execució dels playbooks.
+
+| <img src="../capturas/02-aws/CREDENCIALES-CONFIGURADAS.png" alt="captura4_ansible" width="1000"> |
+| :---: |
+| Credencials configuradas al node de gestió |
+---
+### Creació de les dos instàncies amb Ansible
+
+Per usar el mòdul amazon.aws d'Ansible necessites tenir instal·lada la col·lecció i la llibreria Python boto3:
+
+| <img src="../capturas/02-aws/INSTALACION-BOTO3.png" alt="captura5_ansible" width="500"> |
+| :---: |
+| Instal·lació boto3 |
+
+Ara els fitxers. Primer el group_vars/all.yml només amb el que necessitem per crear les màquines:
+
+| <img src="../capturas/02-aws/VARIABLES_CREACIO_INSTANCIES.png" alt="captura6_ansible" width="500"> |
+| :---: |
+| Variables definides per a la creació d'instàncies |
+
+Ara /vars/main.yml del rol on definirem les instàncies, el nom, el scurity group...:
+
+| <img src="../capturas/02-aws/VARIABLES-ROL.png" alt="captura7_ansible" width="500"> |
+| :---: |
+| Definició de las instàncies a les variables del rol |
+
+Ara el site.yml que és el playbook principal que actualment s’encarrega d’orquestrar la creació d’instàncies EC2 a AWS mitjançant el role ec2:
+
+| <img src="../capturas/02-aws/SITE.png" alt="captura8_ansible" width="500"> |
+| :---: |
+| Configuració del site.yml |
+
+Ara el inventory.ini que es divideix en dos fases la primera durant la creació de les instàncies que es treballarà en local  
+i la segona fase on ja podrem omplir les dades del inevntari una vegada les màquines estiguin creades correctament:
+
+| <img src="../capturas/02-aws/INVENTORY.png" alt="captura9_ansible" width="500"> |
+| :---: |
+| Configuració del inventory.ini |
+
+Ara el tasks/main.yml del rol, que és on passa tot, en aquest cas deixo el playbook en format de text:
+
+## EC2 Playbook (Ansible)
+
+```yaml
+---
+- name: Crear instancias EC2
+  amazon.aws.ec2_instance:
+    name: "{{ item.name }}"
+    region: "{{ aws_region }}"
+    instance_type: "{{ item.type }}"
+    image_id: "{{ aws_ami }}"
+    key_name: "{{ aws_key_name }}"
+    subnet_id: "{{ aws_subnet_id }}"
+    security_groups: "{{ item.security_groups }}"
+    tags: "{{ item.tags | combine({
+      'Project': aws_tag_project,
+      'Env': aws_tag_env
+    }) }}"
+    state: running
+    wait: true
+  loop: "{{ ec2_instancies }}"
+  register: ec2_result
+
+- name: Reservar Elastic IP
+  amazon.aws.ec2_eip:
+    region: "{{ aws_region }}"
+    in_vpc: true
+    state: present
+  loop: "{{ ec2_result.results }}"
+  register: eip_result
+
+- name: Asociar Elastic IP
+  amazon.aws.ec2_eip:
+    region: "{{ aws_region }}"
+    device_id: "{{ item.0.instances[0].instance_id }}"
+    public_ip: "{{ item.1.public_ip }}"
+    in_vpc: true
+    state: present
+  loop: "{{ ec2_result.results | zip(eip_result.results) | list }}
+
+- name: Mostrar resumen de instancias creadas
+  debug:
+    msg: "{{ item.0.item.name }} → {{ item.1.public_ip }}"
+  loop: "{{ ec2_result.results | zip(eip_result.results) | list }}"
+```
+
+## Execució del playbook y verificació de que tot ha funcionat correctament:
+
+Primer cal fer un ping per verificar que l'inventari esta responent:
+
+| <img src="../capturas/02-aws/PINGINVENTARI.png" alt="captura10_ansible" width="500"> |
+| :---: |
+| Ping al inventari |
+
+Ara desde el directori base d'ansible ja podem executar el playbook indicant el nom del arxiu site.yml:
+
+<img src="../capturas/02-aws/EJECUCION1.png" alt="captura11_ansible" width="500">
+
+<img src="../capturas/02-aws/EJECUCION2.png" alt="captura11_ansible" width="500">
+
+| <img src="../capturas/02-aws/EJECUCION3.png" alt="captura11_ansible" width="700"> |
+| :---: |
+| Execució Playbook |
+  
+
+Captures de pantalla de verificació:
+
+<img src="../capturas/02-aws/VERIFICACION1.png" alt="captura11_ansible" width="900">
+
+<img src="../capturas/02-aws/VERIFICACION2.png" alt="captura11_ansible" width="400">
+
+| <img src="../capturas/02-aws/VERIFICACION3.png" alt="captura11_ansible" width="700"> |
+| :---: |
+| Verificacions |
+hola
 
 ### 2.2 02-aws/arquitectura.md
 
