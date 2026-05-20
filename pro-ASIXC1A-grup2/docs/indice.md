@@ -902,9 +902,200 @@ També verifiquem que s'ha canviat el hostname:
 
 *Documento vacío.*
 
-### 2.3 02-aws/ldap.md
+# 2.3 02-aws/ldap.md
 
-*Documento vacío.*
+Aquesta es una de les màquines que es gestiona amb amb ansible per lo que tota la configuració es fa desde el node de gestió mitjançant un playbook.
+
+## Configuració feta amb Ansible
+
+Primer de tot cal configurar una nova entrada en el nostre site.yml perquè associï el nostre servidor LDAP al rol de slapd:
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/SITEYML_LDAP.png" alt="CAPTURA1_LDAP" width="500"> |
+| :---: |
+| Confiuració site.yml |
+
+Ara cal editar el fitxer de variables del rol en aquest cas roles/slapd/vars/main.yml, on definirem el domini i la llista de usuaris. A partir d'aquí, el playbook es pot executar tantes vegades com vulguis perquè utilitza un bucle dinàmic (loop) que s'adapta automàticament a la quantitat d'usuaris sense haver de modificar mai el codi de les tasques. A més, gràcies a la condició failed_when, Ansible detecta si un usuari ja s'havia creat en una execució anterior (Already exists), saltant-se els comptes vells de forma segura per centrar-se únicament a injectar els nous registres processats mitjançant les plantilles Jinja2. Això garanteix un sistema totalment idempotent, net i escalable per al teu entorn SFTP.
+
+Arxiu en format de text:
+
+```yaml
+---
+# Configuració del Domini LDAP
+ldap_domain_dc: "dc=pro-ASIXcA1-grup2,dc=local"
+ldap_organization: "Grup 2 - Projecte ASIX"
+ldap_root_password: "pirineus"
+
+# Llista d'exactament 4 usuaris per a SFTP
+ldap_users:
+  - username: "usuari_sftp1"
+    cn: "Asier Hernandez"
+    sn: "Hernandez"
+    uid: 10001
+    gid: 10001
+    home: "/home/sftp/usuari_sftp1"
+    shell: "/bin/bash"
+    password: "{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=" # Hash de la contrasenya (grup2 a tots els usuaris)
+    gecos: "Compte SFTP 1 - Asier"
+
+  - username: "usuari_sftp2"
+    cn: "Pablo Pineda"
+    sn: "Pineda"
+    uid: 10002
+    gid: 10002
+    home: "/home/sftp/usuari_sftp2"
+    shell: "/bin/bash"
+    password: "{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g="
+    gecos: "Compte SFTP 2 - Pablo"
+
+  - username: "usuari_sftp3"
+    cn: "Ronald Santana"
+    sn: "Santana"
+    uid: 10003
+    gid: 10003
+    home: "/home/sftp/usuari_sftp3"
+    shell: "/bin/bash"
+    password: "{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g="
+    gecos: "Compte SFTP 3 - Ronald"
+
+  - username: "usuari_sftp4"
+    cn: "Jair Godoy"
+    sn: "Godoy"
+    uid: 10004
+    gid: 10004
+    home: "/home/sftp/usuari_sftp4"
+    shell: "/bin/bash"
+    password: "{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g="
+    gecos: "Compte SFTP 4 - Godoy"
+```
+
+### Ara cal editar les plantilles jinja dels arxius ldif:
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/JINJA_BASE.png" alt="CAPTURA2_LDAP" width="300"> |
+| :---: |
+| roles/slapd/templates/base.ldif.j2 Plantilla Jinja2 per crear l'arrel del domini i les unitats organitzatives (ou=usuaris i ou=grups). |
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/JINJA_USUARIS.png" alt="CAPTURA3_LDAP" width="400"> |
+| :---: |
+| roles/slapd/templates/usuaris.ldif.j2 Plantilla Jinja2 genérica que es processarà un cop per cada usuari definit a la llista de variables, fent-los compatibles amb SFTP/Linux.|
+
+Ara el playbook principal roles/slapd/tasks/main.yml que executa les accions realitzades al servidor remot. Playbook en format text:
+
+```yaml
+---
+# ── 1. INSTAL·LACIÓ ───────────────────────────────────────────────────
+- name: Instal·lar els paquets d'OpenLDAP i el servidor slapd
+  ansible.builtin.dnf:
+    name:
+      - openldap
+      - openldap-servers
+      - openldap-clients
+    state: present
+
+- name: Assegurar que el servei slapd està actiu i arrenca amb el sistema
+  ansible.builtin.service:
+    name: slapd
+    state: started
+    enabled: true
+
+# ── CONFIGURAR CREDENCIALS INTERNES DE CONFIG (MDB/HDB) ───────
+- name: Generar el hash de la contrasenya del Manager per a la configuració interna
+  ansible.builtin.command:
+    cmd: "slappasswd -s '{{ ldap_root_password }}'"
+  register: root_password_hash
+  changed_when: false
+
+- name: Configurar el Domini i la Contrasenya del Manager a OpenLDAP intern
+  ansible.builtin.shell: |
+    ldapmodify -Y EXTERNAL -H ldapi:/// <<EOF
+    dn: olcDatabase={2}mdb,cn=config
+    changetype: modify
+    replace: olcSuffix
+    olcSuffix: {{ ldap_domain_dc }}
+    -
+    replace: olcRootDN
+    olcRootDN: cn=Manager,{{ ldap_domain_dc }}
+    -
+    replace: olcRootPW
+    olcRootPW: {{ root_password_hash.stdout }}
+    EOF
+  register: config_result
+  failed_when:
+    - config_result.rc != 0
+    - "'No such object' not in config_result.stderr"
+  changed_when: config_result.rc == 0
+
+# ── CARREGAR ESQUEMES DE LINUX (MOLT IMPORTANT) ───────────────
+- name: Carregar els esquemes necessaris per a usuaris Linux (cosine, nis, inetorgperson)
+  ansible.builtin.command:
+    cmd: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/{{ item }}.ldif"
+  loop:
+    - cosine
+    - nis
+    - inetorgperson
+  register: schema_result
+  failed_when:
+    - schema_result.rc != 0
+    - "'Duplicate' not in schema_result.stderr"
+    - "'Already exists' not in schema_result.stderr"
+  changed_when: schema_result.rc == 0
+
+# ── 2. PROCESAR E INJECTAR L'ESTRUCTURA BASE ────────────────────────
+- name: Renderitzar l'estructura base des de la plantilla J2
+  ansible.builtin.template:
+    src: base.ldif.j2
+    dest: /tmp/base.ldif
+    mode: '0600'
+
+- name: Cargar l'estructura base a OpenLDAP
+  ansible.builtin.command:
+    cmd: "ldapadd -x -w '{{ ldap_root_password }}' -D 'cn=Manager,{{ ldap_domain_dc }}' -f /tmp/base.ldif"
+  register: base_result
+  failed_when:
+    - base_result.rc != 0
+    - "'Already exists' not in base_result.stderr"
+
+# ── 3. BUCLE PER PROCESAR E INJECTAR MÚLTIPLES USUARIS ─────────────
+- name: Renderitzar la plantilla LDIF per a cada usuari de la llista
+  ansible.builtin.template:
+    src: usuarios.ldif.j2
+    dest: "/tmp/{{ item.username }}.ldif"
+    mode: '0600'
+  loop: "{{ ldap_users }}"
+
+- name: Cargar cada usuari a OpenLDAP de manera individual
+  ansible.builtin.command:
+    cmd: "ldapadd -x -w '{{ ldap_root_password }}' -D 'cn=Manager,{{ ldap_domain_dc }}' -f /tmp/{{ item.username }}.ldif"
+  register: users_result
+  failed_when:
+    - users_result.rc != 0
+    - "'Already exists' not in users_result.stderr"
+  loop: "{{ ldap_users }}"
+```
+### Execució i verificacions:
+
+<img src="../capturas/02-aws/SRV-LDAP-GRUP2/EJECUCION1.png" alt="CAPTURA4_LDAP" width="500">
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/EJECUCION2.png" alt="CAPTURA5_LDAP" width="900"> |
+| :---: |
+| Execució del playbook |
+
+### Verificacions:
+
+Ens conectem via ssh amb l'usuari de gestió i amb filtres ldapsearch mirem que tot s'ha creat correctament:
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/ESTRUCTURA_BASE.png" alt="CAPTURA6_LDAP" width="500"> |
+| :---: |
+| Estructura base |
+
+<img src="../capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_USUARIS.png" alt="CAPTURA7_LDAP" width="900">
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_USUARIS2.png" alt="CAPTURA8_LDAP" width="900"> |
+| :---: |
+| Llista d'Usuaris |
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_GRUPS.png" alt="CAPTURA9_LDAP" width="900"> |
+| :---: |
+| Llista de grups |
 
 ### 2.4 02-aws/logs-centralitzats.md
 
