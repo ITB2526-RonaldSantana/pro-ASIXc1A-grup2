@@ -528,28 +528,28 @@ ansible-cpd/
 ├── inventory.ini
 ├── site.yml
 ├── group_vars/
-│   └── all.yml                      ← variables compartidas (AMI, región, claves, etc.)
+│   └── all.yml
 └── roles/
     ├── common/
-    │   └── tasks/main.yml           ← tareas comunes a todos los servidores
+    │   └── tasks/main.yml
     ├── ec2/
-    │   ├── tasks/main.yml           ← creación de instancias EC2 en AWS
-    │   └── vars/main.yml            ← variables específicas de EC2
+    │   ├── tasks/main.yml
+    │   └── vars/main.yml
     ├── nginx/
-    │   ├── tasks/main.yml           ← instalación y configuración de Nginx
-    │   ├── handlers/main.yml        ← handlers (restart/reload nginx)
-    │   ├── templates/vhost.conf.j2  ← template del virtualhost
-    │   └── vars/main.yml            ← variables específicas de Nginx
-    ├── proftpd/
-    │   ├── tasks/main.yml           ← instalación y configuración de ProFTPD (SFTP)
-    │   ├── templates/proftpd.conf.j2← template configuración ProFTPD
-    │   ├── templates/ldap.conf.j2   ← template integración LDAP
-    │   └── vars/main.yml            ← variables específicas de ProFTPD
+    │   ├── tasks/main.yml
+    │   ├── handlers/main.yml
+    │   ├── templates/vhost.conf.j2
+    │   └── vars/main.yml
+    ├── sftp/                          
+    │   ├── tasks/main.yml             
+    │   ├── templates/sssd.conf.j2     
+    │   ├── templates/sshd_config.j2   
+    │   └── vars/main.yml              
     ├── slapd/
-    │   ├── tasks/main.yml           ← instalación y configuración de OpenLDAP
-    │   ├── templates/base.ldif.j2   ← template estructura base LDAP
-    │   ├── templates/usuarios.ldif.j2← template usuarios LDAP
-    │   └── vars/main.yml            ← variables específicas de OpenLDAP
+    │   ├── tasks/main.yml
+    │   ├── templates/base.ldif.j2
+    │   ├── templates/usuarios.ldif.j2
+    │   └── vars/main.yml
 ```
 ### inventory.ini
  
@@ -577,7 +577,7 @@ Cada rol és independent i conté tot el necessari per desplegar un servei:
 Un dels aspectes més importants és que Ansible no només instal·la els paquets, sinó que també desplega i gestiona els fitxers de configuració de cada servei:
  
 - **Nginx** — virtualhost configurat amb el domini i el directori arrel del projecte
-- **ProFTPD** — `proftpd.conf` amb mode SFTP, chroot per usuari i connexió al servidor LDAP
+- **SFTP** — `sshd_config` configurat amb el subsistema SFTP natiu d'OpenSSH, autenticació d'usuaris via SSSD integrat amb el servidor LDAP i creació automàtica de directoris home amb oddjob
 - **slapd** — fitxers LDIF per crear l'estructura del directori (`ou=users`, `ou=groups`) i els usuaris inicials
 
 ## 2.1.5 Preparació de l'entorn Ansible:
@@ -934,7 +934,7 @@ ldap_users:
     gid: 10001
     home: "/home/sftp/usuari_sftp1"
     shell: "/bin/bash"
-    password: "{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g=" # Hash de la contrasenya (grup2 a tots els usuaris)
+    password: "grup2"   # Salted SHA (SSHA) hash values generated dynamically by template
     gecos: "Compte SFTP 1 - Asier"
 
   - username: "usuari_sftp2"
@@ -944,7 +944,7 @@ ldap_users:
     gid: 10002
     home: "/home/sftp/usuari_sftp2"
     shell: "/bin/bash"
-    password: "{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g="
+    password: "grup2"
     gecos: "Compte SFTP 2 - Pablo"
 
   - username: "usuari_sftp3"
@@ -954,7 +954,7 @@ ldap_users:
     gid: 10003
     home: "/home/sftp/usuari_sftp3"
     shell: "/bin/bash"
-    password: "{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g="
+    password: "grup2"
     gecos: "Compte SFTP 3 - Ronald"
 
   - username: "usuari_sftp4"
@@ -964,7 +964,7 @@ ldap_users:
     gid: 10004
     home: "/home/sftp/usuari_sftp4"
     shell: "/bin/bash"
-    password: "{SHA}W6ph5Mm5Pz8GgiULbPgzG37mj9g="
+    password: "grup2"
     gecos: "Compte SFTP 4 - Godoy"
 ```
 
@@ -1105,9 +1105,230 @@ Ens conectem via ssh amb l'usuari de gestió i amb filtres ldapsearch mirem que 
 
 *Documento vacío.*
 
-### 2.6 02-aws/web-sftp.md
+# 2.6 02-aws/web-sftp.md
 
-*Documento vacío.*
+## 2.6.1 Servei SFTP
+
+Inicialment es va plantejar utilitzar ProFTPD com a servidor SFTP, però durant la posada en marxa es va comprovar que la integració amb SSSD i l'autenticació LDAP presentava problemes de compatibilitat en l'entorn Amazon Linux 2023.
+Per aquest motiu, es va optar per utilitzar el subsistema SFTP natiu d'OpenSSH (openssh-server), que ofereix la mateixa funcionalitat de manera més estable i sense dependències addicionals.
+El rol Ansible sftp s'encarrega de:
+
+- Instal·lar i configurar openssh-server
+- Configurar sshd_config per habilitar el subsistema SFTP
+- Integrar l'autenticació amb LDAP mitjançant SSSD
+- Crear automàticament els directoris home dels usuaris amb oddjob + mkhomedir
+- Aplicar la política criptogràfica LEGACY per compatibilitat amb els hashes SHA-1 del servidor LDAP
+
+### Configuració feta amb Ansible
+
+Primer de tot afegir la nova entrada al nostre `site.yml` perquè associï el nostre servei SFTP al rol `sftp`:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/SITE.png" alt="CAPTURA1_SFTP" width="500"> |
+| :---: |
+| `site.yml` |
+
+Ara hem d'editar les variables del rol `roles/sftp/vars/main.yml`, aquí definirem les dades de connexió amb el servidor LDAP i el port SFTP:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/VARSSFTP.png" alt="CAPTURA2_SFTP" width="500"> |
+| :---: |
+| `roles/sftp/vars/main.yml` |
+
+Ara editem les plantilles d'arxius roles/proftpd/templates/proftpd.conf.j2 i roles/proftpd/templates/ldap.conf.j2.  
+
+`roles/sftp/templates/sshd_config.j2` — configuració d'OpenSSH per habilitar el subsistema SFTP natiu, autenticació per contrasenya i integració amb PAM/SSSD
+
+```yaml
+Include /etc/ssh/sshd_config.d/*.conf
+
+Port 22
+PermitRootLogin no
+
+PasswordAuthentication yes
+UsePAM yes
+
+# Configuración del subsistema interno de SFTP
+Subsystem sftp internal-sftp
+
+# CONFIGURACIÓN DE CHROOT PARA USUARIOS LDAP SFTP
+# ─────────────────────────────────────────────────────────────────────
+Match User usuari_sftp1,usuari_sftp2,usuari_sftp3,usuari_sftp4
+    ChrootDirectory /home/sftp
+    ForceCommand internal-sftp
+    AllowTcpForwarding no
+    X11Forwarding no
+```
+
+`roles/sftp/templates/sssd.conf.j2` — configuració del client LDAP via SSSD: mapatge d'atributs, unitats organitzatives (`ou=usuaris`, `ou=grups`) i creació automàtica de directoris home dels usuaris
+
+```yaml
+[sssd]
+services = nss, pam
+config_file_version = 2
+domains = default
+
+[domain/default]
+id_provider = ldap
+auth_provider = ldap
+
+ldap_uri = ldap://{{ ldap_server_ip }}
+ldap_search_base = {{ ldap_domain_dc }}
+
+ldap_default_bind_dn = cn=Manager,{{ ldap_domain_dc }}
+ldap_default_authtok = {{ ldap_root_password }}
+
+cache_credentials = true
+enumerate = true
+
+# Creación de los home dirs
+fallback_homedir = /home/sftp/%u
+default_shell = /bin/bash
+
+# 1. Evita que SSSD exija certificados TLS/SSL
+ldap_tls_reqcert = allow
+ldap_id_use_start_tls = false
+
+# 2. PERMITE AUTENTICACIÓN POR CONTRASEÑA SIN TLS (EL FIX DEFINITIVO)
+ldap_auth_disable_tls_never_use_in_production = true
+
+# 3. MAPEO CORRECTO DE TUS UNIDADES ORGANIZATIVAS
+ldap_user_search_base = ou=usuaris,{{ ldap_domain_dc }}
+ldap_group_search_base = ou=grups,{{ ldap_domain_dc }}
+```
+`roles/sftp/tasks/main.yml` — el flux d'execució que instal·larà els paquets (`openssh-server`, `sssd`, `oddjob`), crearà l'entorn de directoris, injectarà les configuracions i activarà els serveis necessaris:
+```yaml
+---
+# ─────────────────────────────────────────────
+# PAQUETES NECESARIOS
+# ─────────────────────────────────────────────
+- name: Instalar stack LDAP client + SSH
+  ansible.builtin.dnf:
+    name:
+      - openssh-server
+      - sssd
+      - sssd-ldap
+      - oddjob
+      - oddjob-mkhomedir
+      - authselect
+    state: present
+
+# ─────────────────────────────────────────────
+# DIRECTORIOS Y SSH KEYS
+# ─────────────────────────────────────────────
+- name: Generar hostkeys SSH
+  ansible.builtin.command: ssh-keygen -A
+  args:
+    creates: /etc/ssh/ssh_host_rsa_key
+
+- name: Crear directori base per als usuaris SFTP
+  ansible.builtin.file:
+    path: /home/sftp
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+# ─────────────────────────────────────────────
+# SSSD CONFIG (LDAP CLIENT)
+# ─────────────────────────────────────────────
+- name: Configurar SSSD
+  ansible.builtin.template:
+    src: sssd.conf.j2
+    dest: /etc/sssd/sssd.conf
+    mode: '0600'
+
+# ─────────────────────────────────────────────
+# PARCHE CRYPTO LEGACY (REQUISITO PARA ENTORNO SHA)
+# ─────────────────────────────────────────────
+- name: Cambiar la política criptográfica del sistema a LEGACY para permitir hashes SHA-1
+  ansible.builtin.command: update-crypto-policies --set LEGACY
+  changed_when: true
+
+# ─────────────────────────────────────────────
+# ENABLE SSSD & CLEAN CACHE
+# ─────────────────────────────────────────────
+- name: Vaciar caché previa de SSSD
+  ansible.builtin.command: sss_cache -E
+  changed_when: true
+  failed_when: false
+
+- name: Reiniciar SSSD
+  ansible.builtin.systemd:
+    name: sssd
+    state: restarted
+    enabled: true
+
+# ─────────────────────────────────────────────
+# ENABLE PAM PROFILE (SSSD + MKHOMEDIR)
+# ─────────────────────────────────────────────
+- name: Configurar authselect para activar SSSD y creación automática de homes
+  ansible.builtin.command: authselect select sssd with-mkhomedir --force
+  changed_when: true
+
+- name: Activar oddjobd
+  ansible.builtin.systemd:
+    name: oddjobd
+    state: started
+    enabled: true
+
+# ─────────────────────────────────────────────
+# PARCHE CLOUD-INIT (AWS SSH_PWAUTH)
+# ─────────────────────────────────────────────
+- name: Permitir autenticación por contraseña en cloud-init (AWS EC2 Fix)
+  ansible.builtin.lineinfile:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^ssh_pwauth:.*'
+    line: 'ssh_pwauth: true'
+    state: present
+
+# ─────────────────────────────────────────────
+# SSH CONFIG (SFTP REAL)
+# ─────────────────────────────────────────────
+- name: Configurar sshd_config
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    mode: '0600'
+
+- name: Reiniciar SSH
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+    enabled: true
+```
+
+### Execució i verificacions:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/EXECUCIOSFTP.png" alt="CAPTURA3_SFTP" width="500"> |
+| :---: |
+| Execució del playbook |
+
+Verificació desde una altra màquina que es pot accedir al servei sftp amb un usuari de LDAP i realitzar accions engaviats al seu directori:
+
+Previament he creat un arxiu de prova a la màquina que pujarà l'arxiu al servidor sftp:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/FICHERO_PRUEBA.png" alt="CAPTURA4_SFTP" width="500"> |
+| :---: |
+| Fitxer prova |
+
+Conexió SFTP amb un usuari LDAP desde una màquina en aquest cas he escollit el srv ldap:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/CONEXIONSFTP.png" alt="CAPTURA5_SFTP" width="500"> |
+| :---: |
+| Conexió SFTP |
+
+Comprovació de que l'usuari esta a la seva home i està engaviat:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/HOMEUSUARI.png" alt="CAPTURA6_SFTP" width="500"> |
+| :---: |
+| Demostració Home de l'usuari engaviat |
+
+Pujada d'un fitxer i comprovació de que ha estat correcte:
+
+<img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/SUBIDAFICHERO.png" alt="CAPTURA7_SFTP" width="800">
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/COMPROVACIONFICHERO.png" alt="CAPTURA8_SFTP" width="800"> |
+| :---: |
+| Pujada d'un fitxer i comprovació |
 
 ### Capturas 02-aws
 - `capturas/02-aws/RED/VPC.png` — Diagrama de la VPC.
