@@ -11,7 +11,10 @@
 
 02. [02-aws](02-aws)
   2.1 [ansible.md](02-aws/ansible.md)
-  2.2 [graylog.md](02-aws/graylog.md)
+  2.2 [servei-logs-graylog.md](02-aws/servei-logs-graylog.md)
+  2.3 [ldap.md](02-aws/ldap.md)
+  2.4 [usuaris-admin.md](02-aws/usuaris-admin.md)
+  2.5 [web-sftp.md](02-aws/web-sftp.md)
 
 03. [03-audio](03-audio)
   3.1 [Descripció_de_la_funcionalitat_Audio.md](03-audio/Descripció_de_la_funcionalitat_Audio.md)
@@ -28,6 +31,9 @@
 07. [07-bd](07-bd)
   7.1 [er-diagrama.md](07-bd/er-diagrama.md)
   7.2 [model-relacional.md](07-bd/model-relacional.md)
+  7.3 [backup-event.md](07-bd/backup-event.md)
+  7.4 [rols-permisos.md](07-bd/rols-permisos.md)
+  7.5 [triggers.md](07-bd/triggers.md)
 
 08. [08-1665](08-1665)
   - Sin documentos disponibles
@@ -84,9 +90,18 @@ Aquestes carpetes estan presents però no contenen imatges addicionals per a la 
 
 # 1.1 Infraestructura elèctrica
 
-## Sistemes d'alimentació redundant
+## Objectiu i criteris de disseny
 
-El CPD disposa de **dues línies elèctriques independents** (Línia A i Línia B) que garanteixen la continuïtat del servei en cas de fallada d'una d'elles. A més, com a última capa de protecció, s'incorpora un **grup electrogen de dièsel**.
+L'infraestructura elèctrica del CPD està dissenyada per garantir la disponibilitat dels serveis crítics, la protecció dels equips i la seguretat del personal. Els criteris principals són:
+
+- Redundància de subministrament.
+- Segregació de càrregues per rack.
+- Capacitat d'autonomia per a transicions ordenades.
+- Supervisió i manteniment periòdics.
+
+## Subministrament i redundància
+
+El CPD rep alimentació de dues línies independents (Línia A i Línia B) i compta amb un generador de dièsel de reserva. Cada línia es distribueix de forma separada fins als quadres de protecció per minimitzar el risc de tall simultani.
 
 ```
 Xarxa elèctrica
@@ -96,32 +111,52 @@ Línia A  Línia B
    │        │
    └──┬─────┘
       │
-   [SAI 1]  [SAI 2]  [SAI 3]
-      │        │        │
-   Rack 1   Rack 2   Rack 3
-                            \
-                      [Grup electrogen]
-                       Arrenca en < 30 s
+  ATS/Distribució
+      │
+  ┌──┴────┬────┐
+ [SAI1] [SAI2] [SAI3]
+   │       │      │
+ Rack1  Rack2  Rack3
+      │       │      │
+   [Generador dièsel]
 ```
 
-## SAI (Sistemes d'Alimentació Ininterrompuda)
+## Distribució de càrrega
 
-### Càlcul de la càrrega
+Les càrregues es separen en tres blocs per garantir disponibilitat i flexibilitat:
+
+- **Rack 1**: servidors d'aplicacions i serveis.
+- **Rack 2**: equipament de xarxa i gestió.
+- **Rack 3**: emmagatzematge i còpies de seguretat.
+
+Aquesta segregació facilita el manteniment i limita l'impacte de fallades a un únic domini.
+
+## Càlcul de la càrrega i dimensionament
 
 | Equip | Unitats | W/unitat | Total W |
 |---|---|---|---|
-| Servidors (4 EC2 equiv.) | 4 | 300 W | 1.200 W |
+| Servidors (4 equivalents) | 4 | 300 W | 1.200 W |
 | Switches (core + accés) | 2 | 80 W | 160 W |
 | NAS primari + secundari | 2 | 120 W | 240 W |
 | KVM + patch panels | 1 | 30 W | 30 W |
-| Unitats CRAC (climatitz.) | 2 | 400 W | 800 W |
+| Unitats CRAC (climatització) | 2 | 400 W | 800 W |
 | **Subtotal** | | | **2.430 W** |
-| **Factor de seguretat +20%** | | | **+486 W** |
+| **Marge de seguretat +20 %** | | | **+486 W** |
 | **Càrrega total estimada** | | | **≈ 2.900 W** |
 
-### SAI seleccionats
+Aquest dimensionament incorpora un marge per a futurs creixements i per a desviacions del consum estimat.
 
-S'instal·len **3 SAI de 3.000 VA / 2.700 W**, un per rack:
+Aquestes xifres es basen en una estimació inicial d'ús per part de la infraestructura del CPD:
+
+- 100–150 usuaris finals simultanis a serveis web i SFTP.
+- 10–15 administradors i personal de gestió de TI.
+- 20 connexions internes de serveis per a LDAP, monitoratge i replicació.
+
+Aquestes previsions ajuden a verificar que els SAIs, el generador i la distribució elèctrica són suficients per mantenir el funcionament amb marge de seguretat.
+
+## Selecció i instal·lació dels SAIs
+
+S'instal·len **3 SAIs de 3.000 VA / 2.700 W**, un per rack:
 
 | SAI | Rack | Càrrega protegida | Mòduls EBM |
 |---|---|---|---|
@@ -129,108 +164,137 @@ S'instal·len **3 SAI de 3.000 VA / 2.700 W**, un per rack:
 | SAI 2 | Rack 2 — Xarxa | Switches, firewall, KVM | 2 mòduls |
 | SAI 3 | Rack 3 — Emmagatzematge | NAS primari i secundari | 1 mòdul |
 
-### Càlcul d'autonomia
+Això assegura protecció dedicada i facilita la prova i substitució de cada unitat.
 
-Amb 2 mòduls EBM per SAI, l'autonomia estimada a plena càrrega (2.900 W) és:
+## Autonomia i transició a generador
 
 | Fase | Temps | Acció |
 |---|---|---|
-| 0 min | Tall elèctric | SAI entra en funcionament automàticament |
-| 0–2 min | SAI actiu | Subministrament ininterromput als equips |
-| 2–5 min | Alarma | Notificació automàtica als administradors |
-| 5–10 min | Transició | El grup electrogen arrenca (< 30 s d'arrencada) |
-| 10–25 min | Operació normal | Servidors alimentats pel grup electrogen |
-| 25 min | Màxim SAI | Apagat controlat si el generador no ha arrencat |
+| 0 min | Tall elèctric | Els SAIs proveeixen alimentació immediata |
+| 0–2 min | Estabilització | Tensió estabilitzada i alarma enviada |
+| 2–5 min | Arrencada generador | Generador ences o automàtic |
+| 5–10 min | Commutació | ATS commuta a generador estable |
+| 10–30 min | Operació normal | Funcionament amb generador |
+| > 30 min | Apagat ordenat | Si el generador no està disponible |
 
-> **Conclusió**: els SAI garanteixen un mínim de **25 minuts d'autonomia**, suficients per a un apagat ordenat o per a l'arrencada del grup electrogen.
+> La prioritat és mantenir les càrregues crítiques mentre es controla la resta de sistemes.
 
 ## Grup electrogen
 
 - **Combustible**: dièsel.
-- **Temps d'arrencada**: < 30 segons des de la detecció de fallada.
-- **Autonomia**: il·limitada mentre hi hagi combustible (dipòsit per a 48–72 h d'operació).
-- **Commutació automàtica**: ATS (Automatic Transfer Switch) que commuta a la xarxa comercial quan es restableix el subministrament.
+- **Temps d'arrencada**: < 30 segons.
+- **Autonomia**: 48–72 h amb el dipòsit ple.
+- **Commutació**: ATS automàtica.
+- **Proves**: arrencades mensuals per verificar estat.
+
+## Supervisió i manteniment
+
+- Monitoratge de tensió, corrent i estat de bateria.
+- Revisió periòdica dels quadres i proteccions.
+- Mesura de temperatura i humitat al voltant dels SAIs i generador.
+- Inspecció anual del cablejat i connexions.
 
 ### 1.2 01-cpd-fisic/1.2-infraestructura-it.md
 
 # 1.2 Infraestructura IT
 
-## Servidors
+## Objectiu i arquitectures
 
-El CPD disposa de **4 servidors** instal·lats al Rack 1, cadascun dedicat a un servei específic (sense AMIs preconfigurades del marketplace d'AWS):
+Aquesta secció descriu com s'organitzen els serveis del CPD, la xarxa de comunicacions i la infraestructura física de suport per garantir la disponibilitat, la seguretat i la gestió centralitzada.
 
-| Servidor | Servei | Instància AWS |
+## Serveis i separació de funcions
+
+La infraestructura IT es distribueix en servidors amb funcions específiques per evitar interferències entre serveis i permetre una gestió més clara.
+
+| Servidor | Funció principal | Instància tipus |
 |---|---|---|
-| Servidor 1 | Servei web (Apache/Nginx) + SFTP (OpenSSH autenticat via LDAP) | EC2 t3.small |
-| Servidor 2 | Directori actiu LDAP (OpenLDAP / Samba AD) + Centralització de logs (Graylog + Opensearch) | EC2 t3.small |
-| Servidor 3 | Streaming àudio (Icecast) + Vídeo (NGINX-RTMP) + Base de dades (MySQL/MariaDB) | EC2 t3.medium |
+| Servidor 1 | Web i SFTP — Apache/Nginx, OpenSSH autenticat amb LDAP | EC2 t3.small |
+| Servidor 2 | LDAP i logs — OpenLDAP, Graylog, OpenSearch | EC2 t3.small |
+| Servidor 3 | Streaming àudio/vídeo i base de dades — Icecast, NGINX-RTMP, MariaDB | EC2 t3.medium |
 | Servidor 4 | Backups automatitzats | EC2 t3.micro |
 
-> Cada servei s'instal·la en un servidor diferent, a excepció del servei web i SFTP que comparteixen instància.
+Aquesta separació facilita l'escalabilitat i minimitza l'impacte de fallades de servei.
+
+## Càrrega de serveis i usuaris
+
+Aquest disseny es basa en una estimació d'ús orientada a 100–150 usuaris finals actius simultanis i els següents patrons de servei:
+
+- **Servei web i SFTP**: fins a 100 connexions concorrents, amb una base de 200–300 usuaris registrats per dia, gestió de fitxers i descàrregues de contingut.
+- **LDAP i logs**: 50 consultes d'autenticació per minut i 10 serveis interns enviant logs en temps real.
+- **Streaming d'àudio i vídeo**: 20 fluxos simultanis de reproducció, 50 oients/visualitzadors concorrents i 50 connexions a la base de dades.
+- **Backups**: 4 treballs programats per nit amb transferència de 150–200 GB diaris.
+
+Aquesta quantificació justifica l'ús d'instàncies EC2 de tipus t3.small per serveis de gestió i directoris, i t3.medium per a càrregues de streaming i BD amb memòria addicional.
+
+## Gestió centralitzada amb Ansible
+
+L'automatització amb **Ansible** aporta:
+
+- Configuració reproductible dels equips.
+- Desplegaments consistents i controlats.
+- Menor necessitat d'accés manual per SSH a cada host.
+- Documentació de playbooks i inventaris.
 
 ### Administració dels servidors
 
-- Accés únicament amb **usuari específic no-root** creat manualment.
-- Autenticació exclusivament per **clau pública/privada SSH** (sense contrasenyes).
-- Mínim **2 màquines configurades amb Ansible** (playbooks documentats al GitHub).
+- Ús d'un **usuari no-root** dedicat per a gestió.
+- Autenticació amb **clau pública/privada SSH**.
+- Màquina de control Ansible separada dels hosts gestionats.
+- Inventari estructurat per rols i grups.
 
-## Patch panels
+## Xarxa i segmentació
 
-- **2 patch panels de 24 ports Cat6A** al Rack 1 (dades).
-- **1 patch panel de fibra òptica** al Rack 3 (connexió entre racks i cap a l'exterior).
-- Tots els cables etiquetats en ambdós extrems.
+La xarxa es segmenta per controlar l'accés i disminuir els riscos:
 
-## Switches
+| VLAN | Nom | Ús | Ports/serveis |
+|---|---|---|---|
+| VLAN 10 | Servidors | Comunicacions internes | Ports de serveis interns |
+| VLAN 20 | Administració | Accés SSH i gestió | SSH, SNMP, monitoratge |
+| VLAN 30 | DMZ | Serveis públics | HTTP/HTTPS, RTMP, SFTP |
 
-| Dispositiu | Ubicació | Descripció |
+## Components de xarxa i cablejat
+
+### Switches
+
+| Dispositiu | Ubicació | Funció |
 |---|---|---|
-| Switch core | Rack 2 | Cisco Catalyst 2960 — gestió de VLANs i enrutament intern |
-| Switch d'accés | Rack 2 | 48 ports — connexió de servidors i dispositius finals |
+| Switch core | Rack 2 | Distribució de trànsit entre racks i VLANs |
+| Switch d'accés | Rack 2 | Connexió de servidors i NAS |
 
-### VLANs configurades
+### Patch panels
 
-| VLAN | Nom | Ús |
-|---|---|---|
-| VLAN 10 | Servidors | Trànsit entre servidors |
-| VLAN 20 | Administració | Accés SSH i gestió |
-| VLAN 30 | DMZ | Serveis exposats a Internet |
+- **2 patch panels Cat6A de 24 ports** a Rack 1.
+- **1 patch panel de fibra òptica** a Rack 3.
+- Etiquetatge bidireccional per manteniment ràpid.
 
-## Diagrama de distribució dels racks
+### Connexions entre racks
 
-```
-┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐
-│     RACK 1      │   │     RACK 2      │   │     RACK 3      │
-│   Servidors     │   │     Xarxa       │   │ Emmagatzematge  │
-├─────────────────┤   ├─────────────────┤   ├─────────────────┤
-│ Patch panel 24p │   │ Switch core     │   │ NAS primari     │
-│ Servidor 1      │   │ Switch accés    │   │  └ RAID 5 24TB  │
-│ Servidor 2      │   │ Firewall        │   │ NAS secundari   │
-│ Servidor 3      │   │ Patch panel 24p │   │  └ RAID 6       │
-│ Servidor 4      │   │ KVM Switch      │   │ Patch panel     │
-│                 │   │                 │   │  fibra òptica   │
-│ SAI 1           │   │ SAI 2           │   │ SAI 3           │
-│ 3000VA / 2700W  │   │ 3000VA / 2700W  │   │ 1500VA          │
-└─────────────────┘   └─────────────────┘   └─────────────────┘
-        │                     │                     │
-        └─────────────────────┴─────────────────────┘
-                    Connexions Cat6A / Fibra
-```
+- **Rack 1 ↔ Rack 2**: Cat6A des del patch panel de Rack 1 al switch core de Rack 2.
+- **Rack 2 ↔ Rack 3**: Cat6A del switch d'accés als NAS.
+- **Tots els racks**: fibra òptica per a trànsit d'alta capacitat.
 
-## Connexions entre racks
+## Disponibilitat i manteniment
 
-- **Rack 1 ↔ Rack 2**: Cat6A des del patch panel del Rack 1 al switch core del Rack 2.
-- **Rack 2 ↔ Rack 3**: Cat6A des del switch d'accés al NAS primari i secundari.
-- **Tots els racks**: connexió de fibra òptica per al trànsit d'alta velocitat entre racks.
+- Configuració física separada per facilitar l'actualització d'un rack sense impactar els altres.
+- Monitoratge de rendiment i condicions ambientals.
+- Revisions periòdiques del cablejat i de l'equipament de xarxa.
 
 ### 1.3 01-cpd-fisic/1.3-prevencio-rrll.md
 
 # Prevenció de riscos laborals (RRLL)
 
-## Mesures aplicades al CPD
+## Objectiu
 
-La sala del CPD incorpora les mesures de prevenció de riscos laborals obligatòries d'acord amb la normativa vigent (Llei 31/1995 de Prevenció de Riscos Laborals i el Reial Decret 486/1997 sobre llocs de treball).
+Aquesta secció defineix els riscos específics del CPD i les mesures de prevenció necessàries per garantir la seguretat del personal i la protecció dels equips.
 
----
+## Metodologia d'avaluació
+
+L'avaluació de riscos es basa en:
+
+- Identificació dels perills.
+- Anàlisi de probabilitat i impacte.
+- Controls tècnics i organitzatius.
+- Revisió periòdica i millora contínua.
 
 ## Riscos identificats i mesures preventives
 
@@ -238,67 +302,66 @@ La sala del CPD incorpora les mesures de prevenció de riscos laborals obligatò
 
 | Mesura | Descripció |
 |---|---|
-| Instal·lació elèctrica certificada | Revisió periòdica per electricista autoritzat |
-| Posada a terra | Tots els racks i equips connectats a terra |
-| Protecció de quadres elèctrics | Armaris tancats amb clau, accés restringit |
-| EPIs disponibles | Guants aïllants i calçat de seguretat disponibles a la sala |
-| Senyalització | Pictogrames de risc elèctric visibles en tots els quadres |
+| Instal·lació certificada | Revisió per electricista autoritzat |
+| Posada a terra | Racks i equips connectats a terra |
+| Armari elèctric protegit | Quadres amb tancament i accés restringit |
+| EPIs | Guants, calçat i ulleres de protecció |
+| Senyalització | Pictogrames i etiquetatge clar |
 
 ### Risc d'incendi
 
 | Mesura | Descripció |
 |---|---|
-| Sistema FM-200 / Novec | Extinció automàtica sense danyar equips ni persones |
-| Detectors de fum | Al sostre tècnic i sota el sòl tècnic |
-| Alarma contra incendis | Integrada amb el sistema general de l'edifici |
-| Vies d'evacuació | Senyalitzades amb llum d'emergència, lliures d'obstacles |
-| Extintors | CO₂ (aptes per a focs elèctrics) a l'entrada de la sala |
-| Formació | Tot el personal autoritzat format en extinció i evacuació |
+| Sistema FM-200 / Novec | Extinció automàtica sense danyar equips |
+| Detectors de fum | Sostre tècnic i sota el sòl tècnic |
+| Alarma integrada | Amb la infraestructura de l'edifici |
+| Vies d'evacuació | Il·luminació i accessos clars |
+| Extintors CO₂ | A la porta del CPD |
+| Formació | Personal format en extinció i evacuació |
 
 ### Risc ergonòmic
 
 | Mesura | Descripció |
 |---|---|
-| Alçada dels racks | Els equips de manipulació freqüent situats entre 0,5 m i 1,7 m d'alçada |
-| Eines de suport | Carros elevadors i safates lliscants per a servidors pesants |
-| Il·luminació | Mínima 500 lux a la zona de treball (normativa UNE-EN 12464-1) |
-| Espai de pas | Passadissos mínims de 1,2 m d'amplada entre racks |
+| Alçada dels racks | Equips de fàcil accés entre 0,5 i 1,7 m |
+| Eines de suport | Carros elevadors i safates lliscants |
+| Il·luminació | Mínim 500 lux a la zona de treball |
+| Espai de pas | Passadissos mínims de 1,2 m |
 
-### Risc ambiental (soroll i temperatura)
+### Risc ambiental
 
 | Mesura | Descripció |
 |---|---|
-| Nivell de soroll | Els equips CRAC i servidors generen ~70–80 dB; ús de protectors auditius obligatori en tasques de durada > 30 min |
-| Temperatura de treball | Mantinguda entre 18–27 °C per als equips; el personal disposa d'accés a zones amb temperatura de confort |
-| Roba adequada | En zones de passadís fred s'ha de portar roba d'abric si la tasca és prolongada |
+| Soroll | Protectors auditius per tasques llargues |
+| Temperatura | 18–27 °C per als equips |
+| Humitat | 40–60 % HR per evitar estàtica i condensació |
+| Qualitat de l'aire | Filtratge de les unitats CRAC |
 
 ### Risc de caigudes i cops
 
 | Mesura | Descripció |
 |---|---|
-| Sòl tècnic | Les baldoses estan fixades i senyalitzades; es col·loquen plafons de senyalització quan s'aixequen per manteniment |
-| Il·luminació d'emergència | Activada automàticament en cas de tall elèctric |
-| Ordre i neteja | Política de zero cables al sòl; tots els cables passen pel sòl o sostre tècnic |
-
----
+| Sòl tècnic protegit | Baldoses fixades i senyalitzades |
+| Il·luminació d'emergència | Activació automàtica en tall elèctric |
+| Ordre i neteja | Política de zero cables al sòl |
+| Control d'accés | Menys personal dins la sala |
 
 ## Procediments de seguretat
 
-1. **Treball en parella**: cap tasca de manteniment elèctric es realitza en solitari.
-2. **Permís de treball**: qualsevol intervenció a la sala requereix registre previ al sistema de control d'accés.
-3. **Formació obligatòria**: tot el personal que accedeix al CPD ha de tenir formació bàsica en PRL (mínim 6 hores).
-4. **Simulacres d'evacuació**: mínim 1 simulacre anual documentat.
-5. **Botiquí de primers auxilis**: disponible a l'exterior immediat de la sala del CPD.
-
----
+1. **Treball en parella**: qualsevol tasca de manteniment es fa amb dues persones.
+2. **Permís de treball**: registre previ per accedir al CPD.
+3. **Formació obligatòria**: formació en PRL, mínim 6 hores.
+4. **Simulacres anuals**: evacuació i dispositius d'extinció.
+5. **Botiquí**: equipat i accessible fora de la sala.
+6. **Inspecció periòdica**: revisió documentada de sistemes i equips.
 
 ## Normativa de referència
 
-- Llei 31/1995, de 8 de novembre, de Prevenció de Riscos Laborals.
-- Reial Decret 486/1997: disposicions mínimes de seguretat i salut en els llocs de treball.
-- Reial Decret 614/2001: disposicions mínimes per a la protecció de la salut i seguretat dels treballadors davant el risc elèctric.
-- Norma UNE-EN 12464-1: il·luminació de llocs de treball interiors.
-- Norma TIA-942: estàndard d'infraestructura de telecomunicacions per a CPDs.
+- Llei 31/1995, de Prevenció de Riscos Laborals.
+- Reial Decret 486/1997 sobre condicions mínimes de treball.
+- Reial Decret 614/2001 sobre risc elèctric.
+- UNE-EN 12464-1 d'il·luminació dels llocs de treball.
+- TIA-942 per a infraestructures CPD.
 
 ### 1.4 01-cpd-fisic/1.4-seguretat-fisica-logica.md
 
@@ -306,192 +369,185 @@ La sala del CPD incorpora les mesures de prevenció de riscos laborals obligatò
 
 ## Seguretat física
 
+### Objectiu
+
+Protegir l'accés físic i l'entorn del CPD per evitar intrusions, danys als equips i incidents ambientals.
+
 ### Control d'accés
 
-- **Doble factor obligatori**: lector de targeta RFID + teclado PIN.
-- La porta és **blindada** amb tancament electromagnètic en mode **fail-secure** (tanca en cas de fallada elèctrica).
-- Registre automàtic de totes les entrades i sortides amb timestamp i identificació d'usuari.
-- Accés restringit exclusivament al personal autoritzat amb fitxa individual.
+- Accés amb **lector RFID + teclat PIN**.
+- Porta **blindada** amb tancament electromagnètic en mode **fail-secure**.
+- Registre d'entrades i sortides amb timestamp.
+- Accés només per personal autoritzat i fitxat.
+- Auditories d'accés periòdiques.
 
 ### Videovigilància
 
 | Element | Especificació |
 |---|---|
-| Càmeres | 3 càmeres IP domo 180° |
-| Cobertura | 2 interiors (cantonades) + 1 exterior (porta) |
-| Gravació | Contínua 24/7 en NVR local |
-| Retenció | Mínim 30 dies |
-| Visió nocturna | Infraroja (IR) |
+| Càmeres | 3 IP domo 180° |
+| Cobertura | 2 interiors + 1 exterior |
+| Gravació | 24/7 en NVR local |
+| Retenció | 30 dies |
+| Visió nocturna | Infraroja |
 
-### Prevenció, detecció i extinció d'incendis
+### Prevenció i detecció d'incendis
 
-- **Sistema d'extinció**: gas inert **FM-200** (o Novec 1230).
-  - No danya els equips electrònics.
-  - No deixa residu.
-  - Actua en menys de 10 segons.
-- **Detectors de fum i temperatura**: al sostre tècnic i sota el sòl tècnic.
-- **Alarma contra incendis**: integrada amb el sistema de control d'accés (obtura portes cortafoc).
+- Extinció amb **FM-200 / Novec 1230**.
+- Detectors de fum i temperatura al sostre tècnic i sota el sòl tècnic.
+- Alarma integrada amb la resta de l'edifici.
+- Ports cortafoc i senyalització d'emergència.
+- Extintors CO₂ a l'entrada del CPD.
 
-### Vies d'evacuació
+### Control d'humitat i ambient
 
-- Senyalització lluminosa d'emergència en tots els punts de sortida.
-- Porta d'emergència amb barra antipànic (fail-open en cas d'incendi).
-- Pla d'evacuació visible a l'entrada de la sala.
+- Temperatura objectiu: **18–27 °C**.
+- Humitat relativa: **40–60 %**.
+- Control automàtic amb unitats CRAC.
+- Segellat de forats i passacables amb materials ignífugs.
+- Porta hermètica amb junta perimetral.
+- Prohibició de canonades d'aigua dins la sala.
 
-### Control d'humitat
+### Detecció addicional
 
-Els nivells objectiu de humitat relativa (HR) se situen entre el **40% i el 60%**:
-
-- Per sota del 40%: risc d'electricitat estàtica que pot danyar components electrònics.
-- Per sobre del 60%: risc de condensació sobre circuits i connectors.
-
-**Mesures preventives:**
-
-- Les unitats **CRAC** ja incorporen control d'humitat integrat — deshumidifiquen quan la HR puja i humidifiquen quan baixa. És la primera línia de defensa.
-- **Segellat de forats i passacables**: totes les entrades de cables al sòl tècnic, parets i sostre tècnic han d'estar segellades amb escuma ignífuga o masilla tallafoc. Els forats sense segellar són la principal via d'entrada d'humitat exterior.
-- **Vapor barrier**: làmina de polietilè sota el sòl tècnic si l'edifici té risc d'humitat ascendent.
-- **Porta hermètica**: la porta blindada disposa de junta de goma perimetral per evitar la infiltració d'aire humit de l'exterior.
-- **Cap canonada d'aigua** sobre els racks ni passant per la sala. Les unitats CRAC tenen circuit tancat propi.
-
-**Detecció:**
-
-- **Sensors de temperatura i humitat** en tres punts: entrada d'aire fred (sota el sòl tècnic), sortida d'aire calent (sostre) i zona central de la sala.
-- **Cable detector d'aigua** sota el sòl tècnic, especialment sota les unitats CRAC, on pot haver-hi condensació. Genera alarma en contacte amb qualsevol líquid.
-- **Integració amb Zabbix/Grafana**: alerta automàtica si la HR surt del rang 40–60% durant més de 15 minuts.
-
-| Mesura | Tipus | Especificació |
-|---|---|---|
-| Unitats CRAC amb control HR | Preventiva | Manté 40–60% HR |
-| Segellat de forats i passacables | Preventiva | 100% dels orificis |
-| Sensors HR + temperatura | Detecció | Alerta si HR < 40% o > 60% |
-| Cable detector d'aigua | Detecció | Sota sòl tècnic i CRAC |
-| Cap canonada d'aigua sobre racks | Preventiva | Norma de disseny |
-
----
+- Sensors de temperatura i humitat en tres punts.
+- Cable detector d'aigua sota el sòl tècnic.
+- Alertes integrades amb el sistema de monitoratge.
 
 ## Seguretat lògica
 
-### Restricció d'accés per autorització
+### Principis bàsics
 
-- Tots els servidors s'administren amb un **usuari específic no-root**.
-- Autenticació exclusivament per **clau pública/privada SSH** (sense contrasenyes).
-- Accés per rol: cada usuari/rol té únicament els permisos mínims necessaris (principi de mínim privilegi).
+Aplicar el principi del mínim privilegi i segregar les xarxes per reduir l'impacte de possibles incidents.
 
-### Firewalls
+### Identitat i accés
 
-- **pfSense / OPNsense** en VM dedicada com a firewall perimetral.
-- Regles molt restrictives: només es permet el trànsit necessari per port i protocol.
-- Xarxa segmentada en VLANs independents:
+- Gestió amb **usuari no-root** per a administració.
+- Autenticació per **clau SSH**.
+- Permisos limitats segons rol.
 
-| VLAN | Nom | Accés permès |
+### Firewall i segmentació
+
+- Firewall perimetral amb **pfSense / OPNsense**.
+- Regles restrictives per port i protocol.
+- Segmentació de xarxa en VLANs.
+
+| VLAN | Nom | Ús |
 |---|---|---|
-| VLAN 10 | Servidors | Trànsit intern entre servidors |
-| VLAN 20 | Administració | SSH, consoles de gestió |
-| VLAN 30 | DMZ | HTTP/HTTPS, RTMP, ports de streaming |
+| VLAN 10 | Servidors | Comunicació interna segura |
+| VLAN 20 | Administració | SSH i gestió |
+| VLAN 30 | DMZ | Serveis públics |
 
-### Monitorització
+### Monitoratge i alertes
 
-- **Zabbix** o **Prometheus + Grafana** per a mètriques de:
-  - CPU, RAM i ús de disc de cada servidor.
-  - Temperatura i humitat de la sala.
-  - Trànsit de xarxa per VLAN.
-- Alertes automàtiques per **correu electrònic i Telegram** davant de qualsevol anomalia.
+- Monitoratge de recursos i condicions ambientals.
+- Alertes per email i Telegram.
+- Registre de logs per auditories.
 
-### Còpies de seguretat / Backups
-
-S'aplica la **regla 3-2-1**:
+### Backups i recuperació
 
 | Còpia | Suport | Ubicació |
 |---|---|---|
 | Còpia 1 | NAS primari (RAID 5) | Local — Rack 3 |
 | Còpia 2 | NAS secundari (RAID 6) | Local — Rack 3 |
-| Còpia 3 | AWS S3 | Offsite (núvol) |
+| Còpia 3 | AWS S3 | Offsite |
 
-- **Còpies incrementals diàries** i **còpies completes setmanals**.
+- Còpies incrementals diàries.
+- Còpies completes setmanals.
 - Retenció de 30 dies.
-- Verificació d'integritat mensual (restore test).
+- Proves de restauració mensuals.
 
-### RAIDs
+### Emmagatzematge RAID
 
-| NAS | Tipus RAID | Discos | Tolerància a fallades |
+| NAS | Tipus RAID | Discos | Tolerància |
 |---|---|---|---|
-| NAS primari | RAID 5 | Mínim 3 | 1 disc simultani |
-| NAS secundari | RAID 6 | Mínim 4 | 2 discos simultanis |
+| NAS primari | RAID 5 | Mínim 3 | 1 disc |
+| NAS secundari | RAID 6 | Mínim 4 | 2 discos |
 
-> Els RAIDs proporcionen **continuïtat del servei** davant de fallada de disc, però **no substitueixen els backups**.
+> RAID protegeix contra fallades de disc, però no substitueix els backups fora de lloc.
 
 ### 1.5 01-cpd-fisic/1.5-ubicacio.md
 
 # Ubicació física del CPD
 
-## Situació a l'edifici
+## Criteris d'elecció
 
-La sala del CPD s'ubica en una **planta intermèdia** de l'edifici, evitant:
+La sala del CPD es situa en una **planta intermèdia** per combinar seguretat i accessibilitat:
 
-- **Planta baixa**: vulnerable a inundacions i accessos no autoritzats.
-- **Última planta**: exposada a filtracions d'aigua de pluja i variacions tèrmiques extremes.
+- Evita inundacions de la planta baixa.
+- Evita filtracions o calor extremes de la planta alta.
+- Permet un accés controlat des d'àrees tècniques.
+- Redueix sorolls externs i vibracions.
 
-La sala no disposa de finestres exteriors i l'accés físic només és possible des d'una zona restringida de l'edifici, no des de passadissos comuns.
+## Característiques de l'espai
 
-## Mesures per dificultar la identificació de la sala
+- Sense finestres exteriors.
+- Accés només des de zones restringides.
+- Aspecte de sala tècnica genèrica per reduir la visibilitat.
 
-- La porta no porta cap retolació identificativa.
-- S'integra visualment com una sala tècnica genèrica.
-- Sense senyalització externa que indiqui la presència d'equipament crític.
-- Accés únicament des de zona de pas restringida al personal autoritzat.
+## Protecció d'identitat i accés
 
-## Distribució i gestió del cablejat
+- Porta sense retolació identificativa.
+- Accés exclusiu per personal autoritzat.
+- Sensors d'intrusió i control d'accés integrats.
 
-- **Sòl tècnic**: elevat entre 30–45 cm sobre el sòl estructural. Per aquest espai circulen:
-  - Cables de dades (Cat6A i fibra òptica)
-  - Cables elèctrics
-  - Aire fred provinent de les unitats CRAC
-  - Les baldoses són metàl·liques antiestàtiques.
+## Cablejat i estructura tècnica
 
-- **Sostre tècnic**: bandeja de cablejat per sobre dels racks per al retorn de l'aire calent i els cables d'alimentació. Alçada lliure mínima de 2,5 m sobre el sòl tècnic.
+### Sòl tècnic
 
-## Sistema de climatització
-
-S'utilitzen unitats **CRAC** (Computer Room Air Conditioning) amb flux d'aire fred per sòl tècnic, seguint el model de contenció d'aire calent/fred:
-
-| Zona | Temperatura | Humitat relativa |
-|---|---|---|
-| Passadís fred | 18–21 °C | 40–60% |
-| Passadís calent | 27–35 °C | — |
-| General sala | 18–27 °C | 40–60% |
-
-- Sistemes redundants N+1: si una unitat CRAC falla, l'altra assumeix la càrrega total.
-- Dos unitats CRAC (CRAC 1 i CRAC 2) situades als extrems de la sala.
-- Filtratge d'aire per eliminar partícules i mantenir la qualitat de l'aire.
-
-## Terra tècnic i sostre tècnic
-
-### Terra tècnic
-- Alçada: 40 cm sobre el sòl estructural.
-- Material: baldoses metàl·liques antiestàtiques de 60×60 cm.
-- Funció: distribució d'aire fred, pas de cablejat de dades i elèctric.
+- Altura: 40 cm.
+- Material: baldoses metàl·liques antiestàtiques.
+- Funcions: aire fred, cables de dades, cables elèctrics.
 - Càrrega màxima: 1.000 kg/m².
 
 ### Sostre tècnic
-- Bandejas de cablejat per a cables elèctrics i de dades.
-- Retorn de l'aire calent cap a les unitats CRAC.
-- Sistemes de detecció d'incendis integrats.
 
-## Estructuració dels racks
+- Bandeja de cablejat per a alimentació i dades.
+- Retorn de l'aire calent cap als CRAC.
+- Detectores d'incendis integrats.
 
-El CPD disposa de **3 racks** distribuïts seguint el model de passadissos freds/calents:
+### Gestió del cablejat
+
+- Etiquetatge a ambdós extrems.
+- Separació de cables de dades i elèctrics.
+- Recorruts nets i ordenats.
+- Política de zero cables a terra.
+
+## Climatització i condicions ambientals
+
+S'utilitzen unitats **CRAC** amb flux d'aire fred per sòl tècnic.
+
+| Zona | Temperatura | Humitat relativa |
+|---|---|---|
+| Passadís fred | 18–21 °C | 40–60 % |
+| Passadís calent | 27–35 °C | — |
+| Sala general | 18–27 °C | 40–60 % |
+
+- Sistema **N+1**: una unitat reemplaça l'altra si falla.
+- Filtratge d'aire per reduir partícules.
+- Control de humitat per evitar estàtica i condensació.
+
+## Organització dels racks
 
 | Rack | Contingut principal |
 |---|---|
-| Rack 1 | Servidors (Web, SFTP, LDAP, Logs, Àudio/Vídeo, BD, Backups) + SAI 1 |
-| Rack 2 | Equipament de xarxa (Switch core, Switch accés, Firewall, Patch panels, KVM) + SAI 2 |
-| Rack 3 | Emmagatzematge (NAS primari RAID 5, NAS secundari RAID 6, Fibra) + SAI 3 |
+| Rack 1 | Servidors i serveis aplicatius |
+| Rack 2 | Xarxa, firewall i gestió |
+| Rack 3 | Emmagatzematge i backups |
 
-La disposició segueix el patró:
+### Patró fred/calor
 
 ```
-[CRAC 1] | Passadís Fred | RACK 1 | Passadís Calent | RACK 2 | Passadís Fred | RACK 3 | [CRAC 2]
+[CRAC 1] | Passadís fred | RACK 1 | Passadís calent | RACK 2 | Passadís fred | RACK 3 | [CRAC 2]
 ```
+
+Aquesta distribució optimitza el flux d'aire i millora l'eficiència de refrigeració.
+
+## Escalabilitat i manteniment
+
+- L'espai permet l'afegit d'un rack addicional si cal.
+- El cablejat i les canalitzacions preveuen capacitat futura.
+- Els accessos i etiquetatges faciliten el manteniment sense impactar serveis crítics.
 
 ---
 
@@ -1097,7 +1153,7 @@ Ens conectem via ssh amb l'usuari de gestió i amb filtres ldapsearch mirem que 
 | :---: |
 | Llista de grups |
 
-### 2.4 02-aws/logs-centralitzats.md
+### 2.4 02-aws/servei-logs-graylog.md
 
 *Documento vacío.*
 
@@ -1339,6 +1395,31 @@ Pujada d'un fitxer i comprovació de que ha estat correcte:
 - `capturas/02-aws/RED/TABLAPRIVADA.png` — Taula de rutes de la subnet privada.
 - `capturas/02-aws/RED/ROUTEPUBLICA.png` — Regla de ruta pública.
 - `capturas/02-aws/RED/ROUTENAT.png` — Regla de ruta NAT.
+- `capturas/02-aws/RED/IPELASTICA.png` — IP elàstica configurada.
+- `capturas/02-aws/CREACION-NODO-ANSIBLE.png` — Creació del node Ansible.
+- `capturas/02-aws/ASIGNACION-IP-FIJA-PUBLICA.png` — Assignació d’IP pública fixa.
+- `capturas/02-aws/ESTRUCTURA-CARPETAS.png` — Estructura de carpetes de l’entorn Ansible.
+- `capturas/02-aws/CREDENCIALES-CONFIGURADAS.png` — Credencials d’AWS configurades.
+- `capturas/02-aws/INSTALACION-BOTO3.png` — Instal·lació de boto3.
+- `capturas/02-aws/VARIABLES_CREACIO_INSTANCIES.png` — Variables de creació d’instàncies.
+- `capturas/02-aws/VARIABLES-ROL.png` — Variables de rol.
+- `capturas/02-aws/SITE.png` — Fitxer site Ansible inicial.
+- `capturas/02-aws/SITE_ACTUALITZAT.png` — Fitxer site Ansible actualitzat.
+- `capturas/02-aws/INVENTORY.png` — Inventari Ansible.
+- `capturas/02-aws/INVENTARI_ACTUALITZAT.png` — Inventari Ansible actualitzat.
+- `capturas/02-aws/INVENTARI_ACTUALITZAT2.png` — Inventari Ansible addicional.
+- `capturas/02-aws/PINGINVENTARI.png` — Ping d’inventari Ansible.
+- `capturas/02-aws/PING_INVENTARI2.png` — Ping d’inventari Ansible addicional.
+- `capturas/02-aws/EJECUCION1.png` — Execució Ansible pas 1.
+- `capturas/02-aws/EJECUCION2.png` — Execució Ansible pas 2.
+- `capturas/02-aws/EJECUCION3.png` — Execució Ansible pas 3.
+- `capturas/02-aws/EXECUCIO_COMU.png` — Execució comuna d’Ansible.
+- `capturas/02-aws/VERIFICACION1.png` — Verificació Ansible pas 1.
+- `capturas/02-aws/VERIFICACION2.png` — Verificació Ansible pas 2.
+- `capturas/02-aws/VERIFICACION3.png` — Verificació Ansible pas 3.
+- `capturas/02-aws/GENERAR_CLAU.png` — Generació de clau SSH.
+- `capturas/02-aws/VARIABLES_COMUNS.png` — Variables comunes.
+- `capturas/02-aws/HANDLERCOMUN.png` — Handlers comuns.
 - `capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png` — Captura del servidor Ansible.
 - `capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png` — Captura del servidor LDAP.
 - `capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png` — Captura del servidor de bases de dades.
@@ -1347,6 +1428,31 @@ Pujada d'un fitxer i comprovació de que ha estat correcte:
 - `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png` — Procés de creació Web/SFTP, pas 2.
 - `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png` — Procés de creació Web/SFTP, pas 3.
 - `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png` — Procés de creació Web/SFTP, pas 4.
+- `capturas/02-aws/SRV-LDAP-GRUP2/SITEYML_LDAP.png` — Fitxer site LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/JINJA_BASE.png` — Plantilla Jinja base LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/JINJA_USUARIS.png` — Plantilla Jinja de creació d’usuaris.
+- `capturas/02-aws/SRV-LDAP-GRUP2/EJECUCION1.png` — Execució de playbook LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/EJECUCION2.png` — Execució de playbook LDAP (resultats).
+- `capturas/02-aws/SRV-LDAP-GRUP2/ESTRUCTURA_BASE.png` — Estructura base del directori LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_USUARIS.png` — Llista d’usuaris LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_USUARIS2.png` — Llista addicional d’usuaris LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_GRUPS.png` — Llista de grups LDAP.
+- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-JAVA.png` — Instal·lació de Java per Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-MONGO.png` — Instal·lació de MongoDB.
+- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-OPENSEARCH.png` — Instal·lació d’OpenSearch.
+- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-GRAYLOG.png` — Instal·lació de Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-OPENSEARCH.png` — Preparació d’OpenSearch.
+- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-OPENSEARCH2.png` — Segona preparació d’OpenSearch.
+- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-GRAYLOG.png` — Preparació de Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-GRAYLOG2.png` — Segona preparació de Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/SERVERCONF-GRAYLOG.png` — Configuració del servidor Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/REPOSITORIO-MONGO.png` — Repositori MongoDB.
+- `capturas/02-aws/SRV-LOGS-GRUP2/REPOSITORIO-OPENSEARCH.png` — Repositori OpenSearch.
+- `capturas/02-aws/SRV-LOGS-GRUP2/HOME-JAVA.png` — Pàgina d’inici de Java.
+- `capturas/02-aws/SRV-LOGS-GRUP2/JAVA-COMPROBACION.png` — Comprovació de Java.
+- `capturas/02-aws/SRV-LOGS-GRUP2/MONGODB-COMPROBACION.png` — Comprovació de MongoDB.
+- `capturas/02-aws/SRV-LOGS-GRUP2/GRAYLOG-COMPROBACION.png` — Comprovació de Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/GRAYLOG-PAGINA.png` — Pàgina de Graylog.
 
 ![VPC](../capturas/02-aws/RED/VPC.png)
 ![Subnet pública](../capturas/02-aws/RED/SUBNETPublica.png)
