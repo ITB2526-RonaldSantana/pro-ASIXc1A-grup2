@@ -1,22 +1,15 @@
 #!/bin/bash
 # ============================================================
 # Script: crear_usuari_complet.sh
-# Descripció: 
-#   - Crea un usuari a MySQL/MariaDB amb els seus privilegis (GRANT FILE inclòs)
-#   - Insereix les dades corresponents a les taules EMPLEAT, USUARI i USUARI_ROL
+# Descripció:
+#   - Crea usuari MySQL amb privilegis (GRANT FILE inclòs)
+#   - Insereix dades a EMPLEAT, USUARI, USUARI_ROL i CONTRASENYES
 #   - Suporta usuaris interns (amb DNI, departament) i externs
 #   - Genera un fitxer .sql amb totes les operacions
 # ============================================================
 
 # ----------------------------
-# Funcions auxiliars
-# ----------------------------
-executar_sql() {
-    sudo mysql -u root -p -e "$1" 2>/dev/null
-}
-
-# ----------------------------
-# 1. Dades bàsiques de l'usuari MySQL
+# 1. Dades de l'usuari MySQL (accés a la BD)
 # ----------------------------
 read -p "Nom d'usuari MySQL (ex: juan_perez): " USUARI_MYSQL
 while [[ -z "$USUARI_MYSQL" ]]; do
@@ -24,7 +17,7 @@ while [[ -z "$USUARI_MYSQL" ]]; do
     read -p "Nom d'usuari MySQL: " USUARI_MYSQL
 done
 
-read -s -p "Contrasenya per a $USUARI_MYSQL: " PASS
+read -s -p "Contrasenya per a $USUARI_MYSQL (accés a la BD): " PASS
 echo
 read -s -p "Torna a escriure la contrasenya: " PASS2
 echo
@@ -34,7 +27,20 @@ if [ "$PASS" != "$PASS2" ]; then
 fi
 
 # ----------------------------
-# 2. Tipus d'usuari (intern/extern)
+# 2. Contrasenya per a l'aplicació web (login)
+# ----------------------------
+echo
+read -s -p "Contrasenya per a l'aplicació web (login per email): " PASS_WEB
+echo
+read -s -p "Torna a escriure la contrasenya web: " PASS_WEB2
+echo
+if [ "$PASS_WEB" != "$PASS_WEB2" ]; then
+    echo "Error: Les contrasenyes web no coincideixen."
+    exit 1
+fi
+
+# ----------------------------
+# 3. Tipus d'usuari (intern/extern)
 # ----------------------------
 echo "Tipus d'usuari:"
 select TIPUS in "Intern (empleat)" "Extern (client)"; do
@@ -45,7 +51,7 @@ select TIPUS in "Intern (empleat)" "Extern (client)"; do
 done
 
 # ----------------------------
-# 3. Rols (un o més separats per comes)
+# 4. Rols (un o més separats per comes)
 # ----------------------------
 read -p "Rol(s) (admin, vendes, administracio, treballador) separats per comes: " ROLS_INPUT
 ROLS_INPUT_CLEAN=$(echo "$ROLS_INPUT" | tr -d ' ')
@@ -59,7 +65,7 @@ for ROL in "${ROLS[@]}"; do
 done
 
 # ----------------------------
-# 4. Recollir dades segons tipus
+# 5. Recollir dades segons tipus
 # ----------------------------
 if [ "$TIPUS_BD" = "intern" ]; then
     echo "--- Dades de l'empleat (intern) ---"
@@ -74,7 +80,7 @@ if [ "$TIPUS_BD" = "intern" ]; then
     # Generar email automàtic (nom.cognoms@innovatech.com)
     EMAIL=$(echo "${NOM}.${COGNOMS}" | tr '[:upper:]' '[:lower:]' | tr -d ' ' | sed 's/[^a-z0-9.]//g')"@innovatech.com"
     echo "Email generat: $EMAIL"
-    EXTENSIO=$(shuf -i 100-999 -n 1)   # extensió aleatòria
+    EXTENSIO=$(shuf -i 100-999 -n 1)
     ESTAT="actiu"
 else
     echo "--- Dades del client extern ---"
@@ -87,13 +93,13 @@ else
 fi
 
 # ----------------------------
-# 5. Generar fitxer SQL amb totes les operacions
+# 6. Generar fitxer SQL
 # ----------------------------
 OUTPUT="${USUARI_MYSQL}_creacio_completa.sql"
 echo "-- Script generat per crear_usuari_complet.sh el $(date)" > "$OUTPUT"
 echo "USE InnovateTech;" >> "$OUTPUT"
 
-# 5a. Crear empleat si és intern
+# 6a. Crear empleat si és intern
 if [ "$TIPUS_BD" = "intern" ]; then
     cat >> "$OUTPUT" <<EOF
 INSERT INTO EMPLEAT (dni, nom, cognoms, adreça, telefon, codi_departament)
@@ -102,7 +108,7 @@ VALUES ('$DNI', '$NOM', '$COGNOMS', '$ADRECA', '$TELEFON_EMP', $CODI_DEPT);
 EOF
 fi
 
-# 5b. Crear usuari (taula USUARI)
+# 6b. Crear usuari (taula USUARI)
 if [ "$TIPUS_BD" = "intern" ]; then
     cat >> "$OUTPUT" <<EOF
 INSERT INTO USUARI (nom_complet, email, extensio_identificador, estat, tipus, dni_empleat)
@@ -117,23 +123,24 @@ VALUES ('$NOM_COMPLET', '$EMAIL', NULL, '$ESTAT', '$TIPUS_BD', NULL);
 EOF
 fi
 
-# 5c. Obtenir l'id_usuari acabat d'inserir (ho farem amb una variable SQL)
-cat >> "$OUTPUT" <<EOF
-SET @id_usuari = LAST_INSERT_ID();
+# 6c. Obtenir l'id_usuari
+echo "SET @id_usuari = LAST_INSERT_ID();" >> "$OUTPUT"
 
-EOF
-
-# 5d. Assignar rols a USUARI_ROL
+# 6d. Assignar rols a USUARI_ROL
 for ROL in "${ROLS[@]}"; do
     echo "INSERT INTO USUARI_ROL (id_usuari, nom_rol) VALUES (@id_usuari, '$ROL');" >> "$OUTPUT"
 done
 
-# 5e. Crear l'usuari MySQL i atorgar permisos (sense rols de MySQL, directe)
+# 6e. Inserir contrasenya web xifrada (SHA256) a la taula CONTRASENYES
+echo "-- Inserir contrasenya per a l'aplicació web" >> "$OUTPUT"
+echo "INSERT INTO CONTRASENYES (usuari_id, hash_contrasenya, data_creacio, activa) VALUES (@id_usuari, SHA2('$PASS_WEB', 256), NOW(), TRUE);" >> "$OUTPUT"
+
+# 6f. Crear usuari MySQL i assignar permisos
 echo "" >> "$OUTPUT"
 echo "-- Creació de l'usuari MySQL i permisos" >> "$OUTPUT"
 echo "CREATE USER IF NOT EXISTS '$USUARI_MYSQL'@'%' IDENTIFIED BY '$PASS';" >> "$OUTPUT"
 
-# Acumular privilegis segons els rols demanats (similar a l'script anterior)
+# Acumular privilegis segons els rols
 declare -A GRANTS_AFEGITS
 afegir_grant() {
     local grant="$1"
@@ -163,21 +170,22 @@ for ROL in "${ROLS[@]}"; do
             ;;
     esac
 done
-afegir_grant "GRANT FILE ON . TO '$USUARI_MYSQL'@'%';"
+afegir_grant "GRANT FILE ON *.* TO '$USUARI_MYSQL'@'%';"
 
 echo "FLUSH PRIVILEGES;" >> "$OUTPUT"
 
 # ----------------------------
-# 6. Executar el fitxer SQL (opcional)
+# 7. Execució (opcional)
 # ----------------------------
-echo "✅ Fitxer $OUTPUT generat amb totes les operacions."
+echo "✅ Fitxer $OUTPUT generat (inclou contrasenya web xifrada)."
 read -p "Vols executar-lo ara? (s/n): " EXECUTAR
 if [[ "$EXECUTAR" =~ ^[Ss]$ ]]; then
     if sudo mysql -u root -p < "$OUTPUT"; then
         echo "✅ Usuari $USUARI_MYSQL creat, dades inserides i permisos assignats."
-        echo "🔌 Connecta't amb: mysql -u $USUARI_MYSQL -p -h localhost InnovateTech"
+        echo "🔌 Connecta't a la BD: mysql -u $USUARI_MYSQL -p -h localhost InnovateTech"
+        echo "🌐 Per login a l'aplicació web, usa l'email $EMAIL i la contrasenya web que has definit."
     else
-        echo "❌ Error en executar $OUTPUT. Revisa les dades introduïdes i la connexió."
+        echo "❌ Error en executar $OUTPUT. Revisa les dades i la connexió."
     fi
 else
     echo "Executa manualment: sudo mysql -u root -p < $OUTPUT"
