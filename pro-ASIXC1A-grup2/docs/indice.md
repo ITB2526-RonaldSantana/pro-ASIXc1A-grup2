@@ -3,36 +3,34 @@
 ## Índice
 
 01. [01-cpd-fisic](01-cpd-fisic)
-   1.1 [1.1-infraestructura-electrica.md](01-cpd-fisic/1.1-infraestructura-electrica.md)
-   1.2 [1.2-infraestructura-it.md](01-cpd-fisic/1.2-infraestructura-it.md)
-   1.3 [1.3-prevencio-rrll.md](01-cpd-fisic/1.3-prevencio-rrll.md)
-   1.4 [1.4-seguretat-fisica-logica.md](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
-   1.5 [1.5-ubicacio.md](01-cpd-fisic/1.5-ubicacio.md)
+  1.1 [1.1-infraestructura-electrica.md](01-cpd-fisic/1.1-infraestructura-electrica.md)
+  1.2 [1.2-infraestructura-it.md](01-cpd-fisic/1.2-infraestructura-it.md)
+  1.3 [1.3-prevencio-rrll.md](01-cpd-fisic/1.3-prevencio-rrll.md)
+  1.4 [1.4-seguretat-fisica-logica.md](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
+  1.5 [1.5-ubicacio.md](01-cpd-fisic/1.5-ubicacio.md)
+
 02. [02-aws](02-aws)
-   2.1 [ansible.md](02-aws/ansible.md)
-   2.2 [arquitectura.md](02-aws/arquitectura.md)
-   2.3 [ldap.md](02-aws/ldap.md)
-   2.4 [logs-centralitzats.md](02-aws/logs-centralitzats.md)
-   2.5 [usuaris-admin.md](02-aws/usuaris-admin.md)
-   2.6 [web-sftp.md](02-aws/web-sftp.md)
+  2.1 [ansible.md](02-aws/ansible.md)
+  2.2 [graylog.md](02-aws/graylog.md)
+
 03. [03-audio](03-audio)
-   3.1 [Descripció_de_la_funcionalitat_Audio.md](03-audio/Descripció_de_la_funcionalitat_Audio.md)
+  3.1 [Descripció_de_la_funcionalitat_Audio.md](03-audio/Descripció_de_la_funcionalitat_Audio.md)
+
 04. [04-video](04-video)
-   4.1 [Descripció_de_la_funcionalitat_Servei_de_Vídeo.md](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
+  4.1 [Descripció_de_la_funcionalitat_Servei_de_Vídeo.md](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
+
 05. [05-videoconferencia](05-videoconferencia)
-   5.1 [Descripció_Protocol_WebRTC.md](05-videoconferencia/Descripció_Protocol_WebRTC.md)
+  5.1 [Descripció_Protocol_WebRTC.md](05-videoconferencia/Descripció_Protocol_WebRTC.md)
+
 06. [06-amplada-banda](06-amplada-banda)
-   - Sin documentos disponibles
+  - Sin documentos disponibles
+
 07. [07-bd](07-bd)
-   7.1 [backup-event.md](07-bd/backup-event.md)
-   7.2 [er-diagrama.md](07-bd/er-diagrama.md)
-   7.3 [model-relacional.md](07-bd/model-relacional.md)
-   7.4 [rols-permisos.md](07-bd/rols-permisos.md)
-   7.5 [triggers.md](07-bd/triggers.md)
+  7.1 [er-diagrama.md](07-bd/er-diagrama.md)
+  7.2 [model-relacional.md](07-bd/model-relacional.md)
+
 08. [08-1665](08-1665)
-   8.1 [ra3-optimitzacio.md](08-1665/ra3-optimitzacio.md)
-   8.2 [ra5-seguretat-dades.md](08-1665/ra5-seguretat-dades.md)
-   8.3 [ra6-transformacio-digital.md](08-1665/ra6-transformacio-digital.md)
+  - Sin documentos disponibles
 
 ---
 
@@ -57,46 +55,11 @@ La carpeta `capturas/` conté imatges i captures organitzades per temàtiques. A
 
 Referència: [01-cpd-fisic](01-cpd-fisic)
 
-### 02-aws
-- `capturas/02-aws/RED/VPC.png` — Diagrama de la VPC.
-- `capturas/02-aws/RED/SUBNETPublica.png` — Subnet pública.
-- `capturas/02-aws/RED/SUBNETPrivada.png` — Subnet privada.
-- `capturas/02-aws/RED/IGW-Publico.png` — Gateway d'internet públic.
-- `capturas/02-aws/RED/NAT-Privado.png` — NAT per a subnets privades.
-- `capturas/02-aws/RED/TABLAPRIVADA.png` — Taula de rutes de la subnet privada.
-- `capturas/02-aws/RED/ROUTEPUBLICA.png` — Regla de ruta pública.
-- `capturas/02-aws/RED/ROUTENAT.png` — Regla de ruta NAT.
-- `capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png` — Captura del servidor Ansible.
-- `capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png` — Captura del servidor LDAP.
-- `capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png` — Captura del servidor de bases de dades.
-- `capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png` — Captura del servidor de logs.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png` — Procés de creació Web/SFTP, pas 1.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png` — Procés de creació Web/SFTP, pas 2.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png` — Procés de creació Web/SFTP, pas 3.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png` — Procés de creació Web/SFTP, pas 4.
+### 07-bd
+ - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
+ - `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
 
-![VPC](../capturas/02-aws/RED/VPC.png)
-![Subnet pública](../capturas/02-aws/RED/SUBNETPublica.png)
-![Subnet privada](../capturas/02-aws/RED/SUBNETPrivada.png)
-![IGW públic](../capturas/02-aws/RED/IGW-Publico.png)
-![NAT privat](../capturas/02-aws/RED/NAT-Privado.png)
-![Taula privada](../capturas/02-aws/RED/TABLAPRIVADA.png)
-![Ruta pública](../capturas/02-aws/RED/ROUTEPUBLICA.png)
-![Ruta NAT](../capturas/02-aws/RED/ROUTENAT.png)
-
-#### Servidors AWS
-![Servidor Ansible](../capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png)
-![Servidor LDAP](../capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png)
-![Servidor BBDD](../capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png)
-![Servidor Logs](../capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png)
-
-#### Web / SFTP — procés de creació
-![Creació 1](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png)
-![Creació 2](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png)
-![Creació 3](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png)
-![Creació 4](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png)
-
-Referència: [02-aws](02-aws)
+Referència: [07-bd](07-bd)
 
 ### 07-bd
 - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
@@ -785,6 +748,47 @@ hola
 
 *Documento vacío.*
 
+### Capturas 02-aws
+- `capturas/02-aws/RED/VPC.png` — Diagrama de la VPC.
+- `capturas/02-aws/RED/SUBNETPublica.png` — Subnet pública.
+- `capturas/02-aws/RED/SUBNETPrivada.png` — Subnet privada.
+- `capturas/02-aws/RED/IGW-Publico.png` — Gateway d'internet públic.
+- `capturas/02-aws/RED/NAT-Privado.png` — NAT per a subnets privades.
+- `capturas/02-aws/RED/TABLAPRIVADA.png` — Taula de rutes de la subnet privada.
+- `capturas/02-aws/RED/ROUTEPUBLICA.png` — Regla de ruta pública.
+- `capturas/02-aws/RED/ROUTENAT.png` — Regla de ruta NAT.
+- `capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png` — Captura del servidor Ansible.
+- `capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png` — Captura del servidor LDAP.
+- `capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png` — Captura del servidor de bases de dades.
+- `capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png` — Captura del servidor de logs.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png` — Procés de creació Web/SFTP, pas 1.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png` — Procés de creació Web/SFTP, pas 2.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png` — Procés de creació Web/SFTP, pas 3.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png` — Procés de creació Web/SFTP, pas 4.
+
+![VPC](../capturas/02-aws/RED/VPC.png)
+![Subnet pública](../capturas/02-aws/RED/SUBNETPublica.png)
+![Subnet privada](../capturas/02-aws/RED/SUBNETPrivada.png)
+![IGW públic](../capturas/02-aws/RED/IGW-Publico.png)
+![NAT privat](../capturas/02-aws/RED/NAT-Privado.png)
+![Taula privada](../capturas/02-aws/RED/TABLAPRIVADA.png)
+![Ruta pública](../capturas/02-aws/RED/ROUTEPUBLICA.png)
+![Ruta NAT](../capturas/02-aws/RED/ROUTENAT.png)
+
+#### Servidors AWS
+![Servidor Ansible](../capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png)
+![Servidor LDAP](../capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png)
+![Servidor BBDD](../capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png)
+![Servidor Logs](../capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png)
+
+#### Web / SFTP — procés de creació
+![Creació 1](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png)
+![Creació 2](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png)
+![Creació 3](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png)
+![Creació 4](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png)
+
+Referència: [02-aws](02-aws)
+
 ---
 
 ## 03. 03-audio
@@ -939,11 +943,117 @@ sudo apt install nginx
 
 ### 7.2 07-bd/er-diagrama.md
 
-*Documento vacío.*
+# Model Entitat-Relació
+
+## Introduccio
+
+El següent model Entitat-Relació representa l'estructura de dades necessària per gestionar el sistema de comunicació interna d'InnovateTech. La base de dades emmagatzema informació sobre:
+
+- Personal i organització: empleats i departaments.
+- Comunicació: usuaris (interns i externs), trucades i configuració de qualitat.
+- Streaming: catàleg de vídeos disponibles.
+- Monitorització: proves d'amplada de banda realitzades pels operaris.
+- Seguretat i auditoria: rols d'usuaris, control d'accés i registre d'avisos.
+
+El model s'ha dissenyat seguint els requisits de l'apartat 3.2 i 3.3 de l'enunciat del projecte.
+
+## Com hem creat el diagrama E/R (resum del procés)
+
+### 7.2.1 Extracció de requisits
+
+Vam llegir l’enunciat (apartats 3.2 i 3.3) i vam identificar 12 entitats amb els seus atributs, claus primàries i obligatorietat (NOT NULL). També vam detectar totes les relacions i els seus tipus (1:N, N:M, 0..1:1).
+
+### 7.2.2 Disseny lògic
+
+Vam dibuixar un esborrany inicial on vam:
+
+- Assignar PK a cada entitat (codi, dni, id_usuari, nom_rol, etc.)
+- Definir FK per a cada relació (p. ex., codi_departament a EMPLEAT)
+- Resoldre la relació N:M entre USUARI i ROL mitjançant la taula associativa USUARI_ROL
+- Establir cardinalitats explícites (ex: EMPLEAT → DEPARTAMENT és N:1; USUARI → EMPLEAT és 0..1:1)
+
+### 7.2.3 Implementació al SGBD (MySQL)
+
+Vam escriure un script SQL que crea totes les taules amb:
+
+- PRIMARY KEY, FOREIGN KEY
+- NOT NULL als atributs obligatoris
+- UNIQUE a l’email d’usuari i al nom de departament
+- CHECK per a valors (puntuació entre 1 i 5, durada >=0, etc.)
+- Dades de prova significatives
+
+### 7.2.4 Generació automàtica del diagrama
+
+Vam executar l’script a la base de dades local i després vam fer servir l’eina Reverse Engineer del MySQL Workbench. Aquesta va llegir l’esquema i va dibuixar automàticament les taules, atributs i cla
+
+### 7.2.5 Ajust manual i exportació
+
+Vam reorganitzar les taules perquè fossin llegibles, vam verificar les cardinalitats (especialment la relació opcional USUARI-EMPLEAT) i vam exportar el diagrama 
+
+| <img src="../../pro-ASIXC1A-grup2/capturas/07-bd/er-diagrama/RAPJ-E-R.png" alt="Captura-E-R" width="500"> |
+| :---: |
+| Diagrama Entitat Relacio |
 
 ### 7.3 07-bd/model-relacional.md
 
-*Documento vacío.*
+# Model relacional: transformació de l’E/R
+
+## Introducció
+
+Un cop vam tenir el diagrama Entitat-Relació complet (amb totes les entitats, atributs i cardinalitats), el següent pas va ser convertir-lo a un esquema relacional que es pogués implementar directament en un SGBD (en el nostre cas, MySQL). Aquesta transformació consisteix a:
+
+1. Crear una taula per cada entitat.
+2. Definir les claus primàries (PK) per identificar cada fila de manera única.
+3. Establir les claus foranes (FK) per representar les relacions entre taules.
+
+L’objectiu és obtenir un conjunt de sentències `CREATE TABLE` que respectin exactament el disseny lògic del diagrama.
+
+## Com hem realitzat aquesta transformació
+
+### 7.3.1 De cada entitat a una taula
+
+Per cada entitat del diagrama E/R, vam crear una taula amb el mateix nom i els mateixos atributs, respectant els tipus de dades i les restriccions de `NULL` / `NOT NULL` que havíem definit.
+
+- L’entitat `DEPARTAMENT` amb atributs `codi`, `nom`, `telefon` → taula `DEPARTAMENT` amb les mateixes columnes.
+
+### 7.3.2 Assignació de claus primàries
+
+Vam marcar com a `PRIMARY KEY` l’atribut o atributs que identifiquen de manera única cada fila:
+
+- `codi` a `DEPARTAMENT`
+- `dni` a `EMPLEAT`
+- `id_usuari` a `USUARI`
+- `nom_rol` a `ROL`
+- etc.
+
+Quan una relació N:M necessitava una taula associativa (com `USUARI_ROL`), vam definir una **clau primària composta** formada per les dues claus foranes.
+
+### 7.3.3 Definició de claus foranes
+
+Per a cada relació detectada en el diagrama E/R, vam afegir una `FOREIGN KEY` a la taula filla que referenciés la clau primària de la taula pare, indicant les accions `ON DELETE` i `ON UPDATE` (normalment `RESTRICT` i `CASCADE`).
+
+**Exemples de relacions transformades a FK:**
+
+- `EMPLEAT.codi_departament` → `DEPARTAMENT.codi`
+- `USUARI.dni_empleat` → `EMPLEAT.dni`
+- `USUARI_ROL.id_usuari` → `USUARI.id_usuari`
+- `USUARI_ROL.nom_rol` → `ROL.nom_rol`
+- `TRUCADA.usuari_originador` → `USUARI.id_usuari`
+- `TRUCADA.usuari_destinatari` → `USUARI.id_usuari`
+- `TRUCADA.id_grup_qualitat` → `GRUP_QUALITAT.id_grup`
+- `MESURA_AMPLADA_BANDA.operari_id` → `USUARI.id_usuari`
+- `AVIS.usuari_id` → `USUARI.id_usuari`
+
+### 7.3.4 Generació del script SQL
+
+Vam escriure un script complet (`InnovateTech.sql`) que conté totes les sentències `CREATE TABLE` en l’ordre correcte (primer les taules sense dependències, després les que tenen FK). Aquest script és l’evidència pràctica de la transformació al model relacional.
+
+| <img src="../../../pro-ASIXc1A-grup2/pro-ASIXC1A-grup2/capturas/07-bd/er-diagrama/RAPJ-SQL.png" alt="Captura-E-R" width="500"> |
+| :---: |
+| SCRIP SQL MODEL RELACIONAL |
+
+
+> Pots revisar el disseny complet de la base de dades en el [Script RAPJ.sql](../../pro-ASIXC1A-grup2/docs/07-bd/model-relacional.md).
 
 ### 7.4 07-bd/rols-permisos.md
 
