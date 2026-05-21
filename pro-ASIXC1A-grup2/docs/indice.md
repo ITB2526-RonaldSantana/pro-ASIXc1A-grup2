@@ -1107,7 +1107,9 @@ Ens conectem via ssh amb l'usuari de gestió i amb filtres ldapsearch mirem que 
 
 ### 2.6 02-aws/web-sftp.md
 
-*Documento vacío.*
+## 2.6.1 SFTPD
+
+Servei sftpd
 
 ### Capturas 02-aws
 - `capturas/02-aws/RED/VPC.png` — Diagrama de la VPC.
