@@ -1386,6 +1386,153 @@ Pujada d'un fitxer i comprovació de que ha estat correcte:
 | :---: |
 | Pujada d'un fitxer i comprovació |
 
+## 2.6.2 Servei Web Nginx
+
+### Configuració feta amb Ansible
+
+En aquest cas no fa falta editar el site.yml perquè anteriorment configurant el servei de sftp ja l'hem configurat perquè puguem també tenir el servei web ja que estan en la mateixa màquina.
+
+`roles/nginx/vars/main.yml`, En aquest fitxer es defineixen les variables pròpies del rol nginx. S'hi especifica el port d'escolta, el nom del servidor (en aquest cas la IP elàstica de la instància), el directori arrel on es servirà l'aplicació, la URL del repositori a clonar i el directori de destí. Centralitzar aquestes dades aquí permet modificar qualsevol paràmetre sense tocar el codi de les tasques.
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/VARSNGINX.png" alt="CAPTURA1_NGINX" width="500"> |
+| :---: |
+| `roles/nginx/vars/main.yml` |  
+  
+`roles/nginx/templates/vhost.conf.j2`, Aquesta és la plantilla Jinja2 que genera la configuració del virtualhost de Nginx. A diferència d'un servidor de fitxers estàtics, s'hi afegeix el bloc location ~ \.php$ que redirigeix totes les peticions PHP al procés php-fpm mitjançant el socket Unix. Ansible substitueix les variables pels valors de vars/main.yml en el moment del desplegament.
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/VHOSTCONF.png" alt="CAPTURA2_NGINX" width="500"> |
+| :---: |
+| `roles/nginx/templates/vhost.conf.j2`|  
+
+`roles/nginx/handlers/main.yml`, n'hi ha dos: un per reiniciar nginx quan canvia la configuració del virtualhost, i un altre per reiniciar php-fpm quan es modifica la seva configuració d'usuari. Això evita reinicis innecessaris si no hi ha hagut cap canvi.
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/HANDLERNGINX.png" alt="CAPTURA3_NGINX" width="500"> |
+| :---: |
+| `roles/nginx/handlers/main.yml`|
+
+`roles/nginx/tasks/main.yml`, Aquest és el playbook principal del rol. S'estructura en sis blocs diferenciats: primer s'instal·len els paquets necessaris i s'activa el servei, després es clona el repositori de l'aplicació i s'ajusten els permisos, s'aplica la política SELinux necessària per a Amazon Linux 2023, es desplega la configuració del virtualhost, s'obre el port 80 al firewall i finalment es verifica que el servei respon correctament.
+
+```yaml
+---
+# ── 1. INSTAL·LACIÓ ───────────────────────────────────────────────────
+- name: Instal·lar nginx, git i PHP
+  ansible.builtin.dnf:
+    name:
+      - nginx
+      - git
+      - php
+      - php-fpm
+      - php-mysqlnd
+      - php-mbstring
+      - php-xml
+    state: present
+
+- name: Assegurar que nginx està actiu i arrenca amb el sistema
+  ansible.builtin.systemd:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: Assegurar que php-fpm està actiu i arrenca amb el sistema
+  ansible.builtin.systemd:
+    name: php-fpm
+    state: started
+    enabled: true
+
+# ── 2. CLONAR REPOSITORI ─────────────────────────────────────────────
+- name: Crear directori destí de l'aplicació
+  ansible.builtin.file:
+    path: "{{ app_dest }}"
+    state: directory
+    owner: nginx
+    group: nginx
+    mode: '0755'
+
+- name: Clonar el repositori de l'aplicació
+  ansible.builtin.git:
+    repo: "{{ app_repo }}"
+    dest: "{{ app_dest }}"
+    version: main
+    force: true
+
+- name: Ajustar propietari dels fitxers clonats
+  ansible.builtin.file:
+    path: "{{ app_dest }}"
+    owner: nginx
+    group: nginx
+    recurse: true
+
+# ── 3. SELINUX (Amazon Linux 2023) ───────────────────────────────────
+- name: Permetre a nginx llegir el directori de l'app (SELinux)
+  ansible.builtin.command:
+    cmd: "chcon -Rt httpd_sys_content_t {{ app_dest }}"
+  changed_when: true
+  failed_when: false
+
+# ── 4. CONFIGURAR PHP-FPM PER EXECUTAR COM NGINX ─────────────────────
+- name: Configurar php-fpm per usar l'usuari nginx
+  ansible.builtin.lineinfile:
+    path: /etc/php-fpm.d/www.conf
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^user =',  line: 'user = nginx' }
+    - { regexp: '^group =', line: 'group = nginx' }
+  notify: Reiniciar php-fpm
+
+# ── 5. VIRTUALHOST ────────────────────────────────────────────────────
+- name: Desplegar configuració del virtualhost
+  ansible.builtin.template:
+    src: vhost.conf.j2
+    dest: /etc/nginx/conf.d/app.conf
+    mode: '0644'
+  notify: Reiniciar nginx
+
+# ── 6. FIREWALL ───────────────────────────────────────────────────────
+- name: Obrir port 80 al firewall
+  ansible.builtin.command:
+    cmd: firewall-cmd --permanent --add-service=http
+  changed_when: true
+  failed_when: false
+
+- name: Recarregar firewall
+  ansible.builtin.command:
+    cmd: firewall-cmd --reload
+  changed_when: true
+  failed_when: false
+
+# ── 7. VERIFICACIÓ ────────────────────────────────────────────────────
+- name: Verificar que nginx respon al port 80
+  ansible.builtin.uri:
+    url: "http://localhost:80"
+    status_code: 200
+  register: nginx_check
+  retries: 3
+  delay: 5
+
+- name: Mostrar resultat de la verificació
+  ansible.builtin.debug:
+    msg: "Nginx operatiu — codi HTTP: {{ nginx_check.status }}"
+```
+
+### Execució i verificacions:
+
+#### Execució:
+
+<img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/EXECUCIONGINX1.png" alt="CAPTURA4_SFTP" width="800">
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/EXECUCIO2NGINX2.png" alt="CAPTURA5_NGINX" width="800"> |
+| :---: |
+| Execució del playbook, com podem veure el playbook també verifica que Nginx respon al port 80|
+
+#### Verificació:
+
+Accedim desde un navegador a la nostra ip pública elàstica de la màquina del servei web i podem veure la nostra aplicació:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/ACCESWEB.png" alt="CAPTURA5_NGINX" width="500"> |
+| :---: |
+| Verificació accés a la aplicació desde el navegador |
+
 ### Capturas 02-aws
 - `capturas/02-aws/RED/VPC.png` — Diagrama de la VPC.
 - `capturas/02-aws/RED/SUBNETPublica.png` — Subnet pública.
