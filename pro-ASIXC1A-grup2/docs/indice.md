@@ -133,16 +133,18 @@ Aquesta segregació facilita el manteniment i limita l'impacte de fallades a un 
 
 ## Càlcul de la càrrega i dimensionament
 
+El CPD opera amb **7 servidors reals** (t3.small × 5, t3.medium × 1, t3.micro × 1):
+
 | Equip | Unitats | W/unitat | Total W |
 |---|---|---|---|
-| Servidors (4 equivalents) | 4 | 300 W | 1.200 W |
+| Servidors EC2 equiv. (7 inst.) | 7 | ~250 W | 1.750 W |
 | Switches (core + accés) | 2 | 80 W | 160 W |
 | NAS primari + secundari | 2 | 120 W | 240 W |
 | KVM + patch panels | 1 | 30 W | 30 W |
-| Unitats CRAC (climatització) | 2 | 400 W | 800 W |
-| **Subtotal** | | | **2.430 W** |
-| **Marge de seguretat +20 %** | | | **+486 W** |
-| **Càrrega total estimada** | | | **≈ 2.900 W** |
+| Unitats CRAC (consum elèctric) | 2 | 400 W | 800 W |
+| **Subtotal** | | | **2.980 W** |
+| **Factor de seguretat +20%** | | | **+596 W** |
+| **Càrrega total estimada** | | | **≈ 3.580 W** |
 
 Aquest dimensionament incorpora un marge per a futurs creixements i per a desviacions del consum estimat.
 
@@ -156,36 +158,54 @@ Aquestes previsions ajuden a verificar que els SAIs, el generador i la distribuc
 
 ## Selecció i instal·lació dels SAIs
 
-S'instal·len **3 SAIs de 3.000 VA / 2.700 W**, un per rack:
+S'instal·len **3 SAIs de 3.000 VA / 2.700 W**, un per rack, cadascun amb **2 mòduls EBM**:
 
 | SAI | Rack | Càrrega protegida | Mòduls EBM |
 |---|---|---|---|
-| SAI 1 | Rack 1 — Servidors | Servidors 1–4 | 2 mòduls |
-| SAI 2 | Rack 2 — Xarxa | Switches, firewall, KVM | 2 mòduls |
-| SAI 3 | Rack 3 — Emmagatzematge | NAS primari i secundari | 1 mòdul |
+| SAI 1 | Rack 1 — Servidors | 7 servidors (1, 2A, 2B, 3A, 3B, 3C, 4) | 2 mòduls |
+| SAI 2 | Rack 2 — Xarxa | Switches, firewall, KVM, patch panels | 2 mòduls |
+| SAI 3 | Rack 3 — Emmagatzematge | NAS primari i secundari | 2 mòduls |
 
-Això assegura protecció dedicada i facilita la prova i substitució de cada unitat.
+**Total mòduls EBM: 6** (2 per cada SAI × 3 SAIs). Això assegura protecció dedicada i facilita la prova i substitució de cada unitat.
 
 ## Autonomia i transició a generador
 
-| Fase | Temps | Acció |
-|---|---|---|
-| 0 min | Tall elèctric | Els SAIs proveeixen alimentació immediata |
-| 0–2 min | Estabilització | Tensió estabilitzada i alarma enviada |
-| 2–5 min | Arrencada generador | Generador ences o automàtic |
-| 5–10 min | Commutació | ATS commuta a generador estable |
-| 10–30 min | Operació normal | Funcionament amb generador |
-| > 30 min | Apagat ordenat | Si el generador no està disponible |
+Amb 2 mòduls EBM per SAI, l'autonomia estimada és de **25 minuts màxim**:
 
-> La prioritat és mantenir les càrregues crítiques mentre es controla la resta de sistemes.
+| Temps | Fase | Acció |
+|---|---|---|
+| 0 min | Tall elèctric | SAI entra en funcionament automàticament |
+| 0–2 min | SAI actiu | Subministrament ininterromput als equips |
+| 2–5 min | Alarma + notificació | Alerta automàtica als administradors. Generador comença arrencada |
+| 5–10 min | Arrencada generador | Grup electrogen arrenca i ATS commuta (< 30 s) |
+| 10–25 min | Operació normal | Servidors alimentats pel generador |
+| 25 min | **Màxim SAI** | Apagat controlat si el generador no ha arrencat |
+
+> **Temps màxim d'autonomia SAI: 25 minuts.** Si el generador arranca correctament, l'autonomia passa a ser il·limitada mentre hi hagi combustible.
 
 ## Grup electrogen
 
+El generador de dièsel és la capa final de protecció en cas de fallada prolongada de la xarxa.
+
 - **Combustible**: dièsel.
-- **Temps d'arrencada**: < 30 segons.
-- **Autonomia**: 48–72 h amb el dipòsit ple.
-- **Commutació**: ATS automàtica.
-- **Proves**: arrencades mensuals per verificar estat.
+- **Temps d'arrencada efectiva**: < 30 segons.
+- **Commutació**: ATS automàtica que commuta en detectar fallada de xarxa.
+- **Autonomia**: il·limitada mentre hi hagi combustible (dipòsit per a 48–72 h).
+- **Proves**: arrencades mensuals per verificar estat del generador, ATS i circuit de combustible.
+
+## Refrigeració CRAC — Capacitat real
+
+> **Aclariment**: Els 400 W indicats corresponen al **consum elèctric**, no a la capacitat de refrigeració.
+
+| Paràmetre | Valor |
+|---|---|
+| Consum elèctric de cada CRAC | 400 W |
+| **Capacitat de refrigeració de cada CRAC** | **12.000 BTU/h ≈ 3.500 W tèrmics** |
+| Capacitat total (2 CRACs) | 24.000 BTU/h ≈ **7.000 W tèrmics** |
+| Calor generada pels equips IT | ≈ 2.980 W tèrmics |
+| **Marge de refrigeració** | **+4.020 W tèrmics (136% de marge)** |
+
+La infraestructura de refrigeració és **sobradament suficient** amb marge per a futura expansió.
 
 ## Supervisió i manteniment
 
@@ -204,27 +224,33 @@ Aquesta secció descriu com s'organitzen els serveis del CPD, la xarxa de comuni
 
 ## Serveis i separació de funcions
 
-La infraestructura IT es distribueix en servidors amb funcions específiques per evitar interferències entre serveis i permetre una gestió més clara.
+El CPD disposa de **7 servidors independents** desplegats a AWS EC2, cadascun dedicat a un únic servei:
 
-| Servidor | Funció principal | Instància tipus |
-|---|---|---|
-| Servidor 1 | Web i SFTP — Apache/Nginx, OpenSSH autenticat amb LDAP | EC2 t3.small |
-| Servidor 2 | LDAP i logs — OpenLDAP, Graylog, OpenSearch | EC2 t3.small |
-| Servidor 3 | Streaming àudio/vídeo i base de dades — Icecast, NGINX-RTMP, MariaDB | EC2 t3.medium |
-| Servidor 4 | Backups automatitzats | EC2 t3.micro |
+| ID | Servei | Instància AWS | Rack |
+|---|---|---|---|
+| Servidor 1 | Servei web (Apache/Nginx) + SFTP (OpenSSH + LDAP) | EC2 t3.small | Rack 1 |
+| Servidor 2A | Directori actiu — OpenLDAP / Samba AD | EC2 t3.small | Rack 1 |
+| Servidor 2B | Centralització de logs — Graylog + OpenSearch + MongoDB | EC2 t3.medium | Rack 1 |
+| Servidor 3A | Streaming d'àudio — Icecast | EC2 t3.small | Rack 1 |
+| Servidor 3B | Streaming de vídeo — NGINX-RTMP + Jellyfin | EC2 t3.small | Rack 1 |
+| Servidor 3C | Base de dades — MariaDB | EC2 t3.small | Rack 1 |
+| Servidor 4 | Backups automatitzats — rsync + cron | EC2 t3.micro | Rack 1 |
 
-Aquesta separació facilita l'escalabilitat i minimitza l'impacte de fallades de servei.
+La separació en instàncies individuals garanteix l'aïllament de serveis i facilita l'escalabilitat independent. Una caiguda d'un servei no afecta els altres.
 
 ## Càrrega de serveis i usuaris
 
-Aquest disseny es basa en una estimació d'ús orientada a 100–150 usuaris finals actius simultanis i els següents patrons de servei:
+Aquest disseny es basa en una estimació d'ús orientada a 100–150 usuaris finals actius simultanis:
 
-- **Servei web i SFTP**: fins a 100 connexions concorrents, amb una base de 200–300 usuaris registrats per dia, gestió de fitxers i descàrregues de contingut.
-- **LDAP i logs**: 50 consultes d'autenticació per minut i 10 serveis interns enviant logs en temps real.
-- **Streaming d'àudio i vídeo**: 20 fluxos simultanis de reproducció, 50 oients/visualitzadors concorrents i 50 connexions a la base de dades.
-- **Backups**: 4 treballs programats per nit amb transferència de 150–200 GB diaris.
+- **Servidor 1 (Web + SFTP)**: fins a 100 connexions concorrents, 200–300 usuaris per dia.
+- **Servidor 2A (LDAP)**: gestió del directori actiu per autenticació centralitzada.
+- **Servidor 2B (Logs + OpenSearch)**: 50 consultes/minut, 10 serveis enviant logs en temps real.
+- **Servidor 3A (Àudio)**: 10–20 fluxos simultanis d'Icecast.
+- **Servidor 3B (Vídeo)**: 20–30 fluxos simultanis de NGINX-RTMP, 50 visualitzadors concorrents.
+- **Servidor 3C (BD)**: 50–100 connexions concurrents a MariaDB.
+- **Servidor 4 (Backups)**: 4 treballs programats per nit, 150–200 GB diaris.
 
-Aquesta quantificació justifica l'ús d'instàncies EC2 de tipus t3.small per serveis de gestió i directoris, i t3.medium per a càrregues de streaming i BD amb memòria addicional.
+Aquesta quantificació justifica 5 instàncies **t3.small**, 1 **t3.medium** per a OpenSearch, i 1 **t3.micro** per a backups.
 
 ## Gestió centralitzada amb Ansible
 
@@ -263,15 +289,18 @@ La xarxa es segmenta per controlar l'accés i disminuir els riscos:
 
 ### Patch panels
 
-- **2 patch panels Cat6A de 24 ports** a Rack 1.
-- **1 patch panel de fibra òptica** a Rack 3.
-- Etiquetatge bidireccional per manteniment ràpid.
+Els patch panels es troben al **Rack 2** (rack de xarxa), centralitzant tota la gestió del cablejat estructurat:
+
+- **2 patch panels Cat6A de 24 ports** per a cablejat de dades.
+- **1 patch panel de fibra òptica** per a interconnexió d'alta velocitat entre racks.
+- Etiquetatge bidireccional amb esquema de colors per VLAN.
+- Tot el cablejat des dels servidors del Rack 1 arriba al Rack 2 mitjançant latiguillos per sota del sòl tècnic.
 
 ### Connexions entre racks
 
-- **Rack 1 ↔ Rack 2**: Cat6A des del patch panel de Rack 1 al switch core de Rack 2.
-- **Rack 2 ↔ Rack 3**: Cat6A del switch d'accés als NAS.
-- **Tots els racks**: fibra òptica per a trànsit d'alta capacitat.
+- **Rack 1 ↔ Rack 2**: Tots els cables dels 7 servidors discorren per sota del sòl tècnic cap als patch panels del Rack 2.
+- **Rack 2 ↔ Rack 3**: Connexions de dades del switch d'accés als NAS.
+- **Tots els racks**: fibra òptica per a trànsit d'alta velocitat i baixa latència.
 
 ## Disponibilitat i manteniment
 
@@ -446,15 +475,20 @@ Aplicar el principi del mínim privilegi i segregar les xarxes per reduir l'impa
 
 ### Backups i recuperació
 
+S'aplica la variant **3-3-1** de la regla de còpies de seguretat:
+
 | Còpia | Suport | Ubicació |
 |---|---|---|
 | Còpia 1 | NAS primari (RAID 5) | Local — Rack 3 |
 | Còpia 2 | NAS secundari (RAID 6) | Local — Rack 3 |
-| Còpia 3 | AWS S3 | Offsite |
+| Còpia 3 | AWS S3 | Offsite (núvol) |
 
+- **3 còpies** de les dades.
+- **3 suports físics diferents** (RAID 5, RAID 6, S3).
+- **1 còpia fora del lloc físic** (AWS S3).
 - Còpies incrementals diàries.
 - Còpies completes setmanals.
-- Retenció de 30 dies.
+- Retenció mínima de 30 dies.
 - Proves de restauració mensuals.
 
 ### Emmagatzematge RAID
@@ -529,19 +563,48 @@ S'utilitzen unitats **CRAC** amb flux d'aire fred per sòl tècnic.
 
 ## Organització dels racks
 
-| Rack | Contingut principal |
-|---|---|
-| Rack 1 | Servidors i serveis aplicatius |
-| Rack 2 | Xarxa, firewall i gestió |
-| Rack 3 | Emmagatzematge i backups |
+El CPD s'estructura en **3 racks** per separar funcions i reduir el risc de fallades generalitzades.
 
-### Patró fred/calor
+### Rack 1 — Servidors (7 instàncies)
+
+Tots els 7 servidors EC2 es troben en aquest rack:
+- Servidor 1 (Web + SFTP)
+- Servidor 2A (LDAP)
+- Servidor 2B (Logs + OpenSearch + MongoDB)
+- Servidor 3A (Àudio — Icecast)
+- Servidor 3B (Vídeo — NGINX-RTMP)
+- Servidor 3C (BD — MariaDB)
+- Servidor 4 (Backups)
+- SAI 1 (3000 VA / 2700 W, 2 mòduls EBM)
+
+### Rack 2 — Xarxa
+
+Equipament de xarxa i gestió centralitzada:
+- Switch core (Cisco Catalyst 2960)
+- Switch d'accés (48 ports)
+- Firewall (pfSense)
+- **Patch panels** (2 × Cat6A 24p + 1 × fibra òptica)
+- KVM Switch
+- SAI 2 (3000 VA / 2700 W, 2 mòduls EBM)
+
+### Rack 3 — Emmagatzematge
+
+Sistemes de còpies de seguretat i dades:
+- NAS primari (RAID 5)
+- NAS secundari (RAID 6)
+- Media converter
+- SAI 3 (3000 VA / 2700 W, 2 mòduls EBM)
+
+### Patró de passadís fred/calor
 
 ```
 [CRAC 1] | Passadís fred | RACK 1 | Passadís calent | RACK 2 | Passadís fred | RACK 3 | [CRAC 2]
 ```
 
-Aquesta distribució optimitza el flux d'aire i millora l'eficiència de refrigeració.
+Aquesta distribució:
+- Optimitza el flux d'aire des de les CRAC cap als racks.
+- Evita el retorn prematur d'aire fred a través del passadís calent.
+- Millora l'eficiència de la climatització en un 30–40%.
 
 ## Escalabilitat i manteniment
 
