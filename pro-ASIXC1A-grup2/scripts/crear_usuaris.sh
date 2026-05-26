@@ -39,6 +39,13 @@ if [ "$PASS_WEB" != "$PASS_WEB2" ]; then
     exit 1
 fi
 
+# Generar hash bcrypt amb PHP (compatible amb password_verify a l'aplicació web)
+PASS_WEB_HASH=$(PASS_WEB_ENV="$PASS_WEB" php -r 'echo password_hash(getenv("PASS_WEB_ENV"), PASSWORD_DEFAULT);' 2>/dev/null)
+if [[ -z "$PASS_WEB_HASH" ]]; then
+    echo "Error: No s'ha pogut generar el hash de la contrasenya. Verifica que PHP estigui instal·lat."
+    exit 3
+fi
+
 # ----------------------------
 # 3. Tipus d'usuari (intern/extern)
 # ----------------------------
@@ -131,9 +138,9 @@ for ROL in "${ROLS[@]}"; do
     echo "INSERT INTO USUARI_ROL (id_usuari, nom_rol) VALUES (@id_usuari, '$ROL');" >> "$OUTPUT"
 done
 
-# 6e. Inserir contrasenya web xifrada (SHA256) a la taula CONTRASENYES
+# 6e. Inserir contrasenya web a la taula CONTRASENYES
 echo "-- Inserir contrasenya per a l'aplicació web" >> "$OUTPUT"
-echo "INSERT INTO CONTRASENYES (usuari_id, hash_contrasenya, data_creacio, activa) VALUES (@id_usuari, SHA2('$PASS_WEB', 256), NOW(), TRUE);" >> "$OUTPUT"
+echo "INSERT INTO CONTRASENYES (usuari_id, hash_contrasenya, data_creacio, activa) VALUES (@id_usuari, '$PASS_WEB_HASH', NOW(), TRUE);" >> "$OUTPUT"
 
 # 6f. Crear usuari MySQL i assignar permisos
 echo "" >> "$OUTPUT"
@@ -177,7 +184,7 @@ echo "FLUSH PRIVILEGES;" >> "$OUTPUT"
 # ----------------------------
 # 7. Execució (opcional)
 # ----------------------------
-echo "✅ Fitxer $OUTPUT generat (inclou contrasenya web xifrada)."
+echo "✅ Fitxer $OUTPUT generat. La contrasenya web s'ha guardat com a hash bcrypt (compatible amb l'aplicació web)."
 read -p "Vols executar-lo ara? (s/n): " EXECUTAR
 if [[ "$EXECUTAR" =~ ^[Ss]$ ]]; then
     if sudo mysql -u root -p < "$OUTPUT"; then
