@@ -1772,133 +1772,397 @@ sudo apt install nginx
 
 ## 07. 07-bd
 
+### 7.0 Visió general de la base de dades
+
+La base de dades **InnovateTech** ha estat dissenyada i implementada per cobrir els
+requisits dels apartats 3.2 i 3.3 de l'enunciat. Consta de **12 taules** que gestionen
+el personal, les comunicacions (trucades, streaming), la monitorització de l'amplada
+de banda i la seguretat/auditoria. El SGBD triat és **MariaDB 10.5** (completament
+compatible amb MySQL), executat sobre una instància EC2 d'AWS Linux per evitar costos
+addicionals.
+
+Tots els scripts i captures es troben a la carpeta `capturas/07-bd/`. A continuació es
+detallen els diferents blocs documentals que cobreixen cada check de la rúbrica.
+
+> **Ordre de desplegament dels scripts**
+> ```bash
+> mysql -u root -p < InnovateTech.sql
+> mysql -u root -p InnovateTech < triggers.sql
+> mysql -u root -p InnovateTech < backup-event.sql
+> ```
+> Nota: la columna `adreça` (amb `ç`) requereix que la connexió sigui `utf8mb4`.
+> L'script `InnovateTech.sql` ja comença amb `SET NAMES utf8mb4;` perquè la càrrega
+> no falli amb cap client.
+
+---
+
 ### 7.1 07-bd/backup-event.md
 
-*Documento vacío.*
+#### 7.1.1 Activació del planificador d'events
+
+**Comandament:**
+```sql
+SHOW VARIABLES LIKE 'event_scheduler';
+```
+
+Resultat esperat: `Value = ON`. Si està desactivat, activar amb `SET GLOBAL event_scheduler = ON;`.
+
+![event_scheduler_on](./img/event_scheduler_on.png)
+
+---
+
+#### 7.1.2 Creació de l'event `backup_setmanal`
+
+**Comandament (definició completa):**
+```sql
+SHOW CREATE EVENT backup_setmanal\G
+```
+
+![creacio_event](./img/creacio_event.png)
+
+---
+
+#### 7.1.3 Verificació dels fitxers CSV generats
+
+**Comandament (des de la terminal del sistema):**
+```bash
+ls -la /tmp/backup_*.csv
+```
+
+![fitxers_csv_backup](./img/fitxers_csv_backup.png)
+
+---
+
+#### 7.1.4 Registre a la taula `CONTROL_BACKUP`
+
+**Comandament:**
+```sql
+SELECT * FROM CONTROL_BACKUP ORDER BY id_backup DESC LIMIT 1\G
+```
+
+![control_backup_registre](./img/control_backup_registre.png)
+
+---
 
 ### 7.2 07-bd/er-diagrama.md
 
-# Model Entitat-Relació
+**Comandament** (per obtenir el diagrama): des del MySQL Workbench,
+`Database → Reverse Engineer...` sobre l'esquema `InnovateTech`.
 
-## Introduccio
+![diagrama_ER](./img/diagrama_ER.png)
 
-El següent model Entitat-Relació representa l'estructura de dades necessària per gestionar el sistema de comunicació interna d'InnovateTech. La base de dades emmagatzema informació sobre:
+El procés detallat es descriu als subapartats següents.
 
-- Personal i organització: empleats i departaments.
-- Comunicació: usuaris (interns i externs), trucades i configuració de qualitat.
-- Streaming: catàleg de vídeos disponibles.
-- Monitorització: proves d'amplada de banda realitzades pels operaris.
-- Seguretat i auditoria: rols d'usuaris, control d'accés i registre d'avisos.
+---
 
-El model s'ha dissenyat seguint els requisits de l'apartat 3.2 i 3.3 de l'enunciat del projecte.
+#### 7.2.1 Extracció de requisits
 
-## Com hem creat el diagrama E/R (resum del procés)
+Vam llegir l'enunciat (apartats 3.2 i 3.3) i vam identificar 12 entitats amb els
+seus atributs, claus primàries i obligatorietat (`NOT NULL`). També vam detectar totes
+les relacions i els seus tipus (1:N, N:M, 0..1:1).
 
-### 7.2.1 Extracció de requisits
+#### 7.2.2 Disseny lògic
 
-Vam llegir l’enunciat (apartats 3.2 i 3.3) i vam identificar 12 entitats amb els seus atributs, claus primàries i obligatorietat (NOT NULL). També vam detectar totes les relacions i els seus tipus (1:N, N:M, 0..1:1).
+Vam dibuixar un esborrany inicial on vam assignar PK i FK, vam resoldre la relació N:M
+entre `USUARI` i `ROL` amb la taula associativa `USUARI_ROL`, i vam establir
+cardinalitats explícites (p. ex. `EMPLEAT → DEPARTAMENT` és N:1; `USUARI → EMPLEAT` és
+0..1 : 1).
 
-### 7.2.2 Disseny lògic
+#### 7.2.3 Implementació al SGBD (MySQL)
 
-Vam dibuixar un esborrany inicial on vam:
+Vam escriure un script SQL (`InnovateTech.sql`) que crea totes les taules amb
+`PRIMARY KEY`, `FOREIGN KEY`, `NOT NULL`, `UNIQUE`, `CHECK` i dades de prova.
 
-- Assignar PK a cada entitat (codi, dni, id_usuari, nom_rol, etc.)
-- Definir FK per a cada relació (p. ex., codi_departament a EMPLEAT)
-- Resoldre la relació N:M entre USUARI i ROL mitjançant la taula associativa USUARI_ROL
-- Establir cardinalitats explícites (ex: EMPLEAT → DEPARTAMENT és N:1; USUARI → EMPLEAT és 0..1:1)
+#### 7.2.4 Generació automàtica del diagrama
 
-### 7.2.3 Implementació al SGBD (MySQL)
+Vam executar l'script i vam usar l'eina *Reverse Engineer* del MySQL Workbench, que
+llegeix l'esquema real i dibuixa automàticament taules, atributs i claus.
 
-Vam escriure un script SQL que crea totes les taules amb:
+#### 7.2.5 Ajust manual i exportació
 
-- PRIMARY KEY, FOREIGN KEY
-- NOT NULL als atributs obligatoris
-- UNIQUE a l’email d’usuari i al nom de departament
-- CHECK per a valors (puntuació entre 1 i 5, durada >=0, etc.)
-- Dades de prova significatives
+Vam reorganitzar la disposició de les taules per a una millor llegibilitat i vam
+exportar el diagrama a PNG.
 
-### 7.2.4 Generació automàtica del diagrama
+![RAPJ-E-R](./img/RAPJ-E-R.png)
 
-Vam executar l’script a la base de dades local i després vam fer servir l’eina Reverse Engineer del MySQL Workbench. Aquesta va llegir l’esquema i va dibuixar automàticament les taules, atributs i cla
-
-### 7.2.5 Ajust manual i exportació
-
-Vam reorganitzar les taules perquè fossin llegibles, vam verificar les cardinalitats (especialment la relació opcional USUARI-EMPLEAT) i vam exportar el diagrama 
-
-| <img src="../../pro-ASIXC1A-grup2/capturas/07-bd/er-diagrama/RAPJ-E-R.png" alt="Captura-E-R" width="500"> |
-| :---: |
-| Diagrama Entitat Relacio |
+---
 
 ### 7.3 07-bd/model-relacional.md
 
-# Model relacional: transformació de l’E/R
+#### 7.3.1 Obtenció de les sentències `CREATE TABLE`
 
-## Introducció
+**Comandament per a una taula representativa:**
+```sql
+SHOW CREATE TABLE USUARI\G
+```
 
-Un cop vam tenir el diagrama Entitat-Relació complet (amb totes les entitats, atributs i cardinalitats), el següent pas va ser convertir-lo a un esquema relacional que es pogués implementar directament en un SGBD (en el nostre cas, MySQL). Aquesta transformació consisteix a:
+![show_create_table_usuari](./img/show_create_table_usuari.png)
 
-1. Crear una taula per cada entitat.
-2. Definir les claus primàries (PK) per identificar cada fila de manera única.
-3. Establir les claus foranes (FK) per representar les relacions entre taules.
+---
 
-L’objectiu és obtenir un conjunt de sentències `CREATE TABLE` que respectin exactament el disseny lògic del diagrama.
+#### 7.3.2 Comprovació de claus foranes i `CHECK`
 
-## Com hem realitzat aquesta transformació
+**Comandament per a la taula `TRUCADA`:**
+```sql
+SHOW CREATE TABLE TRUCADA\G
+```
 
-### 7.3.1 De cada entitat a una taula
+![show_create_table_trucada](./img/show_create_table_trucada.png)
 
-Per cada entitat del diagrama E/R, vam crear una taula amb el mateix nom i els mateixos atributs, respectant els tipus de dades i les restriccions de `NULL` / `NOT NULL` que havíem definit.
+---
 
-- L’entitat `DEPARTAMENT` amb atributs `codi`, `nom`, `telefon` → taula `DEPARTAMENT` amb les mateixes columnes.
+#### 7.3.3 Verificació de columnes `NOT NULL` / `NULL`
 
-### 7.3.2 Assignació de claus primàries
+**Comandament:**
+```sql
+DESCRIBE USUARI;
+```
 
-Vam marcar com a `PRIMARY KEY` l’atribut o atributs que identifiquen de manera única cada fila:
+![check_restrictions_usuari](./img/check_restrictions_usuari.png)
 
-- `codi` a `DEPARTAMENT`
-- `dni` a `EMPLEAT`
-- `id_usuari` a `USUARI`
-- `nom_rol` a `ROL`
-- etc.
+---
 
-Quan una relació N:M necessitava una taula associativa (com `USUARI_ROL`), vam definir una **clau primària composta** formada per les dues claus foranes.
+#### 7.3.4 Comprovació de la restricció `UNIQUE` (email)
 
-### 7.3.3 Definició de claus foranes
+**Comandament que provoca l'error:**
+```sql
+INSERT INTO USUARI (nom_complet, email, estat, tipus)
+VALUES ('Test', 'joan.garcia@innovatech.com', 'actiu', 'intern');
+```
 
-Per a cada relació detectada en el diagrama E/R, vam afegir una `FOREIGN KEY` a la taula filla que referenciés la clau primària de la taula pare, indicant les accions `ON DELETE` i `ON UPDATE` (normalment `RESTRICT` i `CASCADE`).
+Resultat: `ERROR 1062 (23000): Duplicate entry 'joan.garcia@innovatech.com' for key 'email'.`
 
-**Exemples de relacions transformades a FK:**
+![check_unique_email](./img/check_unique_email.png)
 
-- `EMPLEAT.codi_departament` → `DEPARTAMENT.codi`
-- `USUARI.dni_empleat` → `EMPLEAT.dni`
-- `USUARI_ROL.id_usuari` → `USUARI.id_usuari`
-- `USUARI_ROL.nom_rol` → `ROL.nom_rol`
-- `TRUCADA.usuari_originador` → `USUARI.id_usuari`
-- `TRUCADA.usuari_destinatari` → `USUARI.id_usuari`
-- `TRUCADA.id_grup_qualitat` → `GRUP_QUALITAT.id_grup`
-- `MESURA_AMPLADA_BANDA.operari_id` → `USUARI.id_usuari`
-- `AVIS.usuari_id` → `USUARI.id_usuari`
+---
 
-### 7.3.4 Generació del script SQL
+#### 7.3.5 Comprovació de la restricció `CHECK` (puntuació entre 1 i 5)
 
-Vam escriure un script complet (`InnovateTech.sql`) que conté totes les sentències `CREATE TABLE` en l’ordre correcte (primer les taules sense dependències, després les que tenen FK). Aquest script és l’evidència pràctica de la transformació al model relacional.
+**Comandament que provoca l'error:**
+```sql
+INSERT INTO TRUCADA (usuari_originador, usuari_destinatari, data_inici, id_grup_qualitat, puntuacio)
+VALUES (1, 2, NOW(), 1, 10);
+```
 
-| <img src="../../../pro-ASIXc1A-grup2/pro-ASIXC1A-grup2/capturas/07-bd/er-diagrama/RAPJ-SQL.png" alt="Captura-E-R" width="500"> |
-| :---: |
-| SCRIP SQL MODEL RELACIONAL |
+Resultat: `ERROR 4025 (23000): CONSTRAINT chk_puntuacio failed for InnovateTech.TRUCADA.`
 
+![check_puntuacio_range](./img/check_puntuacio_range.png)
 
-> Pots revisar el disseny complet de la base de dades en el [Script RAPJ.sql](../../pro-ASIXC1A-grup2/docs/07-bd/model-relacional.md).
+---
+
+#### 7.3.6 Dades de prova significatives
+
+**Comandament per a cada taula:**
+```sql
+SELECT * FROM DEPARTAMENT;
+SELECT * FROM EMPLEAT;
+SELECT * FROM USUARI;
+SELECT * FROM TRUCADA;
+SELECT * FROM VIDEO;
+```
+
+| Taula | Captura |
+|---|---|
+| DEPARTAMENT | ![select_departament](./img/select_departament.png) |
+| EMPLEAT | ![select_empleat](./img/select_empleat.png) |
+| USUARI | ![select_usuari](./img/select_usuari.png) |
+| TRUCADA | ![select_trucada](./img/select_trucada.png) |
+| VIDEO | ![select_video](./img/select_video.png) |
+
+---
 
 ### 7.4 07-bd/rols-permisos.md
 
-*Documento vacío.*
+#### 7.4.1 Visualització dels rols i permisos d'admin
+
+**Comandament:**
+```sql
+SHOW GRANTS FOR 'admin'@'%';
+```
+
+![show_grants_admin](./img/show_grants_admin.png)
+
+---
+
+#### 7.4.2 Comprovació dels permisos d'un usuari amb rol `vendes`
+
+**Comandament (executat com a usuari `vendes`):**
+```sql
+SHOW GRANTS;
+```
+
+![comprovacio_permisos_vendes](./img/comprovacio_permisos_vendes.png)
+
+---
+
+#### 7.4.3 Execució de l'script `crear_usuari.sh`
+
+**Comandament (des de terminal):**
+```bash
+./crear_usuari.sh
+```
+
+![crear_usuari_execucions](./img/crear_usuari_execucions.png)
+
+![crear_usuari_ok](./img/crear_usuari_ok.png)
+
+---
+
+#### 7.4.4 Contingut del fitxer `.sql` generat
+
+**Comandament:**
+```bash
+cat jair_grant.sql
+```
+
+![contingut_sql_generat](./img/contingut_sql_generat.png)
+
+---
+
+#### 7.4.5 Presència de `GRANT FILE` al script generat
+
+![grant_file_al_script](./img/grant_file_al_script.png)
+
+---
+
+#### 7.4.6 Gestió d'errors de l'script
+
+| Error | Captura |
+|---|---|
+| Nom d'usuari buit | ![error_arguments](./img/error_arguments.png) |
+| Rol invàlid | ![error_rol_invalid](./img/error_rol_invalid.png) |
+| Usuari root prohibit | ![error_usuari_existent](./img/error_usuari_existent.png) |
+| Contrasenyes diferents | ![error_contrasenyes](./img/error_contrasenyes.png) |
+
+---
 
 ### 7.5 07-bd/triggers.md
 
-*Documento vacío.*
+> **Nota tècnica:** la taula `AVIS` és `MyISAM` (no transaccional). Així els avisos
+> que insereixen els triggers persisteixen malgrat el `ROLLBACK` que provoca el
+> `SIGNAL SQLSTATE '45000'` en rebutjar l'operació.
 
 ---
+
+#### 7.5.1 Trigger `check_minuts_mensuals` (quota 500 minuts/mes)
+
+**Comandament que provoca l'error:**
+```sql
+INSERT INTO TRUCADA (usuari_originador, usuari_destinatari, data_inici, data_fi, durada_total, id_grup_qualitat)
+VALUES (1, 2, NOW(), DATE_ADD(NOW(), INTERVAL 600 MINUTE), 36000, 1);
+```
+
+Resultat: `ERROR 1644 (45000): Has superat els 500 minuts aquest mes.`
+
+![error_quota_minuts](./img/error_quota_minuts.png)
+
+**Comandament per veure l'avís registrat:**
+```sql
+SELECT * FROM AVIS WHERE detall LIKE '%minuts%' ORDER BY data_hora DESC LIMIT 1\G
+```
+
+![avis_quota_minuts](./img/avis_quota_minuts.png)
+
+---
+
+#### 7.5.2 Trigger `check_trucades_diaries` (màxim 10 trucades/dia)
+
+**Comandament que provoca l'error (després d'inserir 10 trucades):**
+```sql
+INSERT INTO TRUCADA (usuari_originador, usuari_destinatari, data_inici, data_fi, durada_total, id_grup_qualitat)
+VALUES (1, 2, NOW(), DATE_ADD(NOW(), INTERVAL 1 MINUTE), 60, 1);
+```
+
+Resultat: `ERROR 1644 (45000): Ja has fet 10 trucades avui.`
+
+![error_quota_diaria](./img/error_quota_diaria.png)
+
+**Avís a `AVIS`:**
+```sql
+SELECT * FROM AVIS WHERE detall LIKE '%diàries%' ORDER BY data_hora DESC LIMIT 1\G
+```
+
+![avis_quota_diaria](./img/avis_quota_diaria.png)
+
+---
+
+#### 7.5.3 Trigger `check_usuari_bloquejat` (bloqueig d'usuaris)
+
+**Bloquejar l'usuari:**
+```sql
+UPDATE USUARI SET estat = 'bloquejat' WHERE id_usuari = 5;
+```
+
+![bloquejar_usuari](./img/bloquejar_usuari.png)
+
+**Intent de trucada amb usuari bloquejat:**
+```sql
+INSERT INTO TRUCADA (usuari_originador, usuari_destinatari, data_inici, data_fi, durada_total, id_grup_qualitat)
+VALUES (5, 1, NOW(), DATE_ADD(NOW(), INTERVAL 5 MINUTE), 300, 1);
+```
+
+Resultat: `ERROR 1644 (45000): Usuari bloquejat. No pot fer trucades..`
+
+![error_usuari_bloquejat](./img/error_usuari_bloquejat.png)
+
+**Avís a `AVIS`:**
+```sql
+SELECT * FROM AVIS WHERE detall LIKE '%bloquejat%' ORDER BY data_hora DESC LIMIT 1\G
+```
+
+![avis_bloqueig](./img/avis_bloqueig.png)
+
+---
+
+#### 7.5.4 Trigger d'auditoria `audit_treballador_update_empleat`
+
+**Connexió com a usuari `treballador` i intent de modificació:**
+```sql
+UPDATE EMPLEAT SET nom = 'X' WHERE dni = '12345678A';
+```
+
+![error_auditoria_treballador](./img/error_auditoria_treballador.png)
+
+**Registre a `AVIS`:**
+```sql
+SELECT * FROM AVIS WHERE taula_afectada='EMPLEAT' AND operacio_intentada='UPDATE' ORDER BY data_hora DESC LIMIT 1\G
+```
+
+![avis_auditoria](./img/avis_auditoria.png)
+
+---
+
+#### 7.5.5 Estructura de la taula `AVIS`
+
+**Comandament:**
+```sql
+DESCRIBE AVIS;
+```
+
+![estructura_taula_avis](./img/estructura_taula_avis.png)
+
+---
+
+### 7.6 Resum de compliance (checks superats)
+
+| Check | Document | Captura clau |
+|---|---|---|
+| Diagrama E/R complet i cardinalitzat | er-diagrama.md | diagrama_ER.png / RAPJ-E-R.png |
+| Model relacional amb PK, FK | model-relacional.md | show_create_table_usuari.png, show_create_table_trucada.png |
+| BD amb PK, FK, NOT NULL, UNIQUE, CHECK | model-relacional.md | check_restrictions_usuari.png, check_unique_email.png, check_puntuacio_range.png |
+| Dades de prova | model-relacional.md | select_departament.png, select_empleat.png, select_usuari.png, select_trucada.png, select_video.png |
+| 4 rols creats amb permisos | rols-permisos.md | show_grants_admin.png, comprovacio_permisos_vendes.png |
+| Script de creació d'usuaris funcional | rols-permisos.md | crear_usuari_execucions.png, crear_usuari_ok.png |
+| Script genera .sql amb CREATE USER + GRANT | rols-permisos.md | contingut_sql_generat.png |
+| Script inclou GRANT FILE | rols-permisos.md | grant_file_al_script.png |
+| Script gestiona errors | rols-permisos.md | error_arguments.png, error_rol_invalid.png, error_usuari_existent.png, error_contrasenyes.png |
+| Trigger quota minuts mensuals | triggers.md | error_quota_minuts.png, avis_quota_minuts.png |
+| Trigger quota trucades diàries | triggers.md | error_quota_diaria.png, avis_quota_diaria.png |
+| Taula d'avisos i triggers d'auditoria | triggers.md | error_auditoria_treballador.png, avis_auditoria.png, estructura_taula_avis.png |
+| Trigger de bloqueig d'usuaris | triggers.md | bloquejar_usuari.png, error_usuari_bloquejat.png, avis_bloqueig.png |
+| Event periòdic de backup | backup-event.md | event_scheduler_on.png, creacio_event.png, fitxers_csv_backup.png, control_backup_registre.png |
+
+> Tots els elements estan implementats i documentats a la base de dades **InnovateTech**.
 
 ## 08. 08-1665
 
