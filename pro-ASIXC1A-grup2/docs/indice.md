@@ -1,0 +1,1770 @@
+# Documentación completa
+
+## Índice
+
+01. [01-cpd-fisic](01-cpd-fisic)
+  1.1 [1.1-infraestructura-electrica.md](01-cpd-fisic/1.1-infraestructura-electrica.md)
+  1.2 [1.2-infraestructura-it.md](01-cpd-fisic/1.2-infraestructura-it.md)
+  1.3 [1.3-prevencio-rrll.md](01-cpd-fisic/1.3-prevencio-rrll.md)
+  1.4 [1.4-seguretat-fisica-logica.md](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
+  1.5 [1.5-ubicacio.md](01-cpd-fisic/1.5-ubicacio.md)
+
+02. [02-aws](02-aws)
+  2.1 [ansible.md](02-aws/ansible.md)
+  2.2 [servei-logs-graylog.md](02-aws/servei-logs-graylog.md)
+  2.3 [ldap.md](02-aws/ldap.md)
+  2.4 [usuaris-admin.md](02-aws/usuaris-admin.md)
+  2.5 [web-sftp.md](02-aws/web-sftp.md)
+
+03. [03-audio](03-audio)
+  3.1 [Descripció_de_la_funcionalitat_Audio.md](03-audio/Descripció_de_la_funcionalitat_Audio.md)
+
+04. [04-video](04-video)
+  4.1 [Descripció_de_la_funcionalitat_Servei_de_Vídeo.md](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
+
+05. [05-videoconferencia](05-videoconferencia)
+  5.1 [Descripció_Protocol_WebRTC.md](05-videoconferencia/Descripció_Protocol_WebRTC.md)
+
+06. [06-amplada-banda](06-amplada-banda)
+  - Sin documentos disponibles
+
+07. [07-bd](07-bd)
+  7.1 [er-diagrama.md](07-bd/er-diagrama.md)
+  7.2 [model-relacional.md](07-bd/model-relacional.md)
+  7.3 [backup-event.md](07-bd/backup-event.md)
+  7.4 [rols-permisos.md](07-bd/rols-permisos.md)
+  7.5 [triggers.md](07-bd/triggers.md)
+
+08. [08-1665](08-1665)
+  - Sin documentos disponibles
+
+---
+
+## Capturas (carpeta capturas/)
+
+La carpeta `capturas/` conté imatges i captures organitzades per temàtiques. Aquestes figures es poden utilitzar com a suport visual en les pàgines corresponents de la documentació.
+
+### 01-cpd-fisic
+- `capturas/01-cpd-fisic/CPD-LOGICA.svg` — Diagrama lògic del CPD.
+- `capturas/01-cpd-fisic/VISTAISOMETRICA.svg` — Vista isomètrica del CPD.
+- `capturas/01-cpd-fisic/VISTA2D.svg` — Vista 2D del CPD.
+- `capturas/01-cpd-fisic/LOGICA-SAIS.svg` — Diagrama de l'alimentació i dels SAIs.
+- `capturas/01-cpd-fisic/infraestructura-it.png` — Esquema d'infraestructura IT i distribució dels racks.
+- `capturas/01-cpd-fisic/RED.png` — Topologia de xarxa del CPD.
+
+![CPD - Diagrama lògic](../capturas/01-cpd-fisic/CPD-LOGICA.svg)
+![CPD - Vista isomètrica](../capturas/01-cpd-fisic/VISTAISOMETRICA.svg)
+![CPD - Vista 2D](../capturas/01-cpd-fisic/VISTA2D.svg)
+![CPD - SAI](../capturas/01-cpd-fisic/LOGICA-SAIS.svg)
+![CPD - Infraestructura IT](../capturas/01-cpd-fisic/infraestructura-it.png)
+![CPD - Xarxa](../capturas/01-cpd-fisic/RED.png)
+
+Referència: [01-cpd-fisic](01-cpd-fisic)
+
+### 07-bd
+ - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
+ - `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
+
+Referència: [07-bd](07-bd)
+
+### 07-bd
+- `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
+- `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
+
+Referència: [07-bd](07-bd)
+
+### Altres carpetes
+- `capturas/03-audio/README.md`
+- `capturas/04-video/README.md`
+- `capturas/05-videoconferencia/README.md`
+- `capturas/06-amplada-banda/README.md`
+- `capturas/08-1665/README.md`
+
+Aquestes carpetes estan presents però no contenen imatges addicionals per a la documentación actual.
+
+---
+
+## 01. 01-cpd-fisic
+
+### 1.1 01-cpd-fisic/1.1-infraestructura-electrica.md
+
+# 1.1 Infraestructura elèctrica
+
+## Objectiu i criteris de disseny
+
+L'infraestructura elèctrica del CPD està dissenyada per garantir la disponibilitat dels serveis crítics, la protecció dels equips i la seguretat del personal. Els criteris principals són:
+
+- Redundància de subministrament.
+- Segregació de càrregues per rack.
+- Capacitat d'autonomia per a transicions ordenades.
+- Supervisió i manteniment periòdics.
+
+## Subministrament i redundància
+
+El CPD rep alimentació de dues línies independents (Línia A i Línia B) i compta amb un generador de dièsel de reserva. Cada línia es distribueix de forma separada fins als quadres de protecció per minimitzar el risc de tall simultani.
+
+```
+Xarxa elèctrica
+      │
+   ┌──┴──┐
+Línia A  Línia B
+   │        │
+   └──┬─────┘
+      │
+  ATS/Distribució
+      │
+  ┌──┴────┬────┐
+ [SAI1] [SAI2] [SAI3]
+   │       │      │
+ Rack1  Rack2  Rack3
+      │       │      │
+   [Generador dièsel]
+```
+
+## Distribució de càrrega
+
+Les càrregues es separen en tres blocs per garantir disponibilitat i flexibilitat:
+
+- **Rack 1**: servidors d'aplicacions i serveis.
+- **Rack 2**: equipament de xarxa i gestió.
+- **Rack 3**: emmagatzematge i còpies de seguretat.
+
+Aquesta segregació facilita el manteniment i limita l'impacte de fallades a un únic domini.
+
+## Càlcul de la càrrega i dimensionament
+
+| Equip | Unitats | W/unitat | Total W |
+|---|---|---|---|
+| Servidors (4 equivalents) | 4 | 300 W | 1.200 W |
+| Switches (core + accés) | 2 | 80 W | 160 W |
+| NAS primari + secundari | 2 | 120 W | 240 W |
+| KVM + patch panels | 1 | 30 W | 30 W |
+| Unitats CRAC (climatització) | 2 | 400 W | 800 W |
+| **Subtotal** | | | **2.430 W** |
+| **Marge de seguretat +20 %** | | | **+486 W** |
+| **Càrrega total estimada** | | | **≈ 2.900 W** |
+
+Aquest dimensionament incorpora un marge per a futurs creixements i per a desviacions del consum estimat.
+
+Aquestes xifres es basen en una estimació inicial d'ús per part de la infraestructura del CPD:
+
+- 100–150 usuaris finals simultanis a serveis web i SFTP.
+- 10–15 administradors i personal de gestió de TI.
+- 20 connexions internes de serveis per a LDAP, monitoratge i replicació.
+
+Aquestes previsions ajuden a verificar que els SAIs, el generador i la distribució elèctrica són suficients per mantenir el funcionament amb marge de seguretat.
+
+## Selecció i instal·lació dels SAIs
+
+S'instal·len **3 SAIs de 3.000 VA / 2.700 W**, un per rack:
+
+| SAI | Rack | Càrrega protegida | Mòduls EBM |
+|---|---|---|---|
+| SAI 1 | Rack 1 — Servidors | Servidors 1–4 | 2 mòduls |
+| SAI 2 | Rack 2 — Xarxa | Switches, firewall, KVM | 2 mòduls |
+| SAI 3 | Rack 3 — Emmagatzematge | NAS primari i secundari | 1 mòdul |
+
+Això assegura protecció dedicada i facilita la prova i substitució de cada unitat.
+
+## Autonomia i transició a generador
+
+| Fase | Temps | Acció |
+|---|---|---|
+| 0 min | Tall elèctric | Els SAIs proveeixen alimentació immediata |
+| 0–2 min | Estabilització | Tensió estabilitzada i alarma enviada |
+| 2–5 min | Arrencada generador | Generador ences o automàtic |
+| 5–10 min | Commutació | ATS commuta a generador estable |
+| 10–30 min | Operació normal | Funcionament amb generador |
+| > 30 min | Apagat ordenat | Si el generador no està disponible |
+
+> La prioritat és mantenir les càrregues crítiques mentre es controla la resta de sistemes.
+
+## Grup electrogen
+
+- **Combustible**: dièsel.
+- **Temps d'arrencada**: < 30 segons.
+- **Autonomia**: 48–72 h amb el dipòsit ple.
+- **Commutació**: ATS automàtica.
+- **Proves**: arrencades mensuals per verificar estat.
+
+## Supervisió i manteniment
+
+- Monitoratge de tensió, corrent i estat de bateria.
+- Revisió periòdica dels quadres i proteccions.
+- Mesura de temperatura i humitat al voltant dels SAIs i generador.
+- Inspecció anual del cablejat i connexions.
+
+### 1.2 01-cpd-fisic/1.2-infraestructura-it.md
+
+# 1.2 Infraestructura IT
+
+## Objectiu i arquitectures
+
+Aquesta secció descriu com s'organitzen els serveis del CPD, la xarxa de comunicacions i la infraestructura física de suport per garantir la disponibilitat, la seguretat i la gestió centralitzada.
+
+## Serveis i separació de funcions
+
+La infraestructura IT es distribueix en servidors amb funcions específiques per evitar interferències entre serveis i permetre una gestió més clara.
+
+| Servidor | Funció principal | Instància tipus |
+|---|---|---|
+| Servidor 1 | Web i SFTP — Apache/Nginx, OpenSSH autenticat amb LDAP | EC2 t3.small |
+| Servidor 2 | LDAP i logs — OpenLDAP, Graylog, OpenSearch | EC2 t3.small |
+| Servidor 3 | Streaming àudio/vídeo i base de dades — Icecast, NGINX-RTMP, MariaDB | EC2 t3.medium |
+| Servidor 4 | Backups automatitzats | EC2 t3.micro |
+
+Aquesta separació facilita l'escalabilitat i minimitza l'impacte de fallades de servei.
+
+## Càrrega de serveis i usuaris
+
+Aquest disseny es basa en una estimació d'ús orientada a 100–150 usuaris finals actius simultanis i els següents patrons de servei:
+
+- **Servei web i SFTP**: fins a 100 connexions concorrents, amb una base de 200–300 usuaris registrats per dia, gestió de fitxers i descàrregues de contingut.
+- **LDAP i logs**: 50 consultes d'autenticació per minut i 10 serveis interns enviant logs en temps real.
+- **Streaming d'àudio i vídeo**: 20 fluxos simultanis de reproducció, 50 oients/visualitzadors concorrents i 50 connexions a la base de dades.
+- **Backups**: 4 treballs programats per nit amb transferència de 150–200 GB diaris.
+
+Aquesta quantificació justifica l'ús d'instàncies EC2 de tipus t3.small per serveis de gestió i directoris, i t3.medium per a càrregues de streaming i BD amb memòria addicional.
+
+## Gestió centralitzada amb Ansible
+
+L'automatització amb **Ansible** aporta:
+
+- Configuració reproductible dels equips.
+- Desplegaments consistents i controlats.
+- Menor necessitat d'accés manual per SSH a cada host.
+- Documentació de playbooks i inventaris.
+
+### Administració dels servidors
+
+- Ús d'un **usuari no-root** dedicat per a gestió.
+- Autenticació amb **clau pública/privada SSH**.
+- Màquina de control Ansible separada dels hosts gestionats.
+- Inventari estructurat per rols i grups.
+
+## Xarxa i segmentació
+
+La xarxa es segmenta per controlar l'accés i disminuir els riscos:
+
+| VLAN | Nom | Ús | Ports/serveis |
+|---|---|---|---|
+| VLAN 10 | Servidors | Comunicacions internes | Ports de serveis interns |
+| VLAN 20 | Administració | Accés SSH i gestió | SSH, SNMP, monitoratge |
+| VLAN 30 | DMZ | Serveis públics | HTTP/HTTPS, RTMP, SFTP |
+
+## Components de xarxa i cablejat
+
+### Switches
+
+| Dispositiu | Ubicació | Funció |
+|---|---|---|
+| Switch core | Rack 2 | Distribució de trànsit entre racks i VLANs |
+| Switch d'accés | Rack 2 | Connexió de servidors i NAS |
+
+### Patch panels
+
+- **2 patch panels Cat6A de 24 ports** a Rack 1.
+- **1 patch panel de fibra òptica** a Rack 3.
+- Etiquetatge bidireccional per manteniment ràpid.
+
+### Connexions entre racks
+
+- **Rack 1 ↔ Rack 2**: Cat6A des del patch panel de Rack 1 al switch core de Rack 2.
+- **Rack 2 ↔ Rack 3**: Cat6A del switch d'accés als NAS.
+- **Tots els racks**: fibra òptica per a trànsit d'alta capacitat.
+
+## Disponibilitat i manteniment
+
+- Configuració física separada per facilitar l'actualització d'un rack sense impactar els altres.
+- Monitoratge de rendiment i condicions ambientals.
+- Revisions periòdiques del cablejat i de l'equipament de xarxa.
+
+### 1.3 01-cpd-fisic/1.3-prevencio-rrll.md
+
+# Prevenció de riscos laborals (RRLL)
+
+## Objectiu
+
+Aquesta secció defineix els riscos específics del CPD i les mesures de prevenció necessàries per garantir la seguretat del personal i la protecció dels equips.
+
+## Metodologia d'avaluació
+
+L'avaluació de riscos es basa en:
+
+- Identificació dels perills.
+- Anàlisi de probabilitat i impacte.
+- Controls tècnics i organitzatius.
+- Revisió periòdica i millora contínua.
+
+## Riscos identificats i mesures preventives
+
+### Risc elèctric
+
+| Mesura | Descripció |
+|---|---|
+| Instal·lació certificada | Revisió per electricista autoritzat |
+| Posada a terra | Racks i equips connectats a terra |
+| Armari elèctric protegit | Quadres amb tancament i accés restringit |
+| EPIs | Guants, calçat i ulleres de protecció |
+| Senyalització | Pictogrames i etiquetatge clar |
+
+### Risc d'incendi
+
+| Mesura | Descripció |
+|---|---|
+| Sistema FM-200 / Novec | Extinció automàtica sense danyar equips |
+| Detectors de fum | Sostre tècnic i sota el sòl tècnic |
+| Alarma integrada | Amb la infraestructura de l'edifici |
+| Vies d'evacuació | Il·luminació i accessos clars |
+| Extintors CO₂ | A la porta del CPD |
+| Formació | Personal format en extinció i evacuació |
+
+### Risc ergonòmic
+
+| Mesura | Descripció |
+|---|---|
+| Alçada dels racks | Equips de fàcil accés entre 0,5 i 1,7 m |
+| Eines de suport | Carros elevadors i safates lliscants |
+| Il·luminació | Mínim 500 lux a la zona de treball |
+| Espai de pas | Passadissos mínims de 1,2 m |
+
+### Risc ambiental
+
+| Mesura | Descripció |
+|---|---|
+| Soroll | Protectors auditius per tasques llargues |
+| Temperatura | 18–27 °C per als equips |
+| Humitat | 40–60 % HR per evitar estàtica i condensació |
+| Qualitat de l'aire | Filtratge de les unitats CRAC |
+
+### Risc de caigudes i cops
+
+| Mesura | Descripció |
+|---|---|
+| Sòl tècnic protegit | Baldoses fixades i senyalitzades |
+| Il·luminació d'emergència | Activació automàtica en tall elèctric |
+| Ordre i neteja | Política de zero cables al sòl |
+| Control d'accés | Menys personal dins la sala |
+
+## Procediments de seguretat
+
+1. **Treball en parella**: qualsevol tasca de manteniment es fa amb dues persones.
+2. **Permís de treball**: registre previ per accedir al CPD.
+3. **Formació obligatòria**: formació en PRL, mínim 6 hores.
+4. **Simulacres anuals**: evacuació i dispositius d'extinció.
+5. **Botiquí**: equipat i accessible fora de la sala.
+6. **Inspecció periòdica**: revisió documentada de sistemes i equips.
+
+## Normativa de referència
+
+- Llei 31/1995, de Prevenció de Riscos Laborals.
+- Reial Decret 486/1997 sobre condicions mínimes de treball.
+- Reial Decret 614/2001 sobre risc elèctric.
+- UNE-EN 12464-1 d'il·luminació dels llocs de treball.
+- TIA-942 per a infraestructures CPD.
+
+### 1.4 01-cpd-fisic/1.4-seguretat-fisica-logica.md
+
+# Seguretat física i lògica
+
+## Seguretat física
+
+### Objectiu
+
+Protegir l'accés físic i l'entorn del CPD per evitar intrusions, danys als equips i incidents ambientals.
+
+### Control d'accés
+
+- Accés amb **lector RFID + teclat PIN**.
+- Porta **blindada** amb tancament electromagnètic en mode **fail-secure**.
+- Registre d'entrades i sortides amb timestamp.
+- Accés només per personal autoritzat i fitxat.
+- Auditories d'accés periòdiques.
+
+### Videovigilància
+
+| Element | Especificació |
+|---|---|
+| Càmeres | 3 IP domo 180° |
+| Cobertura | 2 interiors + 1 exterior |
+| Gravació | 24/7 en NVR local |
+| Retenció | 30 dies |
+| Visió nocturna | Infraroja |
+
+### Prevenció i detecció d'incendis
+
+- Extinció amb **FM-200 / Novec 1230**.
+- Detectors de fum i temperatura al sostre tècnic i sota el sòl tècnic.
+- Alarma integrada amb la resta de l'edifici.
+- Ports cortafoc i senyalització d'emergència.
+- Extintors CO₂ a l'entrada del CPD.
+
+### Control d'humitat i ambient
+
+- Temperatura objectiu: **18–27 °C**.
+- Humitat relativa: **40–60 %**.
+- Control automàtic amb unitats CRAC.
+- Segellat de forats i passacables amb materials ignífugs.
+- Porta hermètica amb junta perimetral.
+- Prohibició de canonades d'aigua dins la sala.
+
+### Detecció addicional
+
+- Sensors de temperatura i humitat en tres punts.
+- Cable detector d'aigua sota el sòl tècnic.
+- Alertes integrades amb el sistema de monitoratge.
+
+## Seguretat lògica
+
+### Principis bàsics
+
+Aplicar el principi del mínim privilegi i segregar les xarxes per reduir l'impacte de possibles incidents.
+
+### Identitat i accés
+
+- Gestió amb **usuari no-root** per a administració.
+- Autenticació per **clau SSH**.
+- Permisos limitats segons rol.
+
+### Firewall i segmentació
+
+- Firewall perimetral amb **pfSense / OPNsense**.
+- Regles restrictives per port i protocol.
+- Segmentació de xarxa en VLANs.
+
+| VLAN | Nom | Ús |
+|---|---|---|
+| VLAN 10 | Servidors | Comunicació interna segura |
+| VLAN 20 | Administració | SSH i gestió |
+| VLAN 30 | DMZ | Serveis públics |
+
+### Monitoratge i alertes
+
+- Monitoratge de recursos i condicions ambientals.
+- Alertes per email i Telegram.
+- Registre de logs per auditories.
+
+### Backups i recuperació
+
+| Còpia | Suport | Ubicació |
+|---|---|---|
+| Còpia 1 | NAS primari (RAID 5) | Local — Rack 3 |
+| Còpia 2 | NAS secundari (RAID 6) | Local — Rack 3 |
+| Còpia 3 | AWS S3 | Offsite |
+
+- Còpies incrementals diàries.
+- Còpies completes setmanals.
+- Retenció de 30 dies.
+- Proves de restauració mensuals.
+
+### Emmagatzematge RAID
+
+| NAS | Tipus RAID | Discos | Tolerància |
+|---|---|---|---|
+| NAS primari | RAID 5 | Mínim 3 | 1 disc |
+| NAS secundari | RAID 6 | Mínim 4 | 2 discos |
+
+> RAID protegeix contra fallades de disc, però no substitueix els backups fora de lloc.
+
+### 1.5 01-cpd-fisic/1.5-ubicacio.md
+
+# Ubicació física del CPD
+
+## Criteris d'elecció
+
+La sala del CPD es situa en una **planta intermèdia** per combinar seguretat i accessibilitat:
+
+- Evita inundacions de la planta baixa.
+- Evita filtracions o calor extremes de la planta alta.
+- Permet un accés controlat des d'àrees tècniques.
+- Redueix sorolls externs i vibracions.
+
+## Característiques de l'espai
+
+- Sense finestres exteriors.
+- Accés només des de zones restringides.
+- Aspecte de sala tècnica genèrica per reduir la visibilitat.
+
+## Protecció d'identitat i accés
+
+- Porta sense retolació identificativa.
+- Accés exclusiu per personal autoritzat.
+- Sensors d'intrusió i control d'accés integrats.
+
+## Cablejat i estructura tècnica
+
+### Sòl tècnic
+
+- Altura: 40 cm.
+- Material: baldoses metàl·liques antiestàtiques.
+- Funcions: aire fred, cables de dades, cables elèctrics.
+- Càrrega màxima: 1.000 kg/m².
+
+### Sostre tècnic
+
+- Bandeja de cablejat per a alimentació i dades.
+- Retorn de l'aire calent cap als CRAC.
+- Detectores d'incendis integrats.
+
+### Gestió del cablejat
+
+- Etiquetatge a ambdós extrems.
+- Separació de cables de dades i elèctrics.
+- Recorruts nets i ordenats.
+- Política de zero cables a terra.
+
+## Climatització i condicions ambientals
+
+S'utilitzen unitats **CRAC** amb flux d'aire fred per sòl tècnic.
+
+| Zona | Temperatura | Humitat relativa |
+|---|---|---|
+| Passadís fred | 18–21 °C | 40–60 % |
+| Passadís calent | 27–35 °C | — |
+| Sala general | 18–27 °C | 40–60 % |
+
+- Sistema **N+1**: una unitat reemplaça l'altra si falla.
+- Filtratge d'aire per reduir partícules.
+- Control de humitat per evitar estàtica i condensació.
+
+## Organització dels racks
+
+| Rack | Contingut principal |
+|---|---|
+| Rack 1 | Servidors i serveis aplicatius |
+| Rack 2 | Xarxa, firewall i gestió |
+| Rack 3 | Emmagatzematge i backups |
+
+### Patró fred/calor
+
+```
+[CRAC 1] | Passadís fred | RACK 1 | Passadís calent | RACK 2 | Passadís fred | RACK 3 | [CRAC 2]
+```
+
+Aquesta distribució optimitza el flux d'aire i millora l'eficiència de refrigeració.
+
+## Escalabilitat i manteniment
+
+- L'espai permet l'afegit d'un rack addicional si cal.
+- El cablejat i les canalitzacions preveuen capacitat futura.
+- Els accessos i etiquetatges faciliten el manteniment sense impactar serveis crítics.
+
+---
+
+## 02. 02-aws
+
+### 2.1 02-aws/ansible.md
+
+# 2.1 Gestió de les màquines amb Ansible
+
+## 2.1.1 Decisió adoptada
+
+Per a la gestió i configuració dels servidors del CPD he decidit utilitzar **Ansible** com a eina d'automatització. Això significa que totes les instal·lacions, configuracions i desplegaments es fan des d'una màquina de control mitjançant playbooks, sense haver d'accedir manualment a cada servidor.
+S'administressin i configuressin 3 maquines i 4 serveis amb ansible, aquesta és la distribució:
+
+- Servidor 1 ( Servei Web + SFTP )
+- Servidor 2A ( LDAP )
+
+## 2.1.2 Usuari de gestió
+
+Per no utilitzar l'usuari per defecte d'AWS, per a les tasques d'Ansible, s'ha creat un usuari dedicat anomenat **`usuari_gestiorapj`** a cada servidor.
+
+Aquest usuari té les característiques següents:
+
+- Pot executar ordres amb `sudo` sense necessitat de contrasenya, necessari perquè Ansible pugui instal·lar paquets i modificar configuracions del sistema.
+- L'autenticació es fa exclusivament mitjançant **clau SSH**. No té contrasenya d'accés.
+- La clau privada es troba a la màquina de control. Cap servidor no la conté.
+
+## 2.1.3 Estructura de carpetes node de gestió Ansible
+
+El node de gestió de Ansible serà una màquina interna al CPD que tindrà la següent estructura de carpetes i arxius per a aquesta gestió:
+
+```
+ansible-cpd/
+├── inventory.ini
+├── site.yml
+├── group_vars/
+│   └── all.yml
+└── roles/
+    ├── common/
+    │   └── tasks/main.yml
+    ├── ec2/
+    │   ├── tasks/main.yml
+    │   └── vars/main.yml
+    ├── nginx/
+    │   ├── tasks/main.yml
+    │   ├── handlers/main.yml
+    │   ├── templates/vhost.conf.j2
+    │   └── vars/main.yml
+    ├── sftp/                          
+    │   ├── tasks/main.yml             
+    │   ├── templates/sssd.conf.j2     
+    │   ├── templates/sshd_config.j2   
+    │   └── vars/main.yml              
+    ├── slapd/
+    │   ├── tasks/main.yml
+    │   ├── templates/base.ldif.j2
+    │   ├── templates/usuarios.ldif.j2
+    │   └── vars/main.yml
+```
+### inventory.ini
+ 
+Conté la llista de màquines que Ansible gestionarà, agrupades per funció. El Servidor 2 apareix en dos grups diferents perquè allotja dos serveis independents: LDAP i Graylog.
+ 
+### site.yml
+ 
+Assigna els rols a cada grup de servidors. Defineix **qui fa què**: quins serveis s'instal·len i configuren a cada màquina.
+ 
+### group_vars/all.yml
+ 
+Conté les variables que comparteixen diversos rols, com ara el domini LDAP, la IP del servidor de directori, les credencials d'administració o la zona horària. Centralitzar-les aquí evita repetir el mateix valor en múltiples llocs.
+
+### Rols
+ 
+Cada rol és independent i conté tot el necessari per desplegar un servei:
+ 
+- `tasks/main.yml` — els passos d'instal·lació i configuració
+- `templates/` — fitxers de configuració amb variables (vhost de Nginx, `proftpd.conf`, fitxers LDIF, `graylog.conf`)
+- `vars/main.yml` — variables pròpies del servei (llista d'usuaris LDAP, ports, directoris)
+- `handlers/main.yml` — accions reactives com reiniciar un servei quan canvia la seva configuració
+
+## 2.1.4 Fitxers de configuració desplegats
+ 
+Un dels aspectes més importants és que Ansible no només instal·la els paquets, sinó que també desplega i gestiona els fitxers de configuració de cada servei:
+ 
+- **Nginx** — virtualhost configurat amb el domini i el directori arrel del projecte
+- **SFTP** — `sshd_config` configurat amb el subsistema SFTP natiu d'OpenSSH, autenticació d'usuaris via SSSD integrat amb el servidor LDAP i creació automàtica de directoris home amb oddjob
+- **slapd** — fitxers LDIF per crear l'estructura del directori (`ou=users`, `ou=groups`) i els usuaris inicials
+
+## 2.1.5 Preparació de l'entorn Ansible:
+
+Desde aquesta màquina creada s'administraran i crearan les màquines del servidor web + sftp i LDAP
+
+| <img src="../capturas/02-aws/CREACION-NODO-ANSIBLE.png" alt="captura1_ansible" width="500"> |
+| :---: |
+| Comanda de creació de la instància Node de Gestió Ansible |
+
+| <img src="../capturas/02-aws/ASIGNACION-IP-FIJA-PUBLICA.png" alt="captura2_ansible" width="600"> |
+| :---: |
+| Assignació de ip pública a la màquina |
+---
+Accedim al node de gestió i preparem l'entorn:
+
+| <img src="../capturas/02-aws/ESTRUCTURA-CARPETAS.png" alt="captura3_ansible" width="500"> |
+| :---: |
+| Estructura de carpetes creada |
+---
+### Configuració de credencials AWS al node de gestió
+El primer que es farà es crear les instàncies tant del servei web + sftp com del LDAP amb un playbook.  
+Abans de poder utilitzar Ansible per crear instàncies EC2 a AWS, cal configurar
+les credencials d'accés al node de gestió. Com que s'utilitza AWS Academy,
+les credencials (Access Key, Secret Key i Session Token) es generen
+temporalment a cada sessió del Learner Lab i s'han de renovar cada cop que
+es reinicia el laboratori.
+
+Les credencials s'emmagatzemen al fitxer `~/.aws/credentials` del node de
+gestió, que és el lloc estàndard on tant la CLI d'AWS com Ansible (a través
+de boto3) van a buscar-les automàticament per autenticar-se contra l'API d'AWS.
+
+Un cop configurades, Ansible podrà interactuar amb AWS per crear i configurar
+les instàncies EC2 sense necessitat de introduir cap credencial manualment
+durant l'execució dels playbooks.
+
+| <img src="../capturas/02-aws/CREDENCIALES-CONFIGURADAS.png" alt="captura4_ansible" width="1000"> |
+| :---: |
+| Credencials configuradas al node de gestió |
+---
+### Creació de les dos instàncies amb Ansible
+
+Per usar el mòdul amazon.aws d'Ansible necessites tenir instal·lada la col·lecció i la llibreria Python boto3:
+
+| <img src="../capturas/02-aws/INSTALACION-BOTO3.png" alt="captura5_ansible" width="500"> |
+| :---: |
+| Instal·lació boto3 |
+
+Ara els fitxers. Primer el group_vars/all.yml només amb el que necessitem per crear les màquines:
+
+| <img src="../capturas/02-aws/VARIABLES_CREACIO_INSTANCIES.png" alt="captura6_ansible" width="500"> |
+| :---: |
+| Variables definides per a la creació d'instàncies |
+
+Ara /vars/main.yml del rol on definirem les instàncies, el nom, el scurity group...:
+
+| <img src="../capturas/02-aws/VARIABLES-ROL.png" alt="captura7_ansible" width="500"> |
+| :---: |
+| Definició de las instàncies a les variables del rol |
+
+Ara el site.yml que és el playbook principal que actualment s’encarrega d’orquestrar la creació d’instàncies EC2 a AWS mitjançant el role ec2:
+
+| <img src="../capturas/02-aws/SITE.png" alt="captura8_ansible" width="500"> |
+| :---: |
+| Configuració del site.yml |
+
+Ara el inventory.ini que es divideix en dos fases la primera durant la creació de les instàncies que es treballarà en local  
+i la segona fase on ja podrem omplir les dades del inevntari una vegada les màquines estiguin creades correctament:
+
+| <img src="../capturas/02-aws/INVENTORY.png" alt="captura9_ansible" width="500"> |
+| :---: |
+| Configuració del inventory.ini |
+
+Ara el tasks/main.yml del rol, que és on passa tot, en aquest cas deixo el playbook en format de text:
+
+## EC2 Playbook (Ansible)
+
+```yaml
+---
+---
+# ─────────────────────────────────────
+# CREAR INSTÀNCIES EC2
+# ─────────────────────────────────────
+
+- name: Crear instancias EC2
+  amazon.aws.ec2_instance:
+
+    name: "{{ item.name }}"
+    region: "{{ aws_region }}"
+
+    instance_type: "{{ item.type }}"
+    image_id: "{{ aws_ami }}"
+
+    key_name: "{{ aws_key_name }}"
+    subnet_id: "{{ aws_subnet_id }}"
+
+    security_groups: "{{ item.security_groups }}"
+
+    tags: "{{ item.tags | combine({
+      'Project': aws_tag_project,
+      'Env': aws_tag_env
+    }) }}"
+
+    state: running
+    wait: true
+
+  loop: "{{ ec2_instancies }}"
+  register: ec2_result
+
+
+# ─────────────────────────────────────
+# RESERVAR ELASTIC IP
+# ─────────────────────────────────────
+
+- name: Reservar Elastic IP
+  amazon.aws.ec2_eip:
+    region: "{{ aws_region }}"
+    in_vpc: true
+    state: present
+
+  loop: "{{ ec2_result.results }}"
+  register: eip_result
+
+
+# ─────────────────────────────────────
+# ASOCIAR ELASTIC IP
+# ─────────────────────────────────────
+
+- name: Asociar Elastic IP
+  amazon.aws.ec2_eip:
+    region: "{{ aws_region }}"
+    device_id: "{{ item.0.instances[0].instance_id }}"
+    public_ip: "{{ item.1.public_ip }}"
+    in_vpc: true
+    state: present
+
+  loop: "{{ ec2_result.results | zip(eip_result.results) | list }}"
+
+
+# ─────────────────────────────────────
+# RESUMEN FINAL
+# ─────────────────────────────────────
+
+- name: Mostrar resumen de instancias creadas
+  debug:
+    msg: >
+      {{ item.0.item.name }} → {{ item.1.public_ip }}
+
+  loop: "{{ ec2_result.results | zip(eip_result.results) | list }}"
+
+```
+
+## Execució del playbook y verificació de que tot ha funcionat correctament:
+
+Primer cal fer un ping per verificar que l'inventari esta responent:
+
+| <img src="../capturas/02-aws/PINGINVENTARI.png" alt="captura10_ansible" width="500"> |
+| :---: |
+| Ping al inventari |
+
+Ara desde el directori base d'ansible ja podem executar el playbook indicant el nom del arxiu site.yml:
+
+<img src="../capturas/02-aws/EJECUCION1.png" alt="captura11_ansible" width="500">
+
+<img src="../capturas/02-aws/EJECUCION2.png" alt="captura11_ansible" width="500">
+
+| <img src="../capturas/02-aws/EJECUCION3.png" alt="captura11_ansible" width="700"> |
+| :---: |
+| Execució Playbook |
+  
+
+Captures de pantalla de verificació:
+
+<img src="../capturas/02-aws/VERIFICACION1.png" alt="captura11_ansible" width="900">
+
+<img src="../capturas/02-aws/VERIFICACION2.png" alt="captura11_ansible" width="400">
+
+| <img src="../capturas/02-aws/VERIFICACION3.png" alt="captura11_ansible" width="700"> |
+| :---: |
+| Verificacions |
+  
+## Configuracions comuns als servidors
+
+Ara es deixa completament preparat l'entorn realizant les següents tasques comuns als servidors:
+
+- Creació d'usuari de gestió amb permisos d'administrador sense contrasenya
+- Creació d'una clau per a que l'acces a les màquines sigui exclusivament per SSH sense contraenya.
+- Instal·lació de rsyslog i enviament de logs al servidor que els centralitza
+
+Primer cal editar el inventari, perque les màquines ja estan operatives i tenim les seves dades, també farem una agrupació al inventari per facilitar la gestió de tasques comuns:
+
+| <img src="../capturas/02-aws/INVENTARI_ACTUALITZAT2.png" alt="captura12_ansible" width="500"> |
+| :---: |
+| Inventari actualitzat |
+
+Generar la clau que es distribuira:
+
+| <img src="../capturas/02-aws/GENERAR_CLAU.png" alt="captura13_ansible" width="500"> |
+| :---: |
+| Genreació de la clau |
+
+Editar el fitxer de variables locals, afegim el nom del usuari que es crearà, el nom de la clau i on es copiarà, es copia automàticament al fitxer authorized_keys de l'usuari **`usuari_gestiorapj`** a cada servidor.  
+Això permet que **`usuari_gestiorapj`** entri per SSH sense haver d'introduir cap contrasenya.:
+
+| <img src="../capturas/02-aws/VARIABLES_COMUNS.png" alt="captura14_ansible" width="500"> |
+| :---: |
+| Fitxer group_vars/all.yml |
+
+Editar el site.yml i afegir el següent:
+
+| <img src="../capturas/02-aws/SITE_ACTUALITZAT.png" alt="captura15_ansible" width="500"> |
+| :---: |
+| Fitxer site.yml |
+
+Editar el fitxer handler del rol per reiniciar serveis:
+
+| <img src="../capturas/02-aws/HANDLERCOMUN.png" alt="captura15_ansible" width="500"> |
+| :---: |
+| Fitxer handlers/main.yml |
+
+Utilitzarem el rol common hi ha que editar el tasks/main.yml del rol:
+
+```yaml
+---
+# ── 1. Actualització del sistema ─────────────────────────────────────
+- name: Actualitzar la llista i tots els paquets del sistema
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+    update_cache: true
+
+- name: Eliminar paquets i dependències obsoletes (Autoremove)
+  ansible.builtin.dnf:
+    autoremove: true
+
+# ── 2. Crear usuari i fer que no necessiti contrasenya ─────────────────────────────────────
+- name: Create user ansible
+  ansible.builtin.user:
+    name: "{{ created_username }}"
+    shell: /bin/bash
+    state: present
+    create_home: yes
+
+- name: Setup passwordless sudo for user ansible
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/90-cloud-init-users
+    state: present
+    line: "{{ created_username }} ALL=(ALL) NOPASSWD:ALL"
+    insertafter: EOF
+
+# ── 3. Distribuir i copiar la clau ─────────────────────────────────────
+- name: Set authorized keys taken from url
+  ansible.posix.authorized_key:
+    user: "{{ created_username }}"
+    state: present
+    key: "{{ copy_local_key }}"
+
+# ── 4. Canviar el Hostname del sistema ─────────────────────────────────────
+- name: Configurar el hostname permanent de la màquina
+  ansible.builtin.hostname:
+    name: "{{ inventory_hostname | lower }}"
+
+# ── 5. Instal·lació i configuració de Rsyslog ──────────────────────────────
+- name: Assegurar que rsyslog està instal·lat
+  ansible.builtin.dnf:
+    name: rsyslog
+    state: present
+
+- name: Assegurar que el servei rsyslog està actiu i arrenca amb el sistema
+  ansible.builtin.service:
+    name: rsyslog
+    state: started
+    enabled: true
+
+- name: Afegir la regla de reenviament al rsyslog.conf
+  ansible.builtin.lineinfile:
+    path: /etc/rsyslog.conf
+    state: present
+    line: '*.* @10.0.4.242:514;RSYSLOG_SyslogProtocol23Format'
+    insertafter: EOF
+  notify: Reiniciar rsyslog
+
+- name: Forçar l'execució immediata del handler si hi ha hagut canvis
+  ansible.builtin.meta: flush_handlers
+
+- name: Enviar un log de prova
+  ansible.builtin.command:
+    cmd: 'logger -p syslog.info "Test log des de {{ ansible_facts[\"hostname\"] }}"'
+```
+## Execució del playbook y verificació de que tot ha funcionat correctament:
+
+Primer cal fer un ping per verificar que l'inventari esta responent, auqesta vegada cal indicar la clau perquè son màquines remotes:
+
+| <img src="../capturas/02-aws/PING_INVENTARI2.png" alt="captura16_ansible" width="500"> |
+| :---: |
+| Ping al inventari |
+
+Ara desde el directori base d'ansible ja podem executar el playbook indicant el nom del arxiu site.yml:
+
+| <img src="../capturas/02-aws/EXECUCIO_COMU.png" alt="captura17_ansible" width="500"> |
+| :---: |
+| Execució playbook |
+
+Verificació de que tot ha funcionat correctament:
+
+La connexió ssh amb la clau creada respon root tot esta correcte:
+
+| <img src="../capturas/02-aws/VERIFICACIONCOMUN.png" alt="captura18_ansible" width="800"> |
+| :---: |
+| Verificació |
+
+També verifiquem que s'ha canviat el hostname:
+
+| <img src="../capturas/02-aws/VERIFICACIONHOSTNAMEWEB.png" alt="captura19_ansible" width="800"> |
+| :---: |
+| Verificació Hostname WEBFTP|
+
+| <img src="../capturas/02-aws/VERIFICACIONHOSTNAMELADP.png" alt="captura19_ansible" width="800"> |
+| :---: |
+| Verificació Hostname LDAP|
+### 2.2 02-aws/arquitectura.md
+
+*Documento vacío.*
+
+# 2.3 02-aws/ldap.md
+
+Aquesta es una de les màquines que es gestiona amb amb ansible per lo que tota la configuració es fa desde el node de gestió mitjançant un playbook.
+
+## Configuració feta amb Ansible
+
+Primer de tot cal configurar una nova entrada en el nostre site.yml perquè associï el nostre servidor LDAP al rol de slapd:
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/SITEYML_LDAP.png" alt="CAPTURA1_LDAP" width="500"> |
+| :---: |
+| Confiuració site.yml |
+
+Ara cal editar el fitxer de variables del rol en aquest cas roles/slapd/vars/main.yml, on definirem el domini i la llista de usuaris. A partir d'aquí, el playbook es pot executar tantes vegades com vulguis perquè utilitza un bucle dinàmic (loop) que s'adapta automàticament a la quantitat d'usuaris sense haver de modificar mai el codi de les tasques. A més, gràcies a la condició failed_when, Ansible detecta si un usuari ja s'havia creat en una execució anterior (Already exists), saltant-se els comptes vells de forma segura per centrar-se únicament a injectar els nous registres processats mitjançant les plantilles Jinja2. Això garanteix un sistema totalment idempotent, net i escalable per al teu entorn SFTP.
+
+Arxiu en format de text:
+
+```yaml
+---
+# Configuració del Domini LDAP
+ldap_domain_dc: "dc=pro-ASIXcA1-grup2,dc=local"
+ldap_organization: "Grup 2 - Projecte ASIX"
+ldap_root_password: "pirineus"
+
+# Llista d'exactament 4 usuaris per a SFTP
+ldap_users:
+  - username: "usuari_sftp1"
+    cn: "Asier Hernandez"
+    sn: "Hernandez"
+    uid: 10001
+    gid: 10001
+    home: "/home/sftp/usuari_sftp1"
+    shell: "/bin/bash"
+    password: "grup2"   # Salted SHA (SSHA) hash values generated dynamically by template
+    gecos: "Compte SFTP 1 - Asier"
+
+  - username: "usuari_sftp2"
+    cn: "Pablo Pineda"
+    sn: "Pineda"
+    uid: 10002
+    gid: 10002
+    home: "/home/sftp/usuari_sftp2"
+    shell: "/bin/bash"
+    password: "grup2"
+    gecos: "Compte SFTP 2 - Pablo"
+
+  - username: "usuari_sftp3"
+    cn: "Ronald Santana"
+    sn: "Santana"
+    uid: 10003
+    gid: 10003
+    home: "/home/sftp/usuari_sftp3"
+    shell: "/bin/bash"
+    password: "grup2"
+    gecos: "Compte SFTP 3 - Ronald"
+
+  - username: "usuari_sftp4"
+    cn: "Jair Godoy"
+    sn: "Godoy"
+    uid: 10004
+    gid: 10004
+    home: "/home/sftp/usuari_sftp4"
+    shell: "/bin/bash"
+    password: "grup2"
+    gecos: "Compte SFTP 4 - Godoy"
+```
+
+### Ara cal editar les plantilles jinja dels arxius ldif:
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/JINJA_BASE.png" alt="CAPTURA2_LDAP" width="300"> |
+| :---: |
+| roles/slapd/templates/base.ldif.j2 Plantilla Jinja2 per crear l'arrel del domini i les unitats organitzatives (ou=usuaris i ou=grups). |
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/JINJA_USUARIS.png" alt="CAPTURA3_LDAP" width="400"> |
+| :---: |
+| roles/slapd/templates/usuaris.ldif.j2 Plantilla Jinja2 genérica que es processarà un cop per cada usuari definit a la llista de variables, fent-los compatibles amb SFTP/Linux.|
+
+Ara el playbook principal roles/slapd/tasks/main.yml que executa les accions realitzades al servidor remot. Playbook en format text:
+
+```yaml
+---
+# ── 1. INSTAL·LACIÓ ───────────────────────────────────────────────────
+- name: Instal·lar els paquets d'OpenLDAP i el servidor slapd
+  ansible.builtin.dnf:
+    name:
+      - openldap
+      - openldap-servers
+      - openldap-clients
+    state: present
+
+- name: Assegurar que el servei slapd està actiu i arrenca amb el sistema
+  ansible.builtin.service:
+    name: slapd
+    state: started
+    enabled: true
+
+# ── CONFIGURAR CREDENCIALS INTERNES DE CONFIG (MDB/HDB) ───────
+- name: Generar el hash de la contrasenya del Manager per a la configuració interna
+  ansible.builtin.command:
+    cmd: "slappasswd -s '{{ ldap_root_password }}'"
+  register: root_password_hash
+  changed_when: false
+
+- name: Configurar el Domini i la Contrasenya del Manager a OpenLDAP intern
+  ansible.builtin.shell: |
+    ldapmodify -Y EXTERNAL -H ldapi:/// <<EOF
+    dn: olcDatabase={2}mdb,cn=config
+    changetype: modify
+    replace: olcSuffix
+    olcSuffix: {{ ldap_domain_dc }}
+    -
+    replace: olcRootDN
+    olcRootDN: cn=Manager,{{ ldap_domain_dc }}
+    -
+    replace: olcRootPW
+    olcRootPW: {{ root_password_hash.stdout }}
+    EOF
+  register: config_result
+  failed_when:
+    - config_result.rc != 0
+    - "'No such object' not in config_result.stderr"
+  changed_when: config_result.rc == 0
+
+# ── CARREGAR ESQUEMES DE LINUX (MOLT IMPORTANT) ───────────────
+- name: Carregar els esquemes necessaris per a usuaris Linux (cosine, nis, inetorgperson)
+  ansible.builtin.command:
+    cmd: "ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/openldap/schema/{{ item }}.ldif"
+  loop:
+    - cosine
+    - nis
+    - inetorgperson
+  register: schema_result
+  failed_when:
+    - schema_result.rc != 0
+    - "'Duplicate' not in schema_result.stderr"
+    - "'Already exists' not in schema_result.stderr"
+  changed_when: schema_result.rc == 0
+
+# ── 2. PROCESAR E INJECTAR L'ESTRUCTURA BASE ────────────────────────
+- name: Renderitzar l'estructura base des de la plantilla J2
+  ansible.builtin.template:
+    src: base.ldif.j2
+    dest: /tmp/base.ldif
+    mode: '0600'
+
+- name: Cargar l'estructura base a OpenLDAP
+  ansible.builtin.command:
+    cmd: "ldapadd -x -w '{{ ldap_root_password }}' -D 'cn=Manager,{{ ldap_domain_dc }}' -f /tmp/base.ldif"
+  register: base_result
+  failed_when:
+    - base_result.rc != 0
+    - "'Already exists' not in base_result.stderr"
+
+# ── 3. BUCLE PER PROCESAR E INJECTAR MÚLTIPLES USUARIS ─────────────
+- name: Renderitzar la plantilla LDIF per a cada usuari de la llista
+  ansible.builtin.template:
+    src: usuarios.ldif.j2
+    dest: "/tmp/{{ item.username }}.ldif"
+    mode: '0600'
+  loop: "{{ ldap_users }}"
+
+- name: Cargar cada usuari a OpenLDAP de manera individual
+  ansible.builtin.command:
+    cmd: "ldapadd -x -w '{{ ldap_root_password }}' -D 'cn=Manager,{{ ldap_domain_dc }}' -f /tmp/{{ item.username }}.ldif"
+  register: users_result
+  failed_when:
+    - users_result.rc != 0
+    - "'Already exists' not in users_result.stderr"
+  loop: "{{ ldap_users }}"
+```
+### Execució i verificacions:
+
+<img src="../capturas/02-aws/SRV-LDAP-GRUP2/EJECUCION1.png" alt="CAPTURA4_LDAP" width="500">
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/EJECUCION2.png" alt="CAPTURA5_LDAP" width="900"> |
+| :---: |
+| Execució del playbook |
+
+### Verificacions:
+
+Ens conectem via ssh amb l'usuari de gestió i amb filtres ldapsearch mirem que tot s'ha creat correctament:
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/ESTRUCTURA_BASE.png" alt="CAPTURA6_LDAP" width="500"> |
+| :---: |
+| Estructura base |
+
+<img src="../capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_USUARIS.png" alt="CAPTURA7_LDAP" width="900">
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_USUARIS2.png" alt="CAPTURA8_LDAP" width="900"> |
+| :---: |
+| Llista d'Usuaris |
+
+| <img src="../capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_GRUPS.png" alt="CAPTURA9_LDAP" width="900"> |
+| :---: |
+| Llista de grups |
+
+### 2.4 02-aws/servei-logs-graylog.md
+
+*Documento vacío.*
+
+### 2.5 02-aws/usuaris-admin.md
+
+*Documento vacío.*
+
+# 2.6 02-aws/web-sftp.md
+
+## 2.6.1 Servei SFTP
+
+Inicialment es va plantejar utilitzar ProFTPD com a servidor SFTP, però durant la posada en marxa es va comprovar que la integració amb SSSD i l'autenticació LDAP presentava problemes de compatibilitat en l'entorn Amazon Linux 2023.
+Per aquest motiu, es va optar per utilitzar el subsistema SFTP natiu d'OpenSSH (openssh-server), que ofereix la mateixa funcionalitat de manera més estable i sense dependències addicionals.
+El rol Ansible sftp s'encarrega de:
+
+- Instal·lar i configurar openssh-server
+- Configurar sshd_config per habilitar el subsistema SFTP
+- Integrar l'autenticació amb LDAP mitjançant SSSD
+- Crear automàticament els directoris home dels usuaris amb oddjob + mkhomedir
+- Aplicar la política criptogràfica LEGACY per compatibilitat amb els hashes SHA-1 del servidor LDAP
+
+### Configuració feta amb Ansible
+
+Primer de tot afegir la nova entrada al nostre `site.yml` perquè associï el nostre servei SFTP al rol `sftp`:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/SITE.png" alt="CAPTURA1_SFTP" width="500"> |
+| :---: |
+| `site.yml` |
+
+Ara hem d'editar les variables del rol `roles/sftp/vars/main.yml`, aquí definirem les dades de connexió amb el servidor LDAP i el port SFTP:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/VARSSFTP.png" alt="CAPTURA2_SFTP" width="500"> |
+| :---: |
+| `roles/sftp/vars/main.yml` |
+
+Ara editem les plantilles d'arxius roles/proftpd/templates/proftpd.conf.j2 i roles/proftpd/templates/ldap.conf.j2.  
+
+`roles/sftp/templates/sshd_config.j2` — configuració d'OpenSSH per habilitar el subsistema SFTP natiu, autenticació per contrasenya i integració amb PAM/SSSD
+
+```yaml
+Include /etc/ssh/sshd_config.d/*.conf
+
+Port 22
+PermitRootLogin no
+
+PasswordAuthentication yes
+UsePAM yes
+
+# Configuración del subsistema interno de SFTP
+Subsystem sftp internal-sftp
+
+# CONFIGURACIÓN DE CHROOT PARA USUARIOS LDAP SFTP
+# ─────────────────────────────────────────────────────────────────────
+Match User usuari_sftp1,usuari_sftp2,usuari_sftp3,usuari_sftp4
+    ChrootDirectory /home/sftp
+    ForceCommand internal-sftp
+    AllowTcpForwarding no
+    X11Forwarding no
+```
+
+`roles/sftp/templates/sssd.conf.j2` — configuració del client LDAP via SSSD: mapatge d'atributs, unitats organitzatives (`ou=usuaris`, `ou=grups`) i creació automàtica de directoris home dels usuaris
+
+```yaml
+[sssd]
+services = nss, pam
+config_file_version = 2
+domains = default
+
+[domain/default]
+id_provider = ldap
+auth_provider = ldap
+
+ldap_uri = ldap://{{ ldap_server_ip }}
+ldap_search_base = {{ ldap_domain_dc }}
+
+ldap_default_bind_dn = cn=Manager,{{ ldap_domain_dc }}
+ldap_default_authtok = {{ ldap_root_password }}
+
+cache_credentials = true
+enumerate = true
+
+# Creación de los home dirs
+fallback_homedir = /home/sftp/%u
+default_shell = /bin/bash
+
+# 1. Evita que SSSD exija certificados TLS/SSL
+ldap_tls_reqcert = allow
+ldap_id_use_start_tls = false
+
+# 2. PERMITE AUTENTICACIÓN POR CONTRASEÑA SIN TLS (EL FIX DEFINITIVO)
+ldap_auth_disable_tls_never_use_in_production = true
+
+# 3. MAPEO CORRECTO DE TUS UNIDADES ORGANIZATIVAS
+ldap_user_search_base = ou=usuaris,{{ ldap_domain_dc }}
+ldap_group_search_base = ou=grups,{{ ldap_domain_dc }}
+```
+`roles/sftp/tasks/main.yml` — el flux d'execució que instal·larà els paquets (`openssh-server`, `sssd`, `oddjob`), crearà l'entorn de directoris, injectarà les configuracions i activarà els serveis necessaris:
+```yaml
+---
+# ─────────────────────────────────────────────
+# PAQUETES NECESARIOS
+# ─────────────────────────────────────────────
+- name: Instalar stack LDAP client + SSH
+  ansible.builtin.dnf:
+    name:
+      - openssh-server
+      - sssd
+      - sssd-ldap
+      - oddjob
+      - oddjob-mkhomedir
+      - authselect
+    state: present
+
+# ─────────────────────────────────────────────
+# DIRECTORIOS Y SSH KEYS
+# ─────────────────────────────────────────────
+- name: Generar hostkeys SSH
+  ansible.builtin.command: ssh-keygen -A
+  args:
+    creates: /etc/ssh/ssh_host_rsa_key
+
+- name: Crear directori base per als usuaris SFTP
+  ansible.builtin.file:
+    path: /home/sftp
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+# ─────────────────────────────────────────────
+# SSSD CONFIG (LDAP CLIENT)
+# ─────────────────────────────────────────────
+- name: Configurar SSSD
+  ansible.builtin.template:
+    src: sssd.conf.j2
+    dest: /etc/sssd/sssd.conf
+    mode: '0600'
+
+# ─────────────────────────────────────────────
+# PARCHE CRYPTO LEGACY (REQUISITO PARA ENTORNO SHA)
+# ─────────────────────────────────────────────
+- name: Cambiar la política criptográfica del sistema a LEGACY para permitir hashes SHA-1
+  ansible.builtin.command: update-crypto-policies --set LEGACY
+  changed_when: true
+
+# ─────────────────────────────────────────────
+# ENABLE SSSD & CLEAN CACHE
+# ─────────────────────────────────────────────
+- name: Vaciar caché previa de SSSD
+  ansible.builtin.command: sss_cache -E
+  changed_when: true
+  failed_when: false
+
+- name: Reiniciar SSSD
+  ansible.builtin.systemd:
+    name: sssd
+    state: restarted
+    enabled: true
+
+# ─────────────────────────────────────────────
+# ENABLE PAM PROFILE (SSSD + MKHOMEDIR)
+# ─────────────────────────────────────────────
+- name: Configurar authselect para activar SSSD y creación automática de homes
+  ansible.builtin.command: authselect select sssd with-mkhomedir --force
+  changed_when: true
+
+- name: Activar oddjobd
+  ansible.builtin.systemd:
+    name: oddjobd
+    state: started
+    enabled: true
+
+# ─────────────────────────────────────────────
+# PARCHE CLOUD-INIT (AWS SSH_PWAUTH)
+# ─────────────────────────────────────────────
+- name: Permitir autenticación por contraseña en cloud-init (AWS EC2 Fix)
+  ansible.builtin.lineinfile:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^ssh_pwauth:.*'
+    line: 'ssh_pwauth: true'
+    state: present
+
+# ─────────────────────────────────────────────
+# SSH CONFIG (SFTP REAL)
+# ─────────────────────────────────────────────
+- name: Configurar sshd_config
+  ansible.builtin.template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    mode: '0600'
+
+- name: Reiniciar SSH
+  ansible.builtin.systemd:
+    name: sshd
+    state: restarted
+    enabled: true
+```
+
+### Execució i verificacions:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/EXECUCIOSFTP.png" alt="CAPTURA3_SFTP" width="500"> |
+| :---: |
+| Execució del playbook |
+
+Verificació desde una altra màquina que es pot accedir al servei sftp amb un usuari de LDAP i realitzar accions engaviats al seu directori:
+
+Previament he creat un arxiu de prova a la màquina que pujarà l'arxiu al servidor sftp:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/FICHERO_PRUEBA.png" alt="CAPTURA4_SFTP" width="500"> |
+| :---: |
+| Fitxer prova |
+
+Conexió SFTP amb un usuari LDAP desde una màquina en aquest cas he escollit el srv ldap:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/CONEXIONSFTP.png" alt="CAPTURA5_SFTP" width="500"> |
+| :---: |
+| Conexió SFTP |
+
+Comprovació de que l'usuari esta a la seva home i està engaviat:
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/HOMEUSUARI.png" alt="CAPTURA6_SFTP" width="500"> |
+| :---: |
+| Demostració Home de l'usuari engaviat |
+
+Pujada d'un fitxer i comprovació de que ha estat correcte:
+
+<img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/SUBIDAFICHERO.png" alt="CAPTURA7_SFTP" width="800">
+
+| <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/COMPROVACIONFICHERO.png" alt="CAPTURA8_SFTP" width="800"> |
+| :---: |
+| Pujada d'un fitxer i comprovació |
+
+### Capturas 02-aws
+- `capturas/02-aws/RED/VPC.png` — Diagrama de la VPC.
+- `capturas/02-aws/RED/SUBNETPublica.png` — Subnet pública.
+- `capturas/02-aws/RED/SUBNETPrivada.png` — Subnet privada.
+- `capturas/02-aws/RED/IGW-Publico.png` — Gateway d'internet públic.
+- `capturas/02-aws/RED/NAT-Privado.png` — NAT per a subnets privades.
+- `capturas/02-aws/RED/TABLAPRIVADA.png` — Taula de rutes de la subnet privada.
+- `capturas/02-aws/RED/ROUTEPUBLICA.png` — Regla de ruta pública.
+- `capturas/02-aws/RED/ROUTENAT.png` — Regla de ruta NAT.
+- `capturas/02-aws/RED/IPELASTICA.png` — IP elàstica configurada.
+- `capturas/02-aws/CREACION-NODO-ANSIBLE.png` — Creació del node Ansible.
+- `capturas/02-aws/ASIGNACION-IP-FIJA-PUBLICA.png` — Assignació d’IP pública fixa.
+- `capturas/02-aws/ESTRUCTURA-CARPETAS.png` — Estructura de carpetes de l’entorn Ansible.
+- `capturas/02-aws/CREDENCIALES-CONFIGURADAS.png` — Credencials d’AWS configurades.
+- `capturas/02-aws/INSTALACION-BOTO3.png` — Instal·lació de boto3.
+- `capturas/02-aws/VARIABLES_CREACIO_INSTANCIES.png` — Variables de creació d’instàncies.
+- `capturas/02-aws/VARIABLES-ROL.png` — Variables de rol.
+- `capturas/02-aws/SITE.png` — Fitxer site Ansible inicial.
+- `capturas/02-aws/SITE_ACTUALITZAT.png` — Fitxer site Ansible actualitzat.
+- `capturas/02-aws/INVENTORY.png` — Inventari Ansible.
+- `capturas/02-aws/INVENTARI_ACTUALITZAT.png` — Inventari Ansible actualitzat.
+- `capturas/02-aws/INVENTARI_ACTUALITZAT2.png` — Inventari Ansible addicional.
+- `capturas/02-aws/PINGINVENTARI.png` — Ping d’inventari Ansible.
+- `capturas/02-aws/PING_INVENTARI2.png` — Ping d’inventari Ansible addicional.
+- `capturas/02-aws/EJECUCION1.png` — Execució Ansible pas 1.
+- `capturas/02-aws/EJECUCION2.png` — Execució Ansible pas 2.
+- `capturas/02-aws/EJECUCION3.png` — Execució Ansible pas 3.
+- `capturas/02-aws/EXECUCIO_COMU.png` — Execució comuna d’Ansible.
+- `capturas/02-aws/VERIFICACION1.png` — Verificació Ansible pas 1.
+- `capturas/02-aws/VERIFICACION2.png` — Verificació Ansible pas 2.
+- `capturas/02-aws/VERIFICACION3.png` — Verificació Ansible pas 3.
+- `capturas/02-aws/GENERAR_CLAU.png` — Generació de clau SSH.
+- `capturas/02-aws/VARIABLES_COMUNS.png` — Variables comunes.
+- `capturas/02-aws/HANDLERCOMUN.png` — Handlers comuns.
+- `capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png` — Captura del servidor Ansible.
+- `capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png` — Captura del servidor LDAP.
+- `capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png` — Captura del servidor de bases de dades.
+- `capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png` — Captura del servidor de logs.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png` — Procés de creació Web/SFTP, pas 1.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png` — Procés de creació Web/SFTP, pas 2.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png` — Procés de creació Web/SFTP, pas 3.
+- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png` — Procés de creació Web/SFTP, pas 4.
+- `capturas/02-aws/SRV-LDAP-GRUP2/SITEYML_LDAP.png` — Fitxer site LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/JINJA_BASE.png` — Plantilla Jinja base LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/JINJA_USUARIS.png` — Plantilla Jinja de creació d’usuaris.
+- `capturas/02-aws/SRV-LDAP-GRUP2/EJECUCION1.png` — Execució de playbook LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/EJECUCION2.png` — Execució de playbook LDAP (resultats).
+- `capturas/02-aws/SRV-LDAP-GRUP2/ESTRUCTURA_BASE.png` — Estructura base del directori LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_USUARIS.png` — Llista d’usuaris LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_USUARIS2.png` — Llista addicional d’usuaris LDAP.
+- `capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_GRUPS.png` — Llista de grups LDAP.
+- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-JAVA.png` — Instal·lació de Java per Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-MONGO.png` — Instal·lació de MongoDB.
+- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-OPENSEARCH.png` — Instal·lació d’OpenSearch.
+- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-GRAYLOG.png` — Instal·lació de Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-OPENSEARCH.png` — Preparació d’OpenSearch.
+- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-OPENSEARCH2.png` — Segona preparació d’OpenSearch.
+- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-GRAYLOG.png` — Preparació de Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-GRAYLOG2.png` — Segona preparació de Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/SERVERCONF-GRAYLOG.png` — Configuració del servidor Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/REPOSITORIO-MONGO.png` — Repositori MongoDB.
+- `capturas/02-aws/SRV-LOGS-GRUP2/REPOSITORIO-OPENSEARCH.png` — Repositori OpenSearch.
+- `capturas/02-aws/SRV-LOGS-GRUP2/HOME-JAVA.png` — Pàgina d’inici de Java.
+- `capturas/02-aws/SRV-LOGS-GRUP2/JAVA-COMPROBACION.png` — Comprovació de Java.
+- `capturas/02-aws/SRV-LOGS-GRUP2/MONGODB-COMPROBACION.png` — Comprovació de MongoDB.
+- `capturas/02-aws/SRV-LOGS-GRUP2/GRAYLOG-COMPROBACION.png` — Comprovació de Graylog.
+- `capturas/02-aws/SRV-LOGS-GRUP2/GRAYLOG-PAGINA.png` — Pàgina de Graylog.
+
+![VPC](../capturas/02-aws/RED/VPC.png)
+![Subnet pública](../capturas/02-aws/RED/SUBNETPublica.png)
+![Subnet privada](../capturas/02-aws/RED/SUBNETPrivada.png)
+![IGW públic](../capturas/02-aws/RED/IGW-Publico.png)
+![NAT privat](../capturas/02-aws/RED/NAT-Privado.png)
+![Taula privada](../capturas/02-aws/RED/TABLAPRIVADA.png)
+![Ruta pública](../capturas/02-aws/RED/ROUTEPUBLICA.png)
+![Ruta NAT](../capturas/02-aws/RED/ROUTENAT.png)
+
+#### Servidors AWS
+![Servidor Ansible](../capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png)
+![Servidor LDAP](../capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png)
+![Servidor BBDD](../capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png)
+![Servidor Logs](../capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png)
+
+#### Web / SFTP — procés de creació
+![Creació 1](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png)
+![Creació 2](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png)
+![Creació 3](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png)
+![Creació 4](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png)
+
+Referència: [02-aws](02-aws)
+
+---
+
+## 03. 03-audio
+
+### 3.1 03-audio/Descripció_de_la_funcionalitat_Audio.md
+
+# Servei d'Àudio
+
+## Descripció de la funcionalitat
+
+El servei d’àudio implementat permet la distribució de contingut multimèdia en temps real mitjançant tecnologia de streaming,
+aquest sistema facilita la transmissió d’àudio tant en directe com sota demanda a múltiples clients simultàniament a través de la xarxa.
+
+Per a la implementació s’utilitza un servidor Icecast2, que actua com a servidor central de distribució d’àudio. 
+Els clients poden accedir al contingut utilitzant navegadors web o reproductors multimèdia compatibles com VLC Media Player.
+
+El servei és compatible amb formats digitals d’àudio com:
+
+- MP3
+- AAC
+- OGG
+
+## Funcionalitats principals
+
+- Distribució d’àudio en *streaming* en temps real.
+- Accés simultani de múltiples usuaris.
+- Compatibilitat amb navegadors web.
+- Reproducció remota mitjançant reproductors multimèdia.
+- Gestió de canals d’àudio.
+
+## Objectiu del servei
+
+Aquest sistema permet millorar la comunicació interna de l’empresa i facilitar la distribució de contingut multimèdia als clients de forma eficient i escalable.
+
+## Paquets utilitzats
+
+### Servidor
+
+sudo apt install icecast2
+
+
+### Client multimèdia
+
+sudo apt install vlc
+
+---
+
+## 04. 04-video
+
+### 4.1 04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md
+
+# Servei de Vídeo
+
+## Descripció de la funcionalitat
+
+El servei de vídeo implementat permet la distribució de contingut audiovisual en streaming mitjançant protocols de transmissió multimèdia adaptats a entorns web i xarxes corporatives.
+
+Per a la implementació s’utilitza un servidor NGINX amb el mòdul RTMP, encarregat de gestionar la recepció i distribució dels fluxos de vídeo, 
+El sistema permet transmetre contingut en directe i oferir accés als vídeos des de navegadors web i clients multimèdia.
+
+El servei utilitza:
+
+- Protocol RTMP per a l’enviament del flux de vídeo.
+- Protocol HLS per a la reproducció web.
+- Còdec H.264 per a la compressió de vídeo.
+- Format MP4 per a l’emmagatzematge i compatibilitat.
+
+## Funcionalitats principals
+
+- Streaming de vídeo en temps real.
+- Accés remot des de navegador web.
+- Compatibilitat amb diferents dispositius i clients.
+- Distribució eficient del contingut multimèdia.
+- Possibilitat de múltiples connexions simultànies.
+
+## Objectiu del servei
+
+Aquest sistema permet donar suport a la comunicació corporativa, la formació interna i la distribució de continguts audiovisuals als clients de l’empresa.
+
+## Paquets utilitzats
+
+### Servidor de vídeo
+
+sudo apt install nginx
+sudo apt install libnginx-mod-rtmp
+sudo apt install ffmpeg
+
+
+### Client de reproducció
+
+sudo apt install vlc
+
+---
+
+## 05. 05-videoconferencia
+
+### 5.1 05-videoconferencia/Descripció_Protocol_WebRTC.md
+
+# Protocol WebRTC
+
+## Descripció
+
+WebRTC (Web Real-Time Communication) és una tecnologia de comunicació en temps real que permet establir connexions d’àudio, 
+vídeo i intercanvi de dades directament entre navegadors web i dispositius sense necessitat d’instal·lar programari addicional.
+
+Aquest protocol és utilitzat en aplicacions de videoconferència com Jitsi Meet, permetent comunicacions segures i amb baixa latència.
+
+## Característiques principals
+
+- Comunicació en temps real entre usuaris.
+- Transmissió d’àudio i vídeo amb baixa latència.
+- Compatibilitat amb navegadors moderns.
+- Connexions xifrades i segures mitjançant DTLS i SRTP.
+- Comunicació peer-to-peer (P2P).
+- Compartició de pantalla i dades.
+
+## Funcionament
+
+El funcionament de WebRTC es basa en tres fases principals:
+
+1. Intercanvi d’informació entre clients.
+2. Establiment de la connexió directa.
+3. Transmissió dels fluxos multimèdia.
+
+## Objectiu del protocol
+
+Aquesta tecnologia és especialment adequada per a sistemes de videoconferència empresarials, ja que permet comunicacions eficients, segures i accessibles des de qualsevol navegador modern.
+
+## Paquets utilitzats
+
+### Plataforma de videoconferència
+
+sudo apt install jitsi-meet
+
+
+### Dependències principals
+
+sudo apt install openjdk-17-jre-headless
+sudo apt install nginx
+
+---
+
+## 06. 06-amplada-banda
+
+*Sin documentos disponibles en esta carpeta.*
+
+## 07. 07-bd
+
+### 7.1 07-bd/backup-event.md
+
+*Documento vacío.*
+
+### 7.2 07-bd/er-diagrama.md
+
+# Model Entitat-Relació
+
+## Introduccio
+
+El següent model Entitat-Relació representa l'estructura de dades necessària per gestionar el sistema de comunicació interna d'InnovateTech. La base de dades emmagatzema informació sobre:
+
+- Personal i organització: empleats i departaments.
+- Comunicació: usuaris (interns i externs), trucades i configuració de qualitat.
+- Streaming: catàleg de vídeos disponibles.
+- Monitorització: proves d'amplada de banda realitzades pels operaris.
+- Seguretat i auditoria: rols d'usuaris, control d'accés i registre d'avisos.
+
+El model s'ha dissenyat seguint els requisits de l'apartat 3.2 i 3.3 de l'enunciat del projecte.
+
+## Com hem creat el diagrama E/R (resum del procés)
+
+### 7.2.1 Extracció de requisits
+
+Vam llegir l’enunciat (apartats 3.2 i 3.3) i vam identificar 12 entitats amb els seus atributs, claus primàries i obligatorietat (NOT NULL). També vam detectar totes les relacions i els seus tipus (1:N, N:M, 0..1:1).
+
+### 7.2.2 Disseny lògic
+
+Vam dibuixar un esborrany inicial on vam:
+
+- Assignar PK a cada entitat (codi, dni, id_usuari, nom_rol, etc.)
+- Definir FK per a cada relació (p. ex., codi_departament a EMPLEAT)
+- Resoldre la relació N:M entre USUARI i ROL mitjançant la taula associativa USUARI_ROL
+- Establir cardinalitats explícites (ex: EMPLEAT → DEPARTAMENT és N:1; USUARI → EMPLEAT és 0..1:1)
+
+### 7.2.3 Implementació al SGBD (MySQL)
+
+Vam escriure un script SQL que crea totes les taules amb:
+
+- PRIMARY KEY, FOREIGN KEY
+- NOT NULL als atributs obligatoris
+- UNIQUE a l’email d’usuari i al nom de departament
+- CHECK per a valors (puntuació entre 1 i 5, durada >=0, etc.)
+- Dades de prova significatives
+
+### 7.2.4 Generació automàtica del diagrama
+
+Vam executar l’script a la base de dades local i després vam fer servir l’eina Reverse Engineer del MySQL Workbench. Aquesta va llegir l’esquema i va dibuixar automàticament les taules, atributs i cla
+
+### 7.2.5 Ajust manual i exportació
+
+Vam reorganitzar les taules perquè fossin llegibles, vam verificar les cardinalitats (especialment la relació opcional USUARI-EMPLEAT) i vam exportar el diagrama 
+
+| <img src="../../pro-ASIXC1A-grup2/capturas/07-bd/er-diagrama/RAPJ-E-R.png" alt="Captura-E-R" width="500"> |
+| :---: |
+| Diagrama Entitat Relacio |
+
+### 7.3 07-bd/model-relacional.md
+
+# Model relacional: transformació de l’E/R
+
+## Introducció
+
+Un cop vam tenir el diagrama Entitat-Relació complet (amb totes les entitats, atributs i cardinalitats), el següent pas va ser convertir-lo a un esquema relacional que es pogués implementar directament en un SGBD (en el nostre cas, MySQL). Aquesta transformació consisteix a:
+
+1. Crear una taula per cada entitat.
+2. Definir les claus primàries (PK) per identificar cada fila de manera única.
+3. Establir les claus foranes (FK) per representar les relacions entre taules.
+
+L’objectiu és obtenir un conjunt de sentències `CREATE TABLE` que respectin exactament el disseny lògic del diagrama.
+
+## Com hem realitzat aquesta transformació
+
+### 7.3.1 De cada entitat a una taula
+
+Per cada entitat del diagrama E/R, vam crear una taula amb el mateix nom i els mateixos atributs, respectant els tipus de dades i les restriccions de `NULL` / `NOT NULL` que havíem definit.
+
+- L’entitat `DEPARTAMENT` amb atributs `codi`, `nom`, `telefon` → taula `DEPARTAMENT` amb les mateixes columnes.
+
+### 7.3.2 Assignació de claus primàries
+
+Vam marcar com a `PRIMARY KEY` l’atribut o atributs que identifiquen de manera única cada fila:
+
+- `codi` a `DEPARTAMENT`
+- `dni` a `EMPLEAT`
+- `id_usuari` a `USUARI`
+- `nom_rol` a `ROL`
+- etc.
+
+Quan una relació N:M necessitava una taula associativa (com `USUARI_ROL`), vam definir una **clau primària composta** formada per les dues claus foranes.
+
+### 7.3.3 Definició de claus foranes
+
+Per a cada relació detectada en el diagrama E/R, vam afegir una `FOREIGN KEY` a la taula filla que referenciés la clau primària de la taula pare, indicant les accions `ON DELETE` i `ON UPDATE` (normalment `RESTRICT` i `CASCADE`).
+
+**Exemples de relacions transformades a FK:**
+
+- `EMPLEAT.codi_departament` → `DEPARTAMENT.codi`
+- `USUARI.dni_empleat` → `EMPLEAT.dni`
+- `USUARI_ROL.id_usuari` → `USUARI.id_usuari`
+- `USUARI_ROL.nom_rol` → `ROL.nom_rol`
+- `TRUCADA.usuari_originador` → `USUARI.id_usuari`
+- `TRUCADA.usuari_destinatari` → `USUARI.id_usuari`
+- `TRUCADA.id_grup_qualitat` → `GRUP_QUALITAT.id_grup`
+- `MESURA_AMPLADA_BANDA.operari_id` → `USUARI.id_usuari`
+- `AVIS.usuari_id` → `USUARI.id_usuari`
+
+### 7.3.4 Generació del script SQL
+
+Vam escriure un script complet (`InnovateTech.sql`) que conté totes les sentències `CREATE TABLE` en l’ordre correcte (primer les taules sense dependències, després les que tenen FK). Aquest script és l’evidència pràctica de la transformació al model relacional.
+
+| <img src="../../../pro-ASIXc1A-grup2/pro-ASIXC1A-grup2/capturas/07-bd/er-diagrama/RAPJ-SQL.png" alt="Captura-E-R" width="500"> |
+| :---: |
+| SCRIP SQL MODEL RELACIONAL |
+
+
+> Pots revisar el disseny complet de la base de dades en el [Script RAPJ.sql](../../pro-ASIXC1A-grup2/docs/07-bd/model-relacional.md).
+
+### 7.4 07-bd/rols-permisos.md
+
+*Documento vacío.*
+
+### 7.5 07-bd/triggers.md
+
+*Documento vacío.*
+
+---
+
+## 08. 08-1665
+
+### 8.1 08-1665/ra3-optimitzacio.md
+
+*Documento vacío.*
+
+### 8.2 08-1665/ra5-seguretat-dades.md
+
+*Documento vacío.*
+
+### 8.3 08-1665/ra6-transformacio-digital.md
+
+*Documento vacío.*
+
+---
