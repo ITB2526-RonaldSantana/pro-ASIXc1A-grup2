@@ -1449,11 +1449,9 @@ En aquest cas no fa falta editar el site.yml perquè anteriorment configurant el
     mode: '0755'
 
 - name: Clonar el repositori de l'aplicació
-  ansible.builtin.git:
-    repo: "{{ app_repo }}"
-    dest: "{{ app_dest }}"
-    version: main
-    force: true
+  ansible.builtin.command:
+    cmd: "git clone {{ app_repo }} {{ app_dest }}"
+    creates: "{{ app_dest }}/.git"
 
 - name: Ajustar propietari dels fitxers clonats
   ansible.builtin.file:
@@ -1479,6 +1477,19 @@ En aquest cas no fa falta editar el site.yml perquè anteriorment configurant el
     - { regexp: '^user =',  line: 'user = nginx' }
     - { regexp: '^group =', line: 'group = nginx' }
   notify: Reiniciar php-fpm
+
+- name: Assegurar propietari correcte dels directoris de sessió i caché de PHP
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: nginx
+    group: nginx
+    state: directory
+    recurse: true
+  loop:
+    - /var/lib/php/session
+    - /var/lib/php/wsdlcache
+    - /var/lib/php/opcache
+  failed_when: false
 
 # ── 5. VIRTUALHOST ────────────────────────────────────────────────────
 - name: Desplegar configuració del virtualhost
@@ -1513,6 +1524,7 @@ En aquest cas no fa falta editar el site.yml perquè anteriorment configurant el
 - name: Mostrar resultat de la verificació
   ansible.builtin.debug:
     msg: "Nginx operatiu — codi HTTP: {{ nginx_check.status }}"
+
 ```
 
 ### Execució i verificacions:
