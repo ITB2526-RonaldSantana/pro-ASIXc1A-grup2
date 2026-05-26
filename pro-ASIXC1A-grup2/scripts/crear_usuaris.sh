@@ -177,8 +177,6 @@ for ROL in "${ROLS[@]}"; do
             ;;
     esac
 done
-afegir_grant "GRANT FILE ON *.* TO '$USUARI_MYSQL'@'%';"
-
 echo "FLUSH PRIVILEGES;" >> "$OUTPUT"
 
 # ----------------------------
