@@ -196,7 +196,6 @@ http://23.23.53.151:8000
 ```
 Ha d'aparèixer la pàgina d'estat d'Icecast2.
 
-> 📸 **CAPTURA 1:** Pàgina d'estat d'Icecast2 al navegador mostrant el servidor actiu.
 
 ---
 
@@ -208,7 +207,7 @@ Contrasenya: 123
 ```
 Ha de mostrar el mount point `/radio` actiu amb clients connectats.
 
-> 📸 **CAPTURA 2:** Panel d'administració d'Icecast2 amb el canal `/radio` visible i actiu.
+
 
 ---
 
@@ -218,14 +217,14 @@ http://23.23.53.151:8000/radio
 ```
 El navegador ha de reproduir l'àudio directament.
 
-> 📸 **CAPTURA 3:** Navegador reproduint el stream d'àudio (es veu la barra de reproducció activa).
+
 
 ---
 
 ### Prova 4 — Reproducció via VLC
 Obrir VLC → **Medios → Abrir URL de red** → `http://23.23.53.151:8000/radio`
 
-> 📸 **CAPTURA 4:** VLC reproduint el stream (es veu la URL i el reproductor actiu).
+
 
 ---
 
