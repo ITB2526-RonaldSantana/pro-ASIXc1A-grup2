@@ -224,8 +224,8 @@ INSERT INTO TRUCADA (usuari_originador, usuari_destinatari, data_inici, data_fi,
 
 -- 3.8 Vídeos
 INSERT INTO VIDEO (titol, descripcio, categoria, durada, data_publicacio, enllac_streaming) VALUES
-('Introducció a InnovateTech', 'Vídeo corporatiu de presentació', 'Corporatiu', 120, '2026-05-01', 'https://stream.innovatech.com/video1'),
-('Tutorial de videotrucades', 'Com fer servir el sistema de videoconferència', 'Tutorial', 300, '2026-05-10', 'https://stream.innovatech.com/video2');
+('Introducció a InnovateTech', 'Vídeo corporatiu de presentació', 'Corporatiu', 120, '2026-05-01', 'http://23.23.53.151/videos/videoplayback.mp4'),
+('Tutorial de videotrucades', 'Com fer servir el sistema de videoconferència', 'Tutorial', 300, '2026-05-10', 'http://23.23.53.151/videos/videoplayback.mp4');
 
 -- 3.9 Mesures d’amplada de banda
 INSERT INTO MESURA_AMPLADA_BANDA (data_hora, usuari_equip_mesurat, velocitat_baixada, velocitat_pujada, latencia, resultat, operari_id, notes) VALUES

@@ -96,7 +96,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_POST['action'])){
     }
     if($act==='trucada_entrant'){
         $uid=getUID();
-        $res=$db->query("SELECT t.id_trucada,u.nom_complet nom_orig FROM TRUCADA t JOIN USUARI u ON t.usuari_originador=u.id_usuari WHERE t.usuari_destinatari=$uid AND t.data_fi IS NULL AND t.data_inici >= NOW() - INTERVAL 2 MINUTE LIMIT 1");
+        $res=$db->query("SELECT t.id_trucada,u.nom_complet nom_orig FROM TRUCADA t JOIN USUARI u ON t.usuari_originador=u.id_usuari WHERE t.usuari_destinatari=$uid AND t.data_fi IS NULL AND t.data_inici >= NOW() - INTERVAL 5 MINUTE ORDER BY t.data_inici DESC LIMIT 1");
         $row=$res->fetch_assoc();
         echo json_encode($row?['ok'=>true,'trucada'=>$row]:['ok'=>false]);exit;
     }
@@ -377,6 +377,7 @@ audio{width:100%;margin-top:12px;height:32px;accent-color:var(--accent)}
   padding:10px 18px;border-radius:10px;cursor:pointer;font-weight:600;font-size:13px;transition:background .2s}
 .btn-decline:hover{background:rgba(255,101,132,.3)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
 </head>
 <body>
 
@@ -498,22 +499,24 @@ let pollTimer=null,incomingCallData=null;
 // ── POLLING TRUCADES ENTRANTS ─────────────────────────────────
 function startPolling(){
   if(pollTimer)return;
+  checkIncomingCalls();
   pollTimer=setInterval(checkIncomingCalls,4000);
 }
 function stopPolling(){
   if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
 }
 async function checkIncomingCalls(){
-  if(incomingCallData)return; // ja mostrant una trucada
-  if(jitsiApi)return;         // ja en una trucada
+  if(incomingCallData)return;
+  if(jitsiApi)return;
   try{
     const r=await post({action:'trucada_entrant'});
+    console.debug('[poll]',r);
     if(r.ok&&r.trucada){
       incomingCallData=r.trucada;
       document.getElementById('incoming-name').textContent=r.trucada.nom_orig;
       document.getElementById('incoming-banner').style.display='flex';
     }
-  }catch{}
+  }catch(e){console.error('[poll error]',e);}
 }
 async function acceptCall(){
   if(!incomingCallData)return;
@@ -552,7 +555,8 @@ async function doLogin(){
       document.getElementById('uname').textContent=r.nom_complet;
       document.getElementById('urol').textContent=r.rol;
       document.getElementById('uavatar').textContent=r.nom_complet?r.nom_complet[0].toUpperCase():'U';
-      buildSidebar(r.rol);
+      startPolling();
+      buildSidebarWithTables(r.rol).catch(()=>{});
       showDashboard();
     }else{err.textContent=r.msg||'Error desconegut';err.style.display='block';}
   }catch{err.textContent='Error de connexió';err.style.display='block';}
@@ -602,29 +606,6 @@ async function buildSidebarWithTables(rol){
     nav.insertAdjacentHTML('beforeend',extra);
   }
 }
-// override doLogin to use async sidebar
-(function(){
-  const orig=doLogin;
-  doLogin=async function(){
-    const u=document.getElementById('lu').value.trim();
-    const p=document.getElementById('lp').value;
-    const err=document.getElementById('lerr');
-    err.style.display='none';
-    try{
-      const r=await post({action:'login',username:u,password:p});
-      if(r&&r.ok){
-        document.getElementById('login-screen').style.display='none';
-        document.getElementById('app').style.display='block';
-        document.getElementById('uname').textContent=r.nom_complet;
-        document.getElementById('urol').textContent=r.rol;
-        document.getElementById('uavatar').textContent=r.nom_complet?r.nom_complet[0].toUpperCase():'U';
-        await buildSidebarWithTables(r.rol);
-        showDashboard();
-        startPolling();
-      }else{err.textContent=r.msg||'Error desconegut';err.style.display='block';}
-    }catch{err.textContent='Error de connexió';err.style.display='block';}
-  };
-})();
 function await_tables_placeholder(){return [];}
 function setActive(id){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
@@ -827,10 +808,25 @@ function openVideoPlayer(url,title,desc){
   document.getElementById('vp-title').textContent=title||'Vídeo';
   document.getElementById('vp-desc').textContent=desc||'';
   const wrap=document.getElementById('vp-wrap');
+  const isHLS=/\.m3u8(\?.*)?$/i.test(url);
   const isMedia=/\.(mp4|webm|ogg)(\?.*)?$/i.test(url);
-  wrap.innerHTML=isMedia
-    ?`<video controls autoplay><source src="${url}"><p style="color:#fff;padding:16px">No es pot reproduir el vídeo.</p></video>`
-    :`<iframe src="${url}" allowfullscreen allow="camera;microphone;autoplay"></iframe>`;
+  if(isHLS){
+    const vid=document.createElement('video');
+    vid.controls=true;vid.autoplay=true;vid.style.cssText='width:100%;height:100%';
+    wrap.innerHTML='';wrap.appendChild(vid);
+    if(Hls.isSupported()){
+      const hls=new Hls();
+      hls.loadSource(url);hls.attachMedia(vid);
+    }else if(vid.canPlayType('application/vnd.apple.mpegurl')){
+      vid.src=url;
+    }else{
+      wrap.innerHTML='<p style="color:#fff;padding:16px">El navegador no suporta HLS.</p>';
+    }
+  }else if(isMedia){
+    wrap.innerHTML=`<video controls autoplay style="width:100%;height:100%"><source src="${url}"><p style="color:#fff;padding:16px">No es pot reproduir el vídeo.</p></video>`;
+  }else{
+    wrap.innerHTML=`<iframe src="${url}" allowfullscreen allow="camera;microphone;autoplay"></iframe>`;
+  }
   document.getElementById('video-modal').classList.add('open');
 }
 function closeVideoPlayer(){
