@@ -983,7 +983,7 @@ Primer de tot cal configurar una nova entrada en el nostre site.yml perquè asso
 | :---: |
 | Confiuració site.yml |
 
-Ara cal editar el fitxer de variables del rol en aquest cas roles/slapd/vars/main.yml, on definirem el domini i la llista de usuaris. A partir d'aquí, el playbook es pot executar tantes vegades com vulguis perquè utilitza un bucle dinàmic (loop) que s'adapta automàticament a la quantitat d'usuaris sense haver de modificar mai el codi de les tasques. A més, gràcies a la condició failed_when, Ansible detecta si un usuari ja s'havia creat en una execució anterior (Already exists), saltant-se els comptes vells de forma segura per centrar-se únicament a injectar els nous registres processats mitjançant les plantilles Jinja2. Això garanteix un sistema totalment idempotent, net i escalable per al teu entorn SFTP.
+Ara cal editar el fitxer de variables del rol en aquest cas roles/slapd/vars/main.yml, on definirem el domini i la llista de usuaris. A partir d'aquí, el playbook es pot executar tantes vegades com vulguis perquè utilitza un bucle dinàmic (loop) que s'adapta automàticament a la quantitat d'usuaris sense haver de modificar mai el codi de les tasques. A més, gràcies a la condició failed_when, Ansible detecta si un usuari ja s'havia creat en una execució anterior (Already exists), saltant-se els comptes vells de forma segura per centrar-se únicament a injectar els nous registres processats mitjançant les plantilles Jinja2. Això garanteix un sistema totalment idempotent, net i escalable per al nostre entorn SFTP.
 
 Arxiu en format de text:
 
