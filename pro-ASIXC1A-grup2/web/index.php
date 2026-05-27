@@ -1,11 +1,24 @@
 <?php
-session_save_path(sys_get_temp_dir());
-session_start();
+mysqli_report(MYSQLI_REPORT_OFF);
 
 define('DB_HOST','32.197.67.184');
 define('DB_USER','webadmin');
 define('DB_PASS','pirineus');
 define('DB_NAME','InnovateTech');
+define('JITSI_HOST','3.234.196.49');
+define('STREAMING_HOST','23.23.53.151');
+
+// ── CLI MODE: fallback si fastcgi_finish_request no està disponible ───────────
+if(php_sapi_name()==='cli' && ($argv[1]??'')==='mesura'){
+    $uid=(int)($argv[2]??1);
+    $db=new mysqli(DB_HOST,DB_USER,DB_PASS,DB_NAME);
+    if(!$db->connect_error){$db->set_charset('utf8mb4');runMesuraBanda($uid,$db);$db->close();}
+    exit;
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+session_save_path(sys_get_temp_dir());
+session_start();
 
 function getDB(){
     $c=new mysqli(DB_HOST,DB_USER,DB_PASS,DB_NAME);
@@ -13,19 +26,105 @@ function getDB(){
     $c->set_charset('utf8mb4');
     return $c;
 }
+function dbq($db,$sql){$r=$db->query($sql);return $r?:null;}
+function dbrow($db,$sql){$r=dbq($db,$sql);return $r?$r->fetch_assoc():null;}
 
 $ROL_PERMISOS=[
     'admin'        =>['taules'=>['DEPARTAMENT','EMPLEAT','USUARI','ROL','USUARI_ROL','GRUP_QUALITAT','TRUCADA','VIDEO','MESURA_AMPLADA_BANDA','CONFIGURACIO_SERVIDOR','AVIS','CONTROL_BACKUP','CONTRASENYES'],'readonly'=>[]],
     'vendes'       =>['taules'=>['TRUCADA','USUARI','VIDEO'],'readonly'=>['USUARI','VIDEO']],
     'administracio'=>['taules'=>['EMPLEAT','DEPARTAMENT','USUARI','USUARI_ROL'],'readonly'=>[]],
-    'treballador'  =>['taules'=>['VIDEO','CONFIGURACIO_SERVIDOR','TRUCADA'],'readonly'=>['VIDEO','CONFIGURACIO_SERVIDOR','TRUCADA']],
+    'treballador'  =>['taules'=>['VIDEO','TRUCADA'],'readonly'=>['VIDEO','TRUCADA']],
 ];
 
-function getRol()  {return $_SESSION['rol']     ?? '';}
-function getUID()  {return (int)($_SESSION['uid']?? 0);}
-function isAdmin() {return in_array(getRol(),['admin','administracio']);}
+function getRol()     {return $_SESSION['rol'] ?? '';}
+function getUID()     {return (int)($_SESSION['uid'] ?? 0);}
+function isAdmin()    {return in_array(getRol(),['admin','administracio']);}
+function isSuperAdmin(){return getRol()==='admin';}
 function tableAllowed($t){global $ROL_PERMISOS;return in_array(strtoupper($t),array_map('strtoupper',$ROL_PERMISOS[getRol()]['taules']??[]));}
 function isReadonly($t)  {global $ROL_PERMISOS;return in_array(strtoupper($t),array_map('strtoupper',$ROL_PERMISOS[getRol()]['readonly']??[]));}
+function addAvis($db,$taula,$operacio,$detall){
+    $uid=getUID();$d=$db->real_escape_string($detall);
+    $db->query("INSERT INTO AVIS (usuari_id,taula_afectada,operacio_intentada,data_hora,detall) VALUES ($uid,'$taula','$operacio',NOW(),'$d')");
+}
+function runMesuraBanda($uid,$db){
+    $host=STREAMING_HOST;
+    $dl_mbps=0;$ul_mbps=0;$lat=0;$method='curl';
+
+    // Mètode 1: speedtest-cli (més precís, mesura contra servidors reals de Speedtest.net)
+    exec('which speedtest-cli 2>/dev/null',$_w,$rc);
+    if($rc===0){
+        exec('speedtest-cli --simple 2>&1',$stOut,$stRet);
+        $stText=implode("\n",$stOut);
+        if($stRet===0&&!preg_match('/error/i',$stText)){
+            if(preg_match('/Ping:\s*([\d.]+)/i',$stText,$m))     $lat=round((float)$m[1],2);
+            if(preg_match('/Download:\s*([\d.]+)/i',$stText,$m)) $dl_mbps=round((float)$m[1],2);
+            if(preg_match('/Upload:\s*([\d.]+)/i',$stText,$m))   $ul_mbps=round((float)$m[1],2);
+            if($dl_mbps>0||$ul_mbps>0) $method='speedtest-cli';
+        }
+    }
+
+    // Mètode 2 (fallback): curl si speedtest-cli no està disponible o ha fallat
+    if($method==='curl'){
+        // Baixada: provar servidor de streaming, fallback a Cloudflare
+        foreach(["http://$host/videos/videoplayback.mp4","https://speed.cloudflare.com/__down?bytes=10000000"] as $url){
+            $bytes=0;$t0=microtime(true);
+            $ch=curl_init($url);
+            curl_setopt_array($ch,[CURLOPT_TIMEOUT=>15,CURLOPT_FOLLOWLOCATION=>true,CURLOPT_SSL_VERIFYPEER=>false,
+                CURLOPT_WRITEFUNCTION=>function($c,$d)use(&$bytes,&$t0){
+                    $bytes+=strlen($d);
+                    return (microtime(true)-$t0>10||$bytes>10*1024*1024)?-1:strlen($d);
+                }]);
+            curl_exec($ch);$code=(int)curl_getinfo($ch,CURLINFO_HTTP_CODE);$el=microtime(true)-$t0;curl_close($ch);
+            if($bytes>1024&&$code>=200&&$code<400){$dl_mbps=round($bytes/$el/125000,2);break;}
+        }
+        // Pujada mètode 1: endpoints externs (httpbin → Cloudflare)
+        $payload=random_bytes(5*1024*1024);$ul_mbps=0;
+        foreach(['https://httpbin.org/post','https://speed.cloudflare.com/__up'] as $ulUrl){
+            $ch=curl_init($ulUrl);
+            curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>$payload,
+                CURLOPT_TIMEOUT=>30,CURLOPT_SSL_VERIFYPEER=>false,
+                CURLOPT_HTTPHEADER=>['Content-Type: application/octet-stream']]);
+            $t0=microtime(true);$res=curl_exec($ch);$el=microtime(true)-$t0;
+            $ulCode=(int)curl_getinfo($ch,CURLINFO_HTTP_CODE);$ulErr=curl_errno($ch);curl_close($ch);
+            if($res!==false&&$ulErr===0&&$el>0.001&&$ulCode>=200&&$ulCode<500){
+                $ul_mbps=round((5*1024*1024)/$el/125000,2);break;
+            }
+        }
+        unset($payload);
+        // Pujada mètode 2 (fallback TCP): escriure al servidor de streaming durant 5 s
+        if($ul_mbps===0){
+            $sock=@stream_socket_client("tcp://$host:80",$se,$sm,5);
+            if($sock){
+                stream_set_blocking($sock,true);
+                fwrite($sock,"POST / HTTP/1.1\r\nHost: $host\r\nContent-Type: application/octet-stream\r\nContent-Length: 52428800\r\nExpect:\r\n\r\n");
+                $chunk=str_repeat('A',65536);$sent=0;$t0=microtime(true);$deadline=$t0+5;
+                while(microtime(true)<$deadline){$n=@fwrite($sock,$chunk);if(!$n)break;$sent+=$n;}
+                $el=max(microtime(true)-$t0,0.001);@fclose($sock);
+                if($sent>1024) $ul_mbps=round($sent/$el/125000,2);
+            }
+        }
+    }
+
+    // Latència + jitter al servidor de streaming (sempre, independent del mètode)
+    $rtts=[];
+    for($i=0;$i<6;$i++){
+        $t0=microtime(true);$s=@fsockopen($host,80,$e,$es,2);$rtt=(microtime(true)-$t0)*1000;
+        if($s){fclose($s);$rtts[]=$rtt;}
+    }
+    sort($rtts);
+    if(count($rtts)>=4){array_shift($rtts);array_pop($rtts);}
+    if($method==='curl'&&count($rtts)>0) $lat=round(array_sum($rtts)/count($rtts),2);
+    $jitter=0;
+    if(count($rtts)>1){
+        $mean=array_sum($rtts)/count($rtts);
+        $jitter=round(sqrt(array_sum(array_map(fn($x)=>($x-$mean)**2,$rtts))/count($rtts)),2);
+    }
+
+    $resultat=($dl_mbps>=50&&$ul_mbps>=10&&$lat>0&&$lat<=150)?'acceptable':'no acceptable';
+    $eq=$db->real_escape_string('Servidor Streaming ('.$host.')');
+    $notes=$db->real_escape_string("Mètode: $method | Jitter: {$jitter}ms");
+    $db->query("INSERT INTO MESURA_AMPLADA_BANDA (data_hora,usuari_equip_mesurat,velocitat_baixada,velocitat_pujada,latencia,resultat,operari_id,notes) VALUES (NOW(),'$eq',$dl_mbps,$ul_mbps,$lat,'$resultat',$uid,'$notes')");
+}
 
 if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_POST['action'])){
     header('Content-Type: application/json');
@@ -36,14 +135,15 @@ if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_POST['action'])){
         $email=$_POST['username']??''; $p=$_POST['password']??'';
         if(!$email||!$p){echo json_encode(['ok'=>false,'msg'=>"Introdueix l'email i la contrasenya"]);exit;}
         $db=getDB();
-        $st=$db->prepare("SELECT u.id_usuari,u.nom_complet,u.estat,c.hash_contrasenya pass,ur.nom_rol FROM USUARI u INNER JOIN CONTRASENYES c ON u.id_usuari=c.usuari_id LEFT JOIN USUARI_ROL ur ON u.id_usuari=ur.id_usuari WHERE u.email=? AND c.activa=1 LIMIT 1");
+        $st=$db->prepare("SELECT u.id_usuari,u.nom_complet,u.estat,u.tipus,c.hash_contrasenya pass,ur.nom_rol FROM USUARI u INNER JOIN CONTRASENYES c ON u.id_usuari=c.usuari_id LEFT JOIN USUARI_ROL ur ON u.id_usuari=ur.id_usuari WHERE u.email=? AND c.activa=1 LIMIT 1");
         $st->bind_param('s',$email);$st->execute();$row=$st->get_result()->fetch_assoc();
         if($row){
-            if($row['estat']==='bloquejat'){echo json_encode(['ok'=>false,'msg'=>'Usuari bloquejat']);exit;}
+            if($row['tipus']==='extern'){echo json_encode(['ok'=>false,'msg'=>'Els clients externs no tenen accés a aquesta aplicació.']);$st->close();$db->close();exit;}
+            // usuaris bloquejats poden iniciar sessió però no fer trucades
             if(password_verify($p,$row['pass'])||$p===$row['pass']){
                 $_SESSION['user']=$email;$_SESSION['uid']=$row['id_usuari'];
                 $_SESSION['nom_complet']=$row['nom_complet'];$_SESSION['rol']=$row['nom_rol']??'treballador';
-                echo json_encode(['ok'=>true,'rol'=>$_SESSION['rol'],'nom_complet'=>$_SESSION['nom_complet']]);
+                echo json_encode(['ok'=>true,'rol'=>$_SESSION['rol'],'nom_complet'=>$_SESSION['nom_complet'],'uid'=>$row['id_usuari']]);
             }else echo json_encode(['ok'=>false,'msg'=>'Contrasenya incorrecta']);
         }else echo json_encode(['ok'=>false,'msg'=>"No s'ha trobat cap usuari actiu"]);
         $st->close();$db->close();exit;
@@ -59,34 +159,53 @@ if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_POST['action'])){
     /* DASHBOARD STATS */
     if($act==='dashboard_stats'){
         $uid=getUID();$stats=[];
-        $stats['trucades']=(int)$db->query("SELECT COUNT(*) c FROM TRUCADA WHERE usuari_originador=$uid OR usuari_destinatari=$uid")->fetch_assoc()['c'];
-        $stats['videos']  =(int)$db->query("SELECT COUNT(*) c FROM VIDEO")->fetch_assoc()['c'];
+        $stats['trucades']=(int)(dbrow($db,"SELECT COUNT(*) c FROM TRUCADA WHERE usuari_originador=$uid OR usuari_destinatari=$uid")['c']??0);
+        $stats['videos']  =(int)(dbrow($db,"SELECT COUNT(*) c FROM VIDEO")['c']??0);
         if(isAdmin()){
-            $stats['usuaris'] =(int)$db->query("SELECT COUNT(*) c FROM USUARI WHERE estat='actiu'")->fetch_assoc()['c'];
-            $stats['empleats']=(int)$db->query("SELECT COUNT(*) c FROM EMPLEAT")->fetch_assoc()['c'];
-            $stats['alertes'] =(int)$db->query("SELECT COUNT(*) c FROM MESURA_AMPLADA_BANDA WHERE resultat='no acceptable'")->fetch_assoc()['c'];
-            $bk=$db->query("SELECT data_hora,resultat FROM CONTROL_BACKUP ORDER BY data_hora DESC LIMIT 1")->fetch_assoc();
+            $stats['usuaris'] =(int)(dbrow($db,"SELECT COUNT(*) c FROM USUARI WHERE estat='actiu'")['c']??0);
+            $stats['empleats']=(int)(dbrow($db,"SELECT COUNT(*) c FROM EMPLEAT")['c']??0);
+            $stats['alertes'] =(int)(dbrow($db,"SELECT COUNT(*) c FROM MESURA_AMPLADA_BANDA WHERE resultat='no acceptable'")['c']??0);
+            $bk=dbrow($db,"SELECT data_hora,resultat FROM CONTROL_BACKUP ORDER BY data_hora DESC LIMIT 1");
             $stats['backup_data']=$bk?$bk['data_hora']:null;
             $stats['backup_ok']  =$bk?$bk['resultat']:null;
         }
-        if(getRol()==='vendes') $stats['clients']=(int)$db->query("SELECT COUNT(*) c FROM USUARI WHERE tipus='extern' AND estat='actiu'")->fetch_assoc()['c'];
+        if(getRol()==='vendes') $stats['clients']=(int)(dbrow($db,"SELECT COUNT(*) c FROM USUARI WHERE tipus='extern' AND estat='actiu'")['c']??0);
         echo json_encode($stats);exit;
     }
 
     /* TRUCADES */
     if($act==='trucades'){
-        $uid=getUID();
-        $where=(getRol()==='vendes')
-            ? "WHERE (t.usuari_originador=$uid OR t.usuari_destinatari=$uid)"
-            : "WHERE (t.usuari_originador=$uid OR t.usuari_destinatari=$uid)";
+        $uid=getUID();$rol=getRol();
+        if($rol==='administracio'){
+            addAvis($db,'TRUCADA','SELECT','Rol administracio intenta veure historial de trucades');
+            echo json_encode(['ok'=>false,'audit'=>true,'msg'=>"Accés denegat. Acció registrada a l'auditoria."]);exit;
+        }
+        // admin/vendes see all; treballador sees only own
+        $own="(t.usuari_originador=$uid OR t.usuari_destinatari=$uid)";
+        $where=($rol==='treballador')?"WHERE $own":"";
         $res=$db->query("SELECT t.id_trucada,t.data_inici,t.data_fi,t.durada_total,t.puntuacio,t.comentari,u1.nom_complet nom_orig,u2.nom_complet nom_dest,g.nom_grup qualitat FROM TRUCADA t JOIN USUARI u1 ON t.usuari_originador=u1.id_usuari JOIN USUARI u2 ON t.usuari_destinatari=u2.id_usuari JOIN GRUP_QUALITAT g ON t.id_grup_qualitat=g.id_grup $where ORDER BY t.data_inici DESC LIMIT 50");
         $rows=[];while($r=$res->fetch_assoc())$rows[]=$r;
         echo json_encode($rows);exit;
     }
     if($act==='iniciar_trucada'){
-        $orig=getUID();$dest=(int)$_POST['destinatari_id'];
-        $grp=(int)$db->query("SELECT id_grup FROM GRUP_QUALITAT ORDER BY id_grup LIMIT 1")->fetch_assoc()['id_grup'];
+        $rol=getRol();$orig=getUID();$dest=(int)$_POST['destinatari_id'];
+        if($rol==='administracio'){
+            addAvis($db,'TRUCADA','INSERT','Rol administracio intenta iniciar trucada amb usuari '.$dest);
+            echo json_encode(['ok'=>false,'audit'=>true,'msg'=>"Accés denegat. Acció registrada a l'auditoria."]);exit;
+        }
+        $destRow=dbrow($db,"SELECT tipus,estat FROM USUARI WHERE id_usuari=$dest");
+        if(!$destRow){echo json_encode(['ok'=>false,'msg'=>"L'usuari no existeix."]);exit;}
+        if($destRow['estat']==='bloquejat'){echo json_encode(['ok'=>false,'msg'=>"L'usuari està bloquejat i no pot rebre trucades."]);exit;}
+        if($rol==='treballador'&&$destRow['tipus']==='extern'){
+            echo json_encode(['ok'=>false,'msg'=>'Els treballadors no poden trucar a clients externs.']);exit;
+        }
+        $grpRow=dbrow($db,"SELECT id_grup FROM GRUP_QUALITAT ORDER BY id_grup LIMIT 1");
+        $grp=$grpRow?(int)$grpRow['id_grup']:1;
         $db->query("INSERT INTO TRUCADA (usuari_originador,usuari_destinatari,data_inici,id_grup_qualitat) VALUES ($orig,$dest,NOW(),$grp)");
+        if($db->errno!==0){
+            $msg=$db->errno===1644?$db->error:'Error en registrar la trucada.';
+            echo json_encode(['ok'=>false,'msg'=>$msg]);exit;
+        }
         echo json_encode(['ok'=>true,'id'=>$db->insert_id]);exit;
     }
     if($act==='finalitzar_trucada'){
@@ -96,6 +215,9 @@ if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_POST['action'])){
     }
     if($act==='trucada_entrant'){
         $uid=getUID();
+        $estatRow=dbrow($db,"SELECT estat FROM USUARI WHERE id_usuari=$uid");
+        $estat=$estatRow?$estatRow['estat']:'actiu';
+        if($estat==='bloquejat'){echo json_encode(['ok'=>false]);exit;}
         $res=$db->query("SELECT t.id_trucada,u.nom_complet nom_orig FROM TRUCADA t JOIN USUARI u ON t.usuari_originador=u.id_usuari WHERE t.usuari_destinatari=$uid AND t.data_fi IS NULL AND t.data_inici >= NOW() - INTERVAL 5 MINUTE ORDER BY t.data_inici DESC LIMIT 1");
         $row=$res->fetch_assoc();
         echo json_encode($row?['ok'=>true,'trucada'=>$row]:['ok'=>false]);exit;
@@ -107,9 +229,10 @@ if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_POST['action'])){
         echo json_encode(['ok'=>true]);exit;
     }
     if($act==='usuaris_llista'){
-        $uid=getUID();
-        $extra=(getRol()==='vendes')?" AND tipus='extern'":'';
-        $res=$db->query("SELECT id_usuari,nom_complet,email FROM USUARI WHERE estat='actiu' AND id_usuari!=$uid$extra ORDER BY nom_complet");
+        $uid=getUID();$rol=getRol();
+        if($rol==='administracio'){echo json_encode([]);exit;}
+        $extra=($rol==='treballador')?" AND tipus='intern'":'';
+        $res=$db->query("SELECT id_usuari,nom_complet,email,tipus FROM USUARI WHERE estat='actiu' AND id_usuari!=$uid$extra ORDER BY nom_complet");
         $rows=[];while($r=$res->fetch_assoc())$rows[]=$r;
         echo json_encode($rows);exit;
     }
@@ -130,21 +253,53 @@ if($_SERVER['REQUEST_METHOD']==='POST'&&isset($_POST['action'])){
         echo json_encode($rows);exit;
     }
 
-    /* ADMIN PANELS */
-    if($act==='mesures_banda'){
+    /* GESTIÓ USUARIS / BLOQUEIG */
+    if($act==='usuaris_gestio'){
         if(!isAdmin()){echo json_encode(['error'=>'Accés denegat']);exit;}
+        $res=$db->query("SELECT u.id_usuari,u.nom_complet,u.email,u.estat,u.tipus,ur.nom_rol FROM USUARI u LEFT JOIN USUARI_ROL ur ON u.id_usuari=ur.id_usuari ORDER BY u.estat DESC,u.nom_complet");
+        $rows=[];while($r=$res->fetch_assoc())$rows[]=$r;
+        echo json_encode($rows);exit;
+    }
+    if($act==='bloquejar_usuari'||$act==='desbloquejar_usuari'){
+        if(!isAdmin()){echo json_encode(['error'=>'Accés denegat']);exit;}
+        $id=(int)$_POST['id'];$nou=$act==='bloquejar_usuari'?'bloquejat':'actiu';
+        $db->query("UPDATE USUARI SET estat='$nou' WHERE id_usuari=$id");
+        if($nou==='bloquejat')addAvis($db,'USUARI','UPDATE','Usuari '.$id.' bloquejat per '.getUID());
+        echo json_encode(['ok'=>true]);exit;
+    }
+
+    /* ADMIN PANELS */
+    if($act==='executar_mesura_banda'){
+        if(!isSuperAdmin()){echo json_encode(['error'=>'Accés denegat']);exit;}
+        $uid=getUID();
+        if(function_exists('fastcgi_finish_request')){
+            // PHP-FPM: enviar resposta al client i continuar mesurant en background
+            echo json_encode(['ok'=>true,'msg'=>'Mesura iniciada. Els resultats apareixeran en uns 60 segons.']);
+            fastcgi_finish_request();
+            ignore_user_abort(true);set_time_limit(120);
+            runMesuraBanda($uid,$db);
+        }else{
+            // Fallback: procés CLI en background
+            $log=sys_get_temp_dir().'/mesura_banda.log';
+            exec("nohup ".PHP_BINARY." ".escapeshellarg(__FILE__)." mesura $uid > ".escapeshellarg($log)." 2>&1 &");
+            echo json_encode(['ok'=>true,'msg'=>'Mesura iniciada en segon pla. Els resultats apareixeran en uns 60 segons.']);
+        }
+        exit;
+    }
+    if($act==='mesures_banda'){
+        if(!isSuperAdmin()){echo json_encode(['error'=>'Accés denegat']);exit;}
         $res=$db->query("SELECT m.*,u.nom_complet FROM MESURA_AMPLADA_BANDA m JOIN USUARI u ON m.operari_id=u.id_usuari ORDER BY m.data_hora DESC LIMIT 100");
         $rows=[];while($r=$res->fetch_assoc())$rows[]=$r;
         echo json_encode($rows);exit;
     }
     if($act==='avisos_log'){
-        if(!isAdmin()){echo json_encode(['error'=>'Accés denegat']);exit;}
+        if(!isSuperAdmin()){echo json_encode(['error'=>'Accés denegat']);exit;}
         $res=$db->query("SELECT a.*,u.nom_complet FROM AVIS a JOIN USUARI u ON a.usuari_id=u.id_usuari ORDER BY a.data_hora DESC");
         $rows=[];while($r=$res->fetch_assoc())$rows[]=$r;
         echo json_encode($rows);exit;
     }
     if($act==='backups_log'){
-        if(!isAdmin()){echo json_encode(['error'=>'Accés denegat']);exit;}
+        if(!isSuperAdmin()){echo json_encode(['error'=>'Accés denegat']);exit;}
         $res=$db->query("SELECT * FROM CONTROL_BACKUP ORDER BY data_hora DESC");
         $rows=[];while($r=$res->fetch_assoc())$rows[]=$r;
         echo json_encode($rows);exit;
@@ -213,6 +368,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .field label{display:block;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-family:var(--mono)}
 .field input,.field textarea{width:100%;padding:14px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--mono);font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s}
 .field input:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,99,255,.15)}
+.input-suffix-wrap{display:flex;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);transition:border-color .2s,box-shadow .2s}
+.input-suffix-wrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,99,255,.15)}
+.input-suffix-wrap input{flex:1;background:transparent;border:none;padding:14px 0 14px 16px;color:var(--text);font-family:var(--mono);font-size:14px;outline:none;min-width:0}
+.input-suffix{padding:14px 16px 14px 0;color:var(--muted);font-family:var(--mono);font-size:14px;white-space:nowrap;user-select:none}
 .field textarea{resize:vertical;min-height:80px}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 24px;border:none;border-radius:var(--radius);font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.03em}
 .btn-primary{background:var(--accent);color:#fff;justify-content:center;font-size:15px}
@@ -230,7 +389,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .btn-accent2:hover{background:rgba(255,101,132,.25)}
 /* LAYOUT */
 #app{display:none;min-height:100vh}
-.sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;overflow-y:auto}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:300px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:50;overflow-y:auto}
 .sidebar-logo{padding:28px 28px 24px;border-bottom:1px solid var(--border);flex-shrink:0}
 .sidebar-logo .logo-tag{font-size:10px;font-family:var(--mono);color:var(--accent);letter-spacing:.2em;text-transform:uppercase;margin-bottom:4px}
 .sidebar-logo h1{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -249,7 +408,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .user-info{flex:1;overflow:hidden}
 .user-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .user-rol{font-size:11px;font-family:var(--mono);color:var(--muted)}
-.main{margin-left:260px;padding:40px;min-height:100vh}
+.main{margin-left:300px;padding:40px;min-height:100vh}
 /* PAGE */
 .page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px;gap:16px;flex-wrap:wrap}
 .breadcrumb{font-size:11px;font-family:var(--mono);color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
@@ -295,14 +454,6 @@ tbody tr:last-child td{border-bottom:none}
 .badge-ok{background:rgba(67,232,176,.15);color:var(--success)}
 .badge-err{background:rgba(255,101,132,.15);color:var(--danger)}
 .badge-muted{background:var(--bg3);color:var(--muted)}
-/* AUDIO */
-.audio-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;display:flex;align-items:center;gap:20px;transition:border-color .2s}
-.audio-card:hover{border-color:var(--accent)}
-.audio-icon{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,rgba(67,232,176,.2),rgba(108,99,255,.2));border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.audio-info{flex:1}
-.audio-name{font-size:14px;font-weight:700;margin-bottom:4px}
-.audio-url{font-size:11px;font-family:var(--mono);color:var(--muted)}
-audio{width:100%;margin-top:12px;height:32px;accent-color:var(--accent)}
 /* CALL HISTORY */
 .stars{color:#fbbf24;letter-spacing:2px;font-size:14px}
 .stars.muted{color:var(--border)}
@@ -385,7 +536,7 @@ audio{width:100%;margin-top:12px;height:32px;accent-color:var(--accent)}
   <div class="login-card">
     <div class="login-logo">InnovateTech · CPD</div>
     <h2 class="login-title">Panel de<br>gestió</h2>
-    <div class="field"><label>Email</label><input type="text" id="lu" placeholder="joan.garcia@innovatech.com" autocomplete="username"></div>
+    <div class="field"><label>Email</label><div class="input-suffix-wrap"><input type="text" id="lu" placeholder="joan.garcia" autocomplete="username"><span class="input-suffix">@innovatech.com</span></div></div>
     <div class="field"><label>Contrasenya</label><input type="password" id="lp" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="btn btn-primary" style="width:100%" onclick="doLogin()">Accedir →</button>
     <div class="login-error" id="lerr"></div>
@@ -489,12 +640,48 @@ audio{width:100%;margin-top:12px;height:32px;accent-color:var(--accent)}
 <script>
 // ── CONFIGURACIÓ JITSI ───────────────────────────────────────
 const JITSI_HOST='3.234.196.49'; // canvia per la IP/domini del teu servidor Jitsi
+const RING_URL='https://www.myinstants.com/media/sounds/john-pork-is-calling-moooort.mp3'; // URL del so de truca entrant (mp3/wav/ogg). Deixa buit per usar el to generat.
 
 // ── STATE ─────────────────────────────────────────────────────
 let currentTable,currentCols=[],currentRows=[],currentReadonly=false;
 let editingId,editingPk,jitsiApi,currentCallId,ratingCallId,currentStars=0;
 let activeNavId='';
 let pollTimer=null,incomingCallData=null;
+let ringCtx=null,ringTimer=null;
+
+// ── RINGTONE ──────────────────────────────────────────────────
+let ringAudio=null;
+function startRingtone(){
+  stopRingtone();
+  if(RING_URL){
+    ringAudio=new Audio(RING_URL);
+    ringAudio.loop=true;
+    ringAudio.volume=0.8;
+    ringAudio.play().catch(()=>{});
+  }else{
+    function ring(){
+      try{
+        const ctx=new(window.AudioContext||window.webkitAudioContext)();
+        [440,480].forEach(freq=>{
+          const osc=ctx.createOscillator();
+          const gain=ctx.createGain();
+          osc.connect(gain);gain.connect(ctx.destination);
+          osc.frequency.value=freq;
+          gain.gain.setValueAtTime(0.25,ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.9);
+          osc.start();osc.stop(ctx.currentTime+0.9);
+        });
+        setTimeout(()=>ctx.close(),1100);
+      }catch(e){}
+    }
+    ring();
+    ringTimer=setInterval(ring,2000);
+  }
+}
+function stopRingtone(){
+  if(ringAudio){ringAudio.pause();ringAudio.currentTime=0;ringAudio=null;}
+  if(ringTimer){clearInterval(ringTimer);ringTimer=null;}
+}
 
 // ── POLLING TRUCADES ENTRANTS ─────────────────────────────────
 function startPolling(){
@@ -515,11 +702,13 @@ async function checkIncomingCalls(){
       incomingCallData=r.trucada;
       document.getElementById('incoming-name').textContent=r.trucada.nom_orig;
       document.getElementById('incoming-banner').style.display='flex';
+      startRingtone();
     }
   }catch(e){console.error('[poll error]',e);}
 }
 async function acceptCall(){
   if(!incomingCallData)return;
+  stopRingtone();
   const callId=incomingCallData.id_trucada;
   document.getElementById('incoming-banner').style.display='none';
   incomingCallData=null;
@@ -534,6 +723,7 @@ async function acceptCall(){
 }
 async function declineCall(){
   if(!incomingCallData)return;
+  stopRingtone();
   const callId=incomingCallData.id_trucada;
   document.getElementById('incoming-banner').style.display='none';
   incomingCallData=null;
@@ -543,7 +733,8 @@ async function declineCall(){
 
 // ── LOGIN / LOGOUT ────────────────────────────────────────────
 async function doLogin(){
-  const u=document.getElementById('lu').value.trim();
+  let u=document.getElementById('lu').value.trim();
+  if(u&&!u.includes('@')) u=u+'@innovatech.com';
   const p=document.getElementById('lp').value;
   const err=document.getElementById('lerr');
   err.style.display='none';
@@ -553,6 +744,7 @@ async function doLogin(){
       document.getElementById('login-screen').style.display='none';
       document.getElementById('app').style.display='block';
       document.getElementById('uname').textContent=r.nom_complet;
+      document.getElementById('uname').dataset.uid=r.uid||'';
       document.getElementById('urol').textContent=r.rol;
       document.getElementById('uavatar').textContent=r.nom_complet?r.nom_complet[0].toUpperCase():'U';
       startPolling();
@@ -567,20 +759,21 @@ document.getElementById('lp').addEventListener('keydown',e=>{if(e.key==='Enter')
 // ── SIDEBAR ───────────────────────────────────────────────────
 function buildSidebar(rol){
   const nav=document.getElementById('sidebar-nav');
-  const general=[
-    {id:'dashboard', label:'Dashboard',          fn:'showDashboard()'},
-    {id:'videocall', label:'Videoconferència',   fn:'showVideoSection()'},
-    {id:'trucades',  label:'Historial trucades', fn:'showCallHistory()'},
-    {id:'videos',    label:'Catàleg de vídeo',   fn:'showVideoCatalog()'},
-    {id:'audio',     label:'Àudio',              fn:'showAudioSection()'},
-  ];
+  const general=[{id:'dashboard',label:'🏠 Dashboard',fn:'showDashboard()'}];
+  if(rol!=='administracio'){
+    general.push({id:'videocall',label:'📹 Videoconferència',fn:'showVideoSection()'});
+    general.push({id:'trucades', label:'📞 Historial trucades',fn:'showCallHistory()'});
+  }
+  general.push({id:'videos',label:'🎬 Catàleg de vídeo',fn:'showVideoCatalog()'});
   let html=renderSection('General',general);
   if(['admin','administracio'].includes(rol)){
-    html+=renderSection('Administració',[
-      {id:'banda',   label:'Amplada de banda', fn:'showBandwidth()'},
-      {id:'avisos',  label:'Avisos / Auditoria',fn:'showAvisos()'},
-      {id:'backups', label:'Backups',           fn:'showBackups()'},
-    ]);
+    const adminItems=[{id:'bloqueig',label:'🔒 Bloqueig d\'usuaris',fn:'showUserBlocking()'}];
+    if(rol==='admin'){
+      adminItems.push({id:'banda',   label:'📶 Amplada de banda',  fn:'showBandwidth()'});
+      adminItems.push({id:'avisos',  label:'🔔 Avisos / Auditoria',fn:'showAvisos()'});
+      adminItems.push({id:'backups', label:'💾 Backups',            fn:'showBackups()'});
+    }
+    html+=renderSection('Administració',adminItems);
   }
   const tables=await_tables_placeholder();
   if(tables.length){
@@ -601,7 +794,8 @@ async function buildSidebarWithTables(rol){
   if(tables.length){
     const nav=document.getElementById('sidebar-nav');
     let extra='<div class="nav-divider"></div><span class="nav-section-label">Base de dades</span>';
-    extra+=tables.map(t=>`<button class="nav-item" id="nav-crud-${t}" onclick="setActive('nav-crud-${t}');showCrudTable('${t}',this)"><span class="nav-dot"></span>${t}</button>`).join('');
+    const tableEmoji={DEPARTAMENT:'🏢',EMPLEAT:'👤',USUARI:'👥',ROL:'🎭',USUARI_ROL:'🔑',GRUP_QUALITAT:'✅',TRUCADA:'📞',VIDEO:'🎬',MESURA_AMPLADA_BANDA:'📶',CONFIGURACIO_SERVIDOR:'⚙️',AVIS:'🔔',CONTROL_BACKUP:'💾',CONTRASENYES:'🔐'};
+    extra+=tables.map(t=>`<button class="nav-item" id="nav-crud-${t}" onclick="setActive('nav-crud-${t}');showCrudTable('${t}',this)"><span class="nav-dot"></span>${(tableEmoji[t]||'🗄️')+' '+t}</button>`).join('');
     nav.innerHTML=nav.innerHTML.replace('@@TABLES@@','');
     nav.insertAdjacentHTML('beforeend',extra);
   }
@@ -632,10 +826,10 @@ async function showDashboard(){
   if(s.clients!==undefined) cards+=`<div class="card"><div class="card-label">Clients actius</div><div class="card-value">${s.clients}</div></div>`;
   if(s.backup_data) cards+=`<div class="card"><div class="card-label">Últim backup</div><div class="card-value sm">${fmtDate(s.backup_data)}<br><span style="font-size:11px;color:${s.backup_ok==='èxit'?'var(--success)':'var(--danger)'}">${s.backup_ok}</span></div></div>`;
 
-  let actions=`<button class="btn btn-info btn-sm" onclick="setActive('videocall');showVideoSection()">Nova videotrucada</button>
-               <button class="btn btn-ghost btn-sm" onclick="setActive('videos');showVideoCatalog()">Catàleg de vídeo</button>
-               <button class="btn btn-ghost btn-sm" onclick="setActive('audio');showAudioSection()">Canals d'àudio</button>`;
-  if(['admin','administracio'].includes(rol))
+  let actions=`<button class="btn btn-ghost btn-sm" onclick="setActive('videos');showVideoCatalog()">Catàleg de vídeo</button>`;
+  if(rol!=='administracio')
+    actions=`<button class="btn btn-info btn-sm" onclick="setActive('videocall');showVideoSection()">Nova videotrucada</button>`+actions;
+  if(rol==='admin')
     actions+=`<button class="btn btn-ghost btn-sm" onclick="setActive('banda');showBandwidth()">Amplada de banda</button>`;
 
   document.getElementById('content').innerHTML=`
@@ -701,25 +895,43 @@ async function openNewCallModal(){
   const users=await post({action:'usuaris_llista'});
   if(!Array.isArray(users)||!users.length){toast('No hi ha usuaris disponibles','error');return;}
   document.getElementById('newcall-list').innerHTML=users.map(u=>`
-    <div class="user-list-item" onclick="startCallWith(${u.id_usuari},'${u.nom_complet.replace(/'/g,"\\'")}')">
+    <div class="user-list-item" onclick="startCallWith(${u.id_usuari},'${u.nom_complet.replace(/'/g,"\\'")}','${u.tipus}')">
       <div><div class="uname">${u.nom_complet}</div><div class="uemail">${u.email}</div></div>
-      <span class="badge badge-accent">Trucar</span>
+      <span class="badge ${u.tipus==='extern'?'badge-muted':'badge-accent'}">${u.tipus==='extern'?'Client extern':'Intern'}</span>
     </div>`).join('');
   document.getElementById('newcall-modal').classList.add('open');
 }
 
-async function startCallWith(uid,uname){
-  closeNewCall();
-  const r=await post({action:'iniciar_trucada',destinatari_id:uid});
-  if(!r.ok){toast('Error en registrar la trucada','error');return;}
-  currentCallId=r.id;
-  const room='InnovateTech-Call-'+r.id;
-  const myName=document.getElementById('uname').textContent;
-  if(!document.getElementById('jitsi-wrap')){await showVideoSection();}
-  document.getElementById('call-setup').style.display='none';
-  const wrap=document.getElementById('jitsi-wrap');
-  wrap.style.display='block';
-  loadJitsiScript(()=>initJitsi(room,myName,wrap,r.id));
+async function startCallWith(uid,uname,tipus){
+  try{
+    closeNewCall();
+    const r=await post({action:'iniciar_trucada',destinatari_id:uid});
+    if(!r.ok){toast(r.msg||'Error en registrar la trucada','error');return;}
+    currentCallId=r.id;
+    const room='InnovateTech-Call-'+r.id;
+    const jitsiUrl=`https://${JITSI_HOST}/${room}`;
+    const myName=document.getElementById('uname').textContent;
+    await showVideoSection();
+    document.getElementById('call-setup').style.display='none';
+    const wrap=document.getElementById('jitsi-wrap');
+    wrap.style.display='block';
+    if(tipus==='extern'){
+      let shareBar=document.getElementById('share-link-bar');
+      if(!shareBar){
+        shareBar=document.createElement('div');
+        shareBar.id='share-link-bar';
+        shareBar.style.cssText='background:var(--bg3);border:1px solid var(--accent);border-radius:var(--radius);padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap';
+        wrap.parentNode.insertBefore(shareBar,wrap);
+      }
+      shareBar.innerHTML=`<span style="font-size:13px;color:var(--muted)">Comparteix amb <strong style="color:var(--fg)">${uname}</strong>:</span>
+        <code style="flex:1;font-size:12px;font-family:var(--mono);background:var(--bg);padding:6px 10px;border-radius:6px;border:1px solid var(--border);word-break:break-all">${jitsiUrl}</code>
+        <button class="btn btn-sm btn-accent" onclick="navigator.clipboard.writeText('${jitsiUrl}').then(()=>toast('Enllaç copiat!'))">Copiar</button>`;
+    }
+    loadJitsiScript(()=>initJitsi(room,myName,wrap,r.id));
+  }catch(e){
+    console.error('[startCallWith]',e);
+    toast('Error inesperat: '+e.message,'error');
+  }
 }
 
 function initJitsi(room,uname,container,callId){
@@ -733,6 +945,8 @@ function initJitsi(room,uname,container,callId){
   });
   jitsiApi.addEventListener('readyToClose',async()=>{
     jitsiApi.dispose();jitsiApi=null;
+    const sb=document.getElementById('share-link-bar');
+    if(sb)sb.remove();
     if(callId){
       await post({action:'finalitzar_trucada',id:callId});
       openRatingModal(callId);
@@ -745,7 +959,9 @@ async function showCallHistory(){
   setActive('trucades');
   if(jitsiApi){jitsiApi.dispose();jitsiApi=null;}
   document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div> Carregant...</div>';
-  const rows=await post({action:'trucades'});
+  const resp=await post({action:'trucades'});
+  if(resp&&resp.audit){toast(resp.msg,'error');document.getElementById('content').innerHTML=`<div class="page-header"><div class="page-title-wrap"><div class="breadcrumb">InnovateTech · Comunicació</div><h2 class="page-title">Historial de trucades</h2></div></div><div class="empty"><div class="empty-icon">🚫</div><div class="empty-text">${resp.msg}</div></div>`;return;}
+  const rows=Array.isArray(resp)?resp:[];
   const myName=document.getElementById('uname').textContent;
   document.getElementById('content').innerHTML=`
     <div class="page-header">
@@ -774,6 +990,28 @@ async function showCallHistory(){
 }
 
 // ── VIDEO CATALOG ─────────────────────────────────────────────
+function catEmoji(cat){
+  if(!cat) return '🎬';
+  const m={
+    'formació':'📚','formacion':'📚','training':'📚','curs':'📚','curso':'📚',
+    'producte':'📦','product':'📦','producció':'🎬','produccion':'🎬',
+    'marketing':'📣','publicitat':'📣',
+    'vendes':'💼','sales':'💼','comercial':'💼',
+    'tecnologia':'💻','tech':'💻',' it ':'💻',
+    'rrhh':'👥','recursos humans':'👥','hr':'👥','personal':'👥',
+    'qualitat':'✅','quality':'✅',
+    'seguretat':'🔒','security':'🔒',
+    'notícies':'📰','noticies':'📰','news':'📰','comunicat':'📰',
+    'presentació':'🎯','presentacion':'🎯','pitch':'🎯',
+    'tutorial':'🎓','manual':'🎓','guia':'🎓',
+    'reunió':'🤝','reunion':'🤝','meeting':'🤝',
+    'esport':'⚽','sport':'⚽',
+    'música':'🎵','musica':'🎵','music':'🎵',
+  };
+  const k=' '+cat.toLowerCase().trim()+' ';
+  for(const [key,emoji] of Object.entries(m)) if(k.includes(key)) return emoji;
+  return '🎬';
+}
 async function showVideoCatalog(q=''){
   setActive('videos');
   if(jitsiApi){jitsiApi.dispose();jitsiApi=null;}
@@ -791,13 +1029,13 @@ async function showVideoCatalog(q=''){
       :`<div class="video-grid">${videos.map(v=>`
         <div class="video-card" onclick="openVideoPlayer('${v.enllac_streaming}','${v.titol.replace(/'/g,"\\'")}','${(v.descripcio||'').replace(/'/g,"\\'")}')">
           <div class="video-thumb">
-            📺
+            ${catEmoji(v.categoria)}
             <div class="video-thumb-overlay"><div class="video-play">▶</div></div>
           </div>
           <div class="video-info">
             <div class="video-title">${v.titol}</div>
             <div class="video-meta">
-              ${v.categoria?`<span class="badge badge-accent">${v.categoria}</span>`:''}
+              ${v.categoria?`<span class="badge badge-accent">${catEmoji(v.categoria)} ${v.categoria}</span>`:''}
               ${v.durada?`<span class="badge badge-muted">${fmtDur(v.durada)}</span>`:''}
             </div>
           </div>
@@ -834,35 +1072,25 @@ function closeVideoPlayer(){
   document.getElementById('vp-wrap').innerHTML='';
 }
 
-// ── AUDIO ─────────────────────────────────────────────────────
-async function showAudioSection(){
-  setActive('audio');
-  if(jitsiApi){jitsiApi.dispose();jitsiApi=null;}
-  document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div> Carregant...</div>';
-  const canals=await post({action:'canals_audio'});
-  const items=canals.length
-    ?canals.map(c=>`<div class="audio-card">
-        <div class="audio-icon">🔊</div>
-        <div class="audio-info">
-          <div class="audio-name">${c.parametre.replace('audio_','')}</div>
-          <div class="audio-url">${c.valor}</div>
-          <audio controls src="${c.valor}">El teu navegador no suporta àudio HTML5.</audio>
-        </div>
-      </div>`)
-    :[`<div class="empty"><div class="empty-icon">🔇</div>
-        <div class="empty-text" style="font-family:var(--mono)">
-          No hi ha canals d'àudio configurats.<br>
-          <span style="font-size:12px">Afegiu entrades a CONFIGURACIO_SERVIDOR amb el prefix <strong>audio_</strong> (ex: audio_canal1)</span>
-        </div></div>`];
-  document.getElementById('content').innerHTML=`
-    <div class="page-header">
-      <div class="page-title-wrap"><div class="breadcrumb">InnovateTech · Streaming</div><h2 class="page-title">Canals d'àudio</h2></div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:12px">${items.join('')}</div>`;
-}
 
 // ── ADMIN: BANDWIDTH ──────────────────────────────────────────
+let bandaRefreshTimer=null;
+async function executarMesura(){
+  const btn=document.getElementById('btn-mesura');
+  if(btn){btn.disabled=true;btn.textContent='Mesurant...';}
+  const r=await post({action:'executar_mesura_banda'});
+  toast(r.ok?r.msg:r.msg||'Error','error'in r||!r.ok?'error':'ok');
+  if(r.ok){
+    let t=60;
+    bandaRefreshTimer=setInterval(()=>{
+      t--;
+      if(btn)btn.textContent=`Mesurant... (${t}s)`;
+      if(t<=0){clearInterval(bandaRefreshTimer);bandaRefreshTimer=null;showBandwidth();}
+    },1000);
+  }else{if(btn){btn.disabled=false;btn.textContent='Executar mesura';}}
+}
 async function showBandwidth(){
+  if(bandaRefreshTimer){clearInterval(bandaRefreshTimer);bandaRefreshTimer=null;}
   setActive('banda');
   if(jitsiApi){jitsiApi.dispose();jitsiApi=null;}
   document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div> Carregant...</div>';
@@ -871,6 +1099,7 @@ async function showBandwidth(){
   document.getElementById('content').innerHTML=`
     <div class="page-header">
       <div class="page-title-wrap"><div class="breadcrumb">InnovateTech · Administració</div><h2 class="page-title">Amplada de banda</h2></div>
+      <div class="toolbar"><button id="btn-mesura" class="btn btn-accent btn-sm" onclick="executarMesura()">Executar mesura</button></div>
     </div>
     <div class="cards-grid" style="max-width:640px">
       <div class="card"><div class="card-label">Total mesures</div><div class="card-value">${rows.length}</div></div>
@@ -913,6 +1142,41 @@ async function showAvisos(){
         </tr>`).join('')}
       </tbody></table>`}
     </div></div>`;
+}
+
+// ── BLOQUEIG D'USUARIS ────────────────────────────────────────
+async function showUserBlocking(){
+  setActive('bloqueig');
+  if(jitsiApi){jitsiApi.dispose();jitsiApi=null;}
+  document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div> Carregant...</div>';
+  const rows=await post({action:'usuaris_gestio'});
+  if(rows.error){toast(rows.error,'error');return;}
+  const myId=parseInt(document.getElementById('uname').dataset.uid||0);
+  document.getElementById('content').innerHTML=`
+    <div class="page-header">
+      <div class="page-title-wrap"><div class="breadcrumb">InnovateTech · Administració</div><h2 class="page-title">Bloqueig d'usuaris</h2></div>
+    </div>
+    <div class="table-card"><div class="table-wrap">
+      <table><thead><tr><th>Nom</th><th>Email</th><th>Rol</th><th>Tipus</th><th>Estat</th><th>Acció</th></tr></thead><tbody>
+        ${rows.map(r=>`<tr>
+          <td>${r.nom_complet}</td>
+          <td style="font-family:var(--mono);font-size:12px">${r.email}</td>
+          <td><span class="badge badge-accent">${r.nom_rol||'—'}</span></td>
+          <td><span class="badge badge-muted">${r.tipus}</span></td>
+          <td><span class="badge ${r.estat==='actiu'?'badge-ok':'badge-err'}">${r.estat}</span></td>
+          <td>${r.id_usuari==myId?'<span style="color:var(--muted);font-size:12px">—</span>':
+            r.estat==='actiu'
+              ?`<button class="btn btn-sm btn-danger" onclick="toggleBlock(${r.id_usuari},'bloquejar')">Bloquejar</button>`
+              :`<button class="btn btn-sm btn-success" onclick="toggleBlock(${r.id_usuari},'desbloquejar')">Desbloquejar</button>`
+          }</td>
+        </tr>`).join('')}
+      </tbody></table>
+    </div></div>`;
+}
+async function toggleBlock(id,accio){
+  const r=await post({action:accio==='bloquejar'?'bloquejar_usuari':'desbloquejar_usuari',id});
+  if(r.ok){toast(accio==='bloquejar'?'Usuari bloquejat.':'Usuari desbloquejat.');showUserBlocking();}
+  else toast(r.error||'Error','error');
 }
 
 // ── ADMIN: BACKUPS ────────────────────────────────────────────

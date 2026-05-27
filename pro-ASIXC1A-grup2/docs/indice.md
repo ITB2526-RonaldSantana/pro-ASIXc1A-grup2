@@ -26,7 +26,7 @@
   5.1 [Descripció_Protocol_WebRTC.md](05-videoconferencia/Descripció_Protocol_WebRTC.md)
 
 06. [06-amplada-banda](06-amplada-banda)
-  - Sin documentos disponibles
+  6.1 Mesura d'amplada de banda (vegeu secció 09 — App Web)
 
 07. [07-bd](07-bd)
   7.1 [er-diagrama.md](07-bd/er-diagrama.md)
@@ -37,6 +37,9 @@
 
 08. [08-1665](08-1665)
   - Sin documentos disponibles
+
+09. [09-app-web](09-app-web)
+  9.1 [index.php — Panel de gestió CPD](web/indice.md)
 
 ---
 
@@ -1780,7 +1783,17 @@ sudo apt install nginx
 
 ## 06. 06-amplada-banda
 
-*Sin documentos disponibles en esta carpeta.*
+La mesura d'amplada de banda s'implementa directament a l'aplicació web (`index.php`). Vegeu la secció **09** per a la documentació completa del sistema de mesura.
+
+**Resum del funcionament:**
+- L'administrador llança la mesura des del panell web (secció "📶 Amplada de banda").
+- El servidor executa `runMesuraBanda()` en segon pla (via `fastcgi_finish_request` o procés CLI).
+- S'intenta primer amb `speedtest-cli --simple`; si no està disponible, es fa servir `curl` contra el servidor de streaming (`23.23.53.151`).
+- Es mesuren baixada (Mbps), pujada (Mbps) i latència + jitter (ms) contra el servidor de streaming.
+- Criteris d'acceptabilitat: baixada ≥ 50 Mbps, pujada ≥ 10 Mbps, latència ≤ 150 ms.
+- Els resultats es guarden a la taula `MESURA_AMPLADA_BANDA`.
+
+També hi ha el script autònom `scripts/bandwidth_test.sh` que fa la mesura via `speedtest-cli` i inserta directament a la BD amb l'usuari MySQL `integracio`.
 
 ## 07. 07-bd
 
@@ -2189,5 +2202,197 @@ DESCRIBE AVIS;
 ### 8.3 08-1665/ra6-transformacio-digital.md
 
 *Documento vacío.*
+
+---
+
+## 09. 09-app-web
+
+### 9.1 web/index.php — Panel de gestió CPD
+
+Panel de gestión CPD de InnovateTech. Archivo único (`index.php`) que contiene el backend en PHP, los estilos CSS y el frontend en JavaScript (arquitectura SPA).
+
+---
+
+#### Arquitectura general
+
+```
+index.php
+├── PHP (backend)          Líneas 1–341
+│   ├── Constantes y configuración
+│   ├── Modo CLI (fallback de medición)
+│   ├── Sesión y helpers de BD
+│   ├── Control de acceso por roles
+│   ├── runMesuraBanda()
+│   └── Router de acciones POST (API interna)
+│
+├── HTML + CSS             Líneas 342–530
+│   ├── Variables de diseño (:root)
+│   ├── Estilos de todos los componentes
+│   ├── Pantalla de login
+│   ├── Layout principal (sidebar + main)
+│   └── Modales (edición, vista, vídeo, valoración, nueva llamada)
+│
+└── JavaScript (frontend)  Líneas 640–1350
+    ├── Estado global
+    ├── Ringtone y polling de llamadas entrantes
+    ├── Login / Logout
+    ├── Sidebar con emojis por sección
+    ├── Dashboard
+    ├── Videoconferencia (Jitsi)
+    ├── Historial de llamadas
+    ├── Catálogo de vídeo (HLS/MP4/iframe)
+    ├── Amplada de banda
+    ├── Avisos / Auditoría
+    ├── Bloqueig d'usuaris
+    ├── Backups
+    ├── CRUD genérico de tablas
+    └── Utilidades (toast, formateo, post())
+```
+
+---
+
+#### 9.1.1 PHP — Backend
+
+**Constantes de configuración**
+
+| Constante | Valor | Descripción |
+|---|---|---|
+| `DB_HOST` | `32.197.67.184` | IP del servidor MySQL |
+| `DB_USER` | `webadmin` | Usuario de la base de datos |
+| `DB_PASS` | `pirineus` | Contraseña de la base de datos |
+| `DB_NAME` | `InnovateTech` | Nombre de la base de datos |
+| `JITSI_HOST` | `3.234.196.49` | Servidor Jitsi Meet para videoconferencias |
+| `STREAMING_HOST` | `23.23.53.151` | Servidor de streaming/vídeo (objetivo de las mediciones) |
+
+**Modo CLI** — Si el archivo se ejecuta con `php index.php mesura <uid>`, entra en modo CLI: conecta a la BD y llama directamente a `runMesuraBanda()`. Se usa como fallback cuando `fastcgi_finish_request()` no está disponible.
+
+**Helpers de BD:**
+- `getDB()` — Abre conexión MySQLi, muere con JSON de error si falla.
+- `dbq($db, $sql)` / `dbrow($db, $sql)` — Wrappers de query y fetch.
+
+**Control de acceso por roles (`$ROL_PERMISOS`):**
+
+| Rol | Tablas accesibles | Solo lectura |
+|---|---|---|
+| `admin` | Todas (13 tablas) | Ninguna |
+| `vendes` | TRUCADA, USUARI, VIDEO | USUARI, VIDEO |
+| `administracio` | EMPLEAT, DEPARTAMENT, USUARI, USUARI_ROL | Ninguna |
+| `treballador` | VIDEO, TRUCADA | VIDEO, TRUCADA |
+
+**`addAvis()`** — Registra eventos de auditoría en `AVIS` cuando un usuario intenta una operación no permitida.
+
+**`runMesuraBanda()`** — Medición de ancho de banda en segundo plano:
+- *Método 1 (preferente)*: `speedtest-cli --simple` → parsea Ping/Download/Upload.
+- *Método 2 fallback*: curl para bajada (streaming server → Cloudflare), POST para subida (httpbin → Cloudflare → TCP raw 5s).
+- Latencia + jitter: 6 conexiones TCP a `STREAMING_HOST:80`, descarta extremos, calcula media y desviación estándar.
+- Criterio: bajada ≥ 50 Mbps, subida ≥ 10 Mbps, latencia ≤ 150 ms → `acceptable`.
+
+**Router de acciones POST** — Todas las peticiones llegan como `POST action=...` y responden en JSON:
+
+| Action | Auth | Descripción |
+|---|---|---|
+| `login` | No | Valida email+contrasenya, crea sesión. Bloquea `extern`. |
+| `logout` | Sí | Destruye la sesión. |
+| `tables` | Sí | Tablas permitidas para el rol actual. |
+| `dashboard_stats` | Sí | Estadísticas por rol. |
+| `trucades` | Sí | Historial de llamadas (treballador: solo las suyas; administracio: denegado + audit). |
+| `iniciar_trucada` | Sí | Registra inicio en `TRUCADA`, valida estado del destinatario. |
+| `finalitzar_trucada` | Sí | Rellena `data_fi` y `durada_total`. |
+| `trucada_entrant` | Sí | Polling: devuelve llamada entrante activa en los últimos 5 min. |
+| `valorar_trucada` | Sí | Guarda puntuación 1–5 y comentario. |
+| `usuaris_llista` | Sí | Usuarios activos para llamar (treballador: solo internos). |
+| `videos` | Sí | Catálogo con búsqueda por título/categoría/descripción. |
+| `canals_audio` | Sí | Parámetros de `CONFIGURACIO_SERVIDOR` con prefijo `audio_`. |
+| `usuaris_gestio` | Admin | Lista todos los usuarios con rol y estado. |
+| `bloquejar_usuari` | Admin | Cambia estado a `bloquejat` + registra en `AVIS`. |
+| `desbloquejar_usuari` | Admin | Cambia estado a `actiu`. |
+| `executar_mesura_banda` | SuperAdmin | Lanza `runMesuraBanda()` en background. |
+| `mesures_banda` | SuperAdmin | Últimas 100 mediciones. |
+| `avisos_log` | SuperAdmin | Todos los registros de `AVIS`. |
+| `backups_log` | SuperAdmin | Todos los registros de `CONTROL_BACKUP`. |
+| `read` | Por rol | Lee tabla con búsqueda full-text, máx. 200 filas. |
+| `insert` / `update` / `delete` | Por rol (no readonly) | CRUD genérico. |
+
+---
+
+#### 9.1.2 HTML + CSS
+
+**Paleta de colores (variables CSS `:root`):**
+
+| Variable | Color | Uso |
+|---|---|---|
+| `--bg` | `#0a0a0f` | Fondo principal |
+| `--bg2` | `#111118` | Tarjetas y sidebar |
+| `--bg3` | `#1a1a24` | Inputs y cabeceras |
+| `--accent` | `#6c63ff` | Morado (botones, activos) |
+| `--accent2` | `#ff6584` | Rosa (degradados, alertas) |
+| `--success` | `#43e8b0` | Verde (éxito) |
+| `--font` | Syne | Tipografía principal |
+| `--mono` | DM Mono | Tipografía monospace |
+
+**Estructura HTML:**
+```
+#login-screen          Pantalla de login (oculta tras login)
+#app
+  aside.sidebar        Fijo 300px, secciones con emojis
+  main.main            Área de contenido dinámica (SPA)
+#modal                 CRUD edición
+#view-modal            CRUD visualización
+#video-modal           Reproductor de vídeo
+#rating-modal          Valoración 1–5 estrellas
+#newcall-modal         Selección de usuario para llamar
+#incoming-banner       Banner llamada entrante (fixed, top)
+#toast                 Notificación flotante
+```
+
+---
+
+#### 9.1.3 JavaScript — Frontend
+
+**Sidebar con emojis:**
+
+| Sección | Items |
+|---|---|
+| General | 🏠 Dashboard · 📹 Videoconferència · 📞 Historial · 🎬 Catàleg |
+| Administració | 🔒 Bloqueig · 📶 Amplada · 🔔 Avisos · 💾 Backups |
+| Base de dades | 🏢 DEPARTAMENT · 👤 EMPLEAT · 👥 USUARI · 🎭 ROL · 🔑 USUARI_ROL · ✅ GRUP_QUALITAT · 📞 TRUCADA · 🎬 VIDEO · 📶 MESURA_AMPLADA_BANDA · ⚙️ CONFIGURACIO_SERVIDOR · 🔔 AVIS · 💾 CONTROL_BACKUP · 🔐 CONTRASENYES |
+
+**Login:** el campo de email tiene sufijo visual `@innovatech.com`. Si el usuario no escribe `@`, se añade automáticamente en `doLogin()`.
+
+**Polling de llamadas:** `setInterval` cada 4 segundos → `trucada_entrant`. Si hay llamada, muestra banner con ringtone (MP3 o Web Audio API sintético). El receptor puede aceptar (abre Jitsi) o declinar (finaliza la llamada).
+
+**Videoconferència (Jitsi):** lazy-loading del script `external_api.js`. Sala nombrada `InnovateTech-Call-{id}`. Al cerrar: finaliza llamada en BD + abre modal de valoración. Para clientes externos: barra con enlace copiable.
+
+**Catàleg de vídeo:** `catEmoji(cat)` mapea categoría → emoji (📚 formació, 💼 vendes, 💻 tecnologia, 🔒 seguretat, etc.). Reproductor con soporte HLS (`hls.js`), MP4 nativo e iframe.
+
+**Amplada de banda:** botón "Executar mesura" → contador regresivo 60s → recarga automática de la tabla.
+
+**CRUD genérico:** funciona para cualquier tabla permitida. URLs en celdas se convierten en enlaces clicables automáticamente.
+
+**Utilidades:**
+- `post(data)` — `fetch POST` al mismo archivo, responde JSON.
+- `toast(msg, type)` — Notificación flotante 3 segundos.
+- `fmtDate(d)` — Fecha en formato catalán `dd/mm/yyyy hh:mm`.
+- `fmtDur(s)` — Segundos → `Xm Ys`.
+
+---
+
+#### 9.1.4 Tablas de la BD utilizadas por la app
+
+| Tabla | Uso |
+|---|---|
+| `USUARI` | Autenticación, listado, bloqueo |
+| `CONTRASENYES` | Hash de contraseña activa |
+| `USUARI_ROL` | Rol asignado a cada usuario |
+| `ROL` | Definición de roles |
+| `EMPLEAT` | CRUD de empleados |
+| `DEPARTAMENT` | CRUD de departamentos |
+| `TRUCADA` | Registro completo de llamadas |
+| `GRUP_QUALITAT` | Grupo de calidad de cada llamada |
+| `VIDEO` | Catálogo de vídeos |
+| `MESURA_AMPLADA_BANDA` | Historial de mediciones de red |
+| `CONFIGURACIO_SERVIDOR` | Parámetros del servidor (audio, etc.) |
+| `AVIS` | Log de auditoría |
+| `CONTROL_BACKUP` | Historial de backups |
 
 ---
