@@ -159,6 +159,18 @@ CREATE TABLE CONTROL_BACKUP (
     PRIMARY KEY (id_backup)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 2.13 Taula CONTRASENYES (historial de contrasenyes per usuari)
+CREATE TABLE CONTRASENYES (
+    id_contrasenya INT NOT NULL AUTO_INCREMENT,
+    usuari_id INT NOT NULL,
+    hash_contrasenya VARCHAR(255) NOT NULL,
+    data_creacio DATETIME NOT NULL DEFAULT NOW(),
+    activa TINYINT(1) NOT NULL DEFAULT 1,
+    PRIMARY KEY (id_contrasenya),
+    FOREIGN KEY (usuari_id) REFERENCES USUARI(id_usuari)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- =====================================================
 -- 3. INSERCIÓ DE DADES DE PROVA (significatives)
 -- =====================================================
@@ -212,8 +224,8 @@ INSERT INTO TRUCADA (usuari_originador, usuari_destinatari, data_inici, data_fi,
 
 -- 3.8 Vídeos
 INSERT INTO VIDEO (titol, descripcio, categoria, durada, data_publicacio, enllac_streaming) VALUES
-('Introducció a InnovateTech', 'Vídeo corporatiu de presentació', 'Corporatiu', 120, '2026-05-01', 'https://stream.innovatech.com/video1'),
-('Tutorial de videotrucades', 'Com fer servir el sistema de videoconferència', 'Tutorial', 300, '2026-05-10', 'https://stream.innovatech.com/video2');
+('Introducció a InnovateTech', 'Vídeo corporatiu de presentació', 'Corporatiu', 120, '2026-05-01', 'http://23.23.53.151/videos/videoplayback.mp4'),
+('Tutorial de videotrucades', 'Com fer servir el sistema de videoconferència', 'Tutorial', 300, '2026-05-10', 'http://23.23.53.151/videos/videoplayback.mp4');
 
 -- 3.9 Mesures d’amplada de banda
 INSERT INTO MESURA_AMPLADA_BANDA (data_hora, usuari_equip_mesurat, velocitat_baixada, velocitat_pujada, latencia, resultat, operari_id, notes) VALUES
@@ -234,6 +246,15 @@ INSERT INTO AVIS (usuari_id, taula_afectada, operacio_intentada, data_hora, deta
 -- 3.12 Control backups
 INSERT INTO CONTROL_BACKUP (data_hora, taules_incloses, resultat) VALUES
 (NOW(), 'EMPLEAT, USUARI, TRUCADA', 'èxit');
+
+-- 3.13 Contrasenyes inicials de prova (text pla — el login accepta text pla i hash bcrypt)
+INSERT INTO CONTRASENYES (usuari_id, hash_contrasenya, data_creacio, activa) VALUES
+(1, 'pirineus', NOW(), 1),
+(2, 'pirineus', NOW(), 1),
+(3, 'pirineus', NOW(), 1),
+(4, 'pirineus', NOW(), 1),
+(5, 'pirineus', NOW(), 1),
+(6, 'pirineus', NOW(), 1);
 
 -- =====================================================
 -- FI DEL SCRIPT
