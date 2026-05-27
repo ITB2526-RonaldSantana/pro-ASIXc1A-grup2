@@ -1,51 +1,67 @@
-# Documentación completa
-
-## Índice
-
-01. [01-cpd-fisic](01-cpd-fisic)
-  1.1 [1.1-infraestructura-electrica.md](01-cpd-fisic/1.1-infraestructura-electrica.md)
-  1.2 [1.2-infraestructura-it.md](01-cpd-fisic/1.2-infraestructura-it.md)
-  1.3 [1.3-prevencio-rrll.md](01-cpd-fisic/1.3-prevencio-rrll.md)
-  1.4 [1.4-seguretat-fisica-logica.md](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
-  1.5 [1.5-ubicacio.md](01-cpd-fisic/1.5-ubicacio.md)
-
-02. [02-aws](02-aws)
-  2.1 [ansible.md](02-aws/ansible.md)
-  2.2 [servei-logs-graylog.md](02-aws/servei-logs-graylog.md)
-  2.3 [ldap.md](02-aws/ldap.md)
-  2.4 [usuaris-admin.md](02-aws/usuaris-admin.md)
-  2.5 [web-sftp.md](02-aws/web-sftp.md)
-
-03. [03-audio](03-audio)
-  3.1 [Descripció_de_la_funcionalitat_Audio.md](03-audio/Descripció_de_la_funcionalitat_Audio.md)
-
-04. [04-video](04-video)
-  4.1 [Descripció_de_la_funcionalitat_Servei_de_Vídeo.md](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
-
-05. [05-videoconferencia](05-videoconferencia)
-  5.1 [Descripció_Protocol_WebRTC.md](05-videoconferencia/Descripció_Protocol_WebRTC.md)
-
-06. [06-amplada-banda](06-amplada-banda)
-  6.1 Mesura d'amplada de banda (vegeu secció 09 — App Web)
-
-07. [07-bd](07-bd)
-  7.1 [er-diagrama.md](07-bd/er-diagrama.md)
-  7.2 [model-relacional.md](07-bd/model-relacional.md)
-  7.3 [backup-event.md](07-bd/backup-event.md)
-  7.4 [rols-permisos.md](07-bd/rols-permisos.md)
-  7.5 [triggers.md](07-bd/triggers.md)
-
-08. [08-1665](08-1665)
-  - Sin documentos disponibles
-
-09. [09-app-web](09-app-web)
-  9.1 [index.php — Panel de gestió CPD](web/indice.md)
+# Documentació completa del projecte InnovateTech CPD
 
 ---
 
-## Capturas (carpeta capturas/)
+## Índex
 
-La carpeta `capturas/` conté imatges i captures organitzades per temàtiques. Aquestes figures es poden utilitzar com a suport visual en les pàgines corresponents de la documentació.
+| # | Mòdul | Contingut |
+|---|---|---|
+| 01 | [CPD Físic](#01-cpd-físic) | Infraestructura elèctrica, IT, RRLL, seguretat, ubicació |
+| 02 | [AWS](#02-aws) | Ansible, LDAP, Graylog, usuaris, Web + SFTP |
+| 03 | [Àudio](#03-àudio) | Servei de streaming d'àudio (Icecast2) |
+| 04 | [Vídeo](#04-vídeo) | Servei de streaming de vídeo (NGINX-RTMP + HLS) |
+| 05 | [Videoconferència](#05-videoconferència) | Protocol WebRTC i Jitsi Meet |
+| 06 | [Amplada de banda](#06-amplada-de-banda) | Mesura de xarxa contra el servidor de streaming |
+| 07 | [Base de dades](#07-base-de-dades) | Diagrama E/R, model relacional, rols, triggers, backups |
+| 08 | [1665](#08-1665) | Optimització, seguretat de dades, transformació digital |
+| 09 | [App Web](#09-app-web) | Panel de gestió CPD — `index.php` (PHP + CSS + JS) |
+
+### Detall de seccions
+
+**01 — CPD Físic**
+- [1.1 Infraestructura elèctrica](01-cpd-fisic/1.1-infraestructura-electrica.md)
+- [1.2 Infraestructura IT](01-cpd-fisic/1.2-infraestructura-it.md)
+- [1.3 Prevenció de riscos laborals](01-cpd-fisic/1.3-prevencio-rrll.md)
+- [1.4 Seguretat física i lògica](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
+- [1.5 Ubicació física](01-cpd-fisic/1.5-ubicacio.md)
+
+**02 — AWS**
+- [2.1 Gestió amb Ansible](02-aws/ansible.md)
+- [2.2 Servei de logs (Graylog)](02-aws/servei-logs-graylog.md)
+- [2.3 LDAP](02-aws/ldap.md)
+- [2.4 Usuaris administradors](02-aws/usuaris-admin.md)
+- [2.5 Web + SFTP](02-aws/web-sftp.md)
+
+**03 — Àudio**
+- [3.1 Descripció del servei d'àudio](03-audio/Descripció_de_la_funcionalitat_Audio.md)
+
+**04 — Vídeo**
+- [4.1 Descripció del servei de vídeo](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
+
+**05 — Videoconferència**
+- [5.1 Protocol WebRTC](05-videoconferencia/Descripció_Protocol_WebRTC.md)
+
+**06 — Amplada de banda**
+- 6.1 Mesura d'amplada de banda → [vegeu secció 09](#06-amplada-de-banda)
+
+**07 — Base de dades**
+- [7.1 Backup i event](07-bd/backup-event.md)
+- [7.2 Diagrama E/R](07-bd/er-diagrama.md)
+- [7.3 Model relacional](07-bd/model-relacional.md)
+- [7.4 Rols i permisos](07-bd/rols-permisos.md)
+- [7.5 Triggers](07-bd/triggers.md)
+
+**08 — 1665**
+- *Pendent de documentar*
+
+**09 — App Web**
+- [9.1 Panel de gestió CPD (`index.php`)](#91-webindexphp--panel-de-gestió-cpd)
+
+---
+
+## Captures (carpeta `capturas/`)
+
+La carpeta `capturas/` conté imatges organitzades per temàtiques com a suport visual de la documentació.
 
 ### 01-cpd-fisic
 - `capturas/01-cpd-fisic/CPD-LOGICA.svg` — Diagrama lògic del CPD.
@@ -65,12 +81,6 @@ La carpeta `capturas/` conté imatges i captures organitzades per temàtiques. A
 Referència: [01-cpd-fisic](01-cpd-fisic)
 
 ### 07-bd
- - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
- - `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
-
-Referència: [07-bd](07-bd)
-
-### 07-bd
 - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
 - `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
 
@@ -87,7 +97,7 @@ Aquestes carpetes estan presents però no contenen imatges addicionals per a la 
 
 ---
 
-## 01. 01-cpd-fisic
+## 01. CPD Físic
 
 ### 1.1 01-cpd-fisic/1.1-infraestructura-electrica.md
 
@@ -554,7 +564,7 @@ Aquesta distribució optimitza el flux d'aire i millora l'eficiència de refrige
 
 ---
 
-## 02. 02-aws
+## 02. AWS
 
 ### 2.1 02-aws/ansible.md
 
@@ -1641,7 +1651,7 @@ Referència: [02-aws](02-aws)
 
 ---
 
-## 03. 03-audio
+## 03. Àudio
 
 ### 3.1 03-audio/Descripció_de_la_funcionalitat_Audio.md
 
@@ -1686,7 +1696,7 @@ sudo apt install vlc
 
 ---
 
-## 04. 04-video
+## 04. Vídeo
 
 ### 4.1 04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md
 
@@ -1733,7 +1743,7 @@ sudo apt install vlc
 
 ---
 
-## 05. 05-videoconferencia
+## 05. Videoconferència
 
 ### 5.1 05-videoconferencia/Descripció_Protocol_WebRTC.md
 
@@ -1781,7 +1791,7 @@ sudo apt install nginx
 
 ---
 
-## 06. 06-amplada-banda
+## 06. Amplada de banda
 
 La mesura d'amplada de banda s'implementa directament a l'aplicació web (`index.php`). Vegeu la secció **09** per a la documentació completa del sistema de mesura.
 
@@ -1795,7 +1805,7 @@ La mesura d'amplada de banda s'implementa directament a l'aplicació web (`index
 
 També hi ha el script autònom `scripts/bandwidth_test.sh` que fa la mesura via `speedtest-cli` i inserta directament a la BD amb l'usuari MySQL `integracio`.
 
-## 07. 07-bd
+## 07. Base de dades
 
 ### 7.0 Visió general de la base de dades
 
@@ -2189,7 +2199,7 @@ DESCRIBE AVIS;
 
 > Tots els elements estan implementats i documentats a la base de dades **InnovateTech**.
 
-## 08. 08-1665
+## 08. 1665
 
 ### 8.1 08-1665/ra3-optimitzacio.md
 
@@ -2205,7 +2215,7 @@ DESCRIBE AVIS;
 
 ---
 
-## 09. 09-app-web
+## 09. App Web
 
 ### 9.1 web/index.php — Panel de gestió CPD
 
