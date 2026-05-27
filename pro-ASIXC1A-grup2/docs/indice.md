@@ -622,7 +622,7 @@ ansible-cpd/
 ```
 ### inventory.ini
  
-Conté la llista de màquines que Ansible gestionarà, agrupades per funció. El Servidor 2 apareix en dos grups diferents perquè allotja dos serveis independents: LDAP i Graylog.
+Conté la llista de màquines que Ansible gestionarà, agrupades per funció.
  
 ### site.yml
  
@@ -637,7 +637,7 @@ Conté les variables que comparteixen diversos rols, com ara el domini LDAP, la 
 Cada rol és independent i conté tot el necessari per desplegar un servei:
  
 - `tasks/main.yml` — els passos d'instal·lació i configuració
-- `templates/` — fitxers de configuració amb variables (vhost de Nginx, `proftpd.conf`, fitxers LDIF, `graylog.conf`)
+- `templates/` — fitxers de configuració amb variables (vhost de Nginx, `proftpd.conf`, fitxers LDIF)
 - `vars/main.yml` — variables pròpies del servei (llista d'usuaris LDAP, ports, directoris)
 - `handlers/main.yml` — accions reactives com reiniciar un servei quan canvia la seva configuració
 
