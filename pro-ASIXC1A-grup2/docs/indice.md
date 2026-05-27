@@ -1106,24 +1106,36 @@ Ara el playbook principal roles/slapd/tasks/main.yml que executa les accions rea
   ansible.builtin.command:
     cmd: "ldapadd -x -w '{{ ldap_root_password }}' -D 'cn=Manager,{{ ldap_domain_dc }}' -f /tmp/base.ldif"
   register: base_result
-  failed_when:
-    - base_result.rc != 0
+  failed_when: 
+    - base_result.rc != 0 
     - "'Already exists' not in base_result.stderr"
 
 # ── 3. BUCLE PER PROCESAR E INJECTAR MÚLTIPLES USUARIS ─────────────
+- name: Generar el hash SSHA de la contrasenya per a cada usuari SFTP
+  ansible.builtin.command:
+    cmd: "slappasswd -s '{{ item.password }}'"
+  loop: "{{ ldap_users }}"
+  register: user_password_hashes
+  changed_when: false
+
 - name: Renderitzar la plantilla LDIF per a cada usuari de la llista
   ansible.builtin.template:
     src: usuarios.ldif.j2
     dest: "/tmp/{{ item.username }}.ldif"
     mode: '0600'
   loop: "{{ ldap_users }}"
+  loop_control:
+    extended: true  # This exposes the ansible_loop data structures
+  vars:
+    # Uses the current loop index to pull the exact match from our registered command outputs
+    current_user_hash: "{{ user_password_hashes.results[ansible_loop.index0].stdout }}"
 
 - name: Cargar cada usuari a OpenLDAP de manera individual
   ansible.builtin.command:
     cmd: "ldapadd -x -w '{{ ldap_root_password }}' -D 'cn=Manager,{{ ldap_domain_dc }}' -f /tmp/{{ item.username }}.ldif"
   register: users_result
-  failed_when:
-    - users_result.rc != 0
+  failed_when: 
+    - users_result.rc != 0 
     - "'Already exists' not in users_result.stderr"
   loop: "{{ ldap_users }}"
 ```
@@ -1410,7 +1422,7 @@ En aquest cas no fa falta editar el site.yml perquè anteriorment configurant el
 | :---: |
 | `roles/nginx/handlers/main.yml`|
 
-`roles/nginx/tasks/main.yml`, Aquest és el playbook principal del rol. S'estructura en sis blocs diferenciats: primer s'instal·len els paquets necessaris i s'activa el servei, després es clona el repositori de l'aplicació i s'ajusten els permisos, s'aplica la política SELinux necessària per a Amazon Linux 2023, es desplega la configuració del virtualhost, s'obre el port 80 al firewall i finalment es verifica que el servei respon correctament.
+`roles/nginx/tasks/main.yml`, Aquest és el playbook principal del rol. S'estructura en sis blocs diferenciats: primer s'instal·len els paquets necessaris i s'activa el servei, després es clona el repositori de l'aplicació i s'ajusten els permisos, s'aplica la política SELinux necessària per a Amazon Linux 2023, es desplega la configuració del virtualhost, crea el directori per als certificats i crea els certificats, s'obre el port 443 al firewall i finalment es verifica que el servei respon correctament.
 
 ```yaml
 ---
@@ -1491,18 +1503,32 @@ En aquest cas no fa falta editar el site.yml perquè anteriorment configurant el
     - /var/lib/php/opcache
   failed_when: false
 
-# ── 5. VIRTUALHOST ────────────────────────────────────────────────────
-- name: Desplegar configuració del virtualhost
+# ── 5. CERTIFICATS SSL (Autosignats) ──────────────────────────────────
+- name: Crear directori per als certificats SSL
+  ansible.builtin.file:
+    path: /etc/nginx/ssl
+    state: directory
+    mode: '0700'
+    owner: root
+    group: root
+
+- name: Generar clau privada i certificat de seguretat SSL
+  ansible.builtin.command:
+    cmd: "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt -subj '/CN={{ nginx_server_name }}'"
+    creates: /etc/nginx/ssl/nginx.crt
+
+# ── 6. VIRTUALHOST ────────────────────────────────────────────────────
+- name: Desplegar configuració del virtualhost (HTTPS)
   ansible.builtin.template:
     src: vhost.conf.j2
     dest: /etc/nginx/conf.d/app.conf
     mode: '0644'
   notify: Reiniciar nginx
 
-# ── 6. FIREWALL ───────────────────────────────────────────────────────
-- name: Obrir port 80 al firewall
+# ── 7. FIREWALL ───────────────────────────────────────────────────────
+- name: Obrir ports 80 i 443 al firewall
   ansible.builtin.command:
-    cmd: firewall-cmd --permanent --add-service=http
+    cmd: "firewall-cmd --permanent --add-service=http --add-service=https"
   changed_when: true
   failed_when: false
 
@@ -1512,19 +1538,23 @@ En aquest cas no fa falta editar el site.yml perquè anteriorment configurant el
   changed_when: true
   failed_when: false
 
-# ── 7. VERIFICACIÓ ────────────────────────────────────────────────────
-- name: Verificar que nginx respon al port 80
+# ── FORÇAR APLICACIÓ DE CANVIS ────────────────────────────────────────
+- name: Forçar el reinici dels serveis abans de la verificació
+  ansible.builtin.meta: flush_handlers
+
+# ── 8. VERIFICACIÓ ────────────────────────────────────────────────────
+- name: Verificar que nginx respon correctament per HTTPS
   ansible.builtin.uri:
-    url: "http://localhost:80"
+    url: "https://localhost:443"
     status_code: 200
+    validate_certs: false
   register: nginx_check
   retries: 3
   delay: 5
 
 - name: Mostrar resultat de la verificació
   ansible.builtin.debug:
-    msg: "Nginx operatiu — codi HTTP: {{ nginx_check.status }}"
-
+    msg: "Nginx operatiu de forma segura — codi HTTP: {{ nginx_check.status }}"
 ```
 
 ### Execució i verificacions:
@@ -1624,15 +1654,8 @@ Accedim desde un navegador a la nostra ip pública elàstica de la màquina del 
 
 #### Servidors AWS
 ![Servidor Ansible](../capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png)
-![Servidor LDAP](../capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png)
 ![Servidor BBDD](../capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png)
 ![Servidor Logs](../capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png)
-
-#### Web / SFTP — procés de creació
-![Creació 1](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png)
-![Creació 2](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png)
-![Creació 3](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png)
-![Creació 4](../capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png)
 
 Referència: [02-aws](02-aws)
 
