@@ -40,6 +40,7 @@
 
 **05 — Videoconferència**
 - [5.1 Protocol WebRTC](05-videoconferencia/Descripció_Protocol_WebRTC.md)
+- [5.2 Servei Jitsi Meet](05-videoconferencia/Servei%20de%20Videoconferència.md)
 
 **06 — Amplada de banda**
 - 6.1 Mesura d'amplada de banda → [vegeu secció 09](#06-amplada-de-banda)
@@ -51,56 +52,8 @@
 - [7.4 Rols i permisos](07-bd/rols-permisos.md)
 - [7.5 Triggers](07-bd/triggers.md)
 
-**08 — 1665**
-- *Pendent de documentar*
-
 **09 — App Web**
 - [9.1 Panel de gestió CPD (`index.php`)](#91-webindexphp--panel-de-gestió-cpd)
-
----
-
-## Captures (carpeta `capturas/`)
-
-La carpeta `capturas/` conté imatges organitzades per temàtiques com a suport visual de la documentació.
-
-### 01-cpd-fisic
-- `capturas/01-cpd-fisic/CPD-LOGICA.svg` — Diagrama lògic del CPD.
-- `capturas/01-cpd-fisic/VISTAISOMETRICA.svg` — Vista isomètrica del CPD.
-- `capturas/01-cpd-fisic/VISTA2D.svg` — Vista 2D del CPD.
-- `capturas/01-cpd-fisic/LOGICA-SAIS.svg` — Diagrama de l'alimentació i dels SAIs.
-- `capturas/01-cpd-fisic/infraestructura-it.png` — Esquema d'infraestructura IT i distribució dels racks.
-- `capturas/01-cpd-fisic/RED.png` — Topologia de xarxa del CPD.
-
-![CPD - Diagrama lògic](../capturas/01-cpd-fisic/CPD-LOGICA.svg)
-![CPD - Vista isomètrica](../capturas/01-cpd-fisic/VISTAISOMETRICA.svg)
-![CPD - Vista 2D](../capturas/01-cpd-fisic/VISTA2D.svg)
-![CPD - SAI](../capturas/01-cpd-fisic/LOGICA-SAIS.svg)
-![CPD - Infraestructura IT](../capturas/01-cpd-fisic/infraestructura-it.png)
-![CPD - Xarxa](../capturas/01-cpd-fisic/RED.png)
-
-Referència: [01-cpd-fisic](01-cpd-fisic)
-
-### 07-bd
- - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
- - `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
-
-Referència: [07-bd](07-bd)
-
-### 07-bd
-- `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
-- `capturas/07-bd/er-diagrama/event_scheduler.png` — Estat del planificador d'events de MariaDB.
-- `capturas/07-bd/er-diagrama/backup_semanal.png` — Configuració de l'event de backup setmanal.
-
-Referència: [07-bd](07-bd)
-
-### Altres carpetes
-- `capturas/03-audio/README.md`
-- `capturas/04-video/README.md`
-- `capturas/05-videoconferencia/README.md`
-- `capturas/06-amplada-banda/README.md`
-- `capturas/08-1665/README.md`
-
-Aquestes carpetes estan presents però no contenen imatges addicionals per a la documentación actual.
 
 ---
 
@@ -1572,6 +1525,145 @@ Usuari:     admin
 
 > S'utilitza IP elàstica per garantir que la URL no canvia entre reinicis de la instància.
 
+---
+
+## Filtrat d'accessos a les màquines
+
+Graylog rep via rsyslog els logs de tots els servidors, incloent-hi els missatges del dimoni SSH (`sshd`) i del sistema PAM. Això permet filtrar en temps real tots els accessos a qualsevol màquina del CPD: inicis de sessió vàlids, inicis fallits i tancaments de sessió.
+
+### Origen dels missatges
+
+Els missatges d'autenticació provenen principalment de dues fonts:
+
+| Procés | Tipus de missatge |
+|---|---|
+| `sshd` | Connexions SSH acceptades, rebutjades i desconnexions |
+| `pam_unix(sshd:session)` | Obertura i tancament de sessions PAM |
+| `sudo` | Execucions de comandes amb privilegis elevats |
+
+Exemples de línies de log generades a cada event:
+
+```
+# Login correcte per contrasenya
+sshd[1842]: Accepted password for usuari_gestiorapj from 10.0.1.15 port 51234 ssh2
+
+# Login correcte per clau pública
+sshd[1842]: Accepted publickey for usuari_gestiorapj from 10.0.1.15 port 51235 ssh2
+
+# Login fallit
+sshd[1843]: Failed password for root from 203.0.113.5 port 44322 ssh2
+
+# Intent amb usuari inexistent
+sshd[1844]: Invalid user admin from 203.0.113.5 port 44323
+
+# Logout / desconnexió
+sshd[1842]: Disconnected from user usuari_gestiorapj 10.0.1.15 port 51234
+
+# Sessió PAM oberta i tancada
+pam_unix(sshd:session): session opened for user usuari_gestiorapj by (uid=0)
+pam_unix(sshd:session): session closed for user usuari_gestiorapj
+```
+
+---
+
+### Cerques a la web UI de Graylog
+
+Des de **Search** (`http://IP_ELASTICA:9000/search`) s'introdueix la consulta al camp de cerca. La sintaxi bàsica és:
+
+- `message:"text exacte"` — cerca frase exacta dins del cos del missatge.
+- `OR` — qualsevol de les condicions.
+- `AND` — totes les condicions.
+- `source:hostname` — filtra per servidor d'origen.
+
+#### Tots els events SSH de totes les màquines
+
+```
+message:sshd
+```
+
+#### Logins vàlids (contrasenya o clau pública)
+
+```
+message:"Accepted password" OR message:"Accepted publickey"
+```
+
+#### Logins fallits
+
+```
+message:"Failed password" OR message:"Failed publickey" OR message:"Invalid user"
+```
+
+#### Tancaments de sessió (logouts)
+
+```
+message:"Disconnected from" OR message:"session closed"
+```
+
+#### Resum complet d'accessos (vàlids + fallits + logouts)
+
+```
+message:"Accepted password" OR message:"Accepted publickey" OR message:"Failed password" OR message:"Invalid user" OR message:"Disconnected from" OR message:"session closed"
+```
+
+#### Filtre per màquina concreta
+
+Afegir `AND source:NOM_HOST` a qualsevol consulta anterior per limitar-la a un servidor específic:
+
+```
+(message:"Accepted password" OR message:"Failed password") AND source:webftp
+```
+
+---
+
+### Cerques desades (Saved Searches)
+
+Per no haver de reescriure les consultes, es poden desar des del botó **Save search** que apareix al costat del camp de cerca.
+
+| Nom suggerit | Consulta |
+|---|---|
+| SSH - Logins vàlids | `message:"Accepted password" OR message:"Accepted publickey"` |
+| SSH - Logins fallits | `message:"Failed password" OR message:"Invalid user"` |
+| SSH - Logouts | `message:"Disconnected from" OR message:"session closed"` |
+| SSH - Tots els accessos | `message:sshd` |
+
+---
+
+### Streams per categorització automàtica
+
+Els **Streams** permeten que Graylog classifiqui cada missatge entrant automàticament sense haver de cercar manualment. Es creen des de **Streams → Create stream**.
+
+#### Stream: Logins fallits SSH
+
+| Camp | Valor |
+|---|---|
+| Nom | `SSH - Accessos fallits` |
+| Regla | `message` conté `Failed password` |
+| Regla | `message` conté `Invalid user` (condició OR) |
+| Matching | Almenys 1 regla |
+
+#### Stream: Logins vàlids SSH
+
+| Camp | Valor |
+|---|---|
+| Nom | `SSH - Accessos vàlids` |
+| Regla | `message` conté `Accepted password` |
+| Regla | `message` conté `Accepted publickey` (condició OR) |
+| Matching | Almenys 1 regla |
+
+---
+
+### Alerta per força bruta
+
+Des de **Alerts → Conditions** es pot configurar una alerta que notifiqui per email si un host genera més de N logins fallits en un interval de temps:
+
+| Paràmetre | Valor recomanat |
+|---|---|
+| Stream | `SSH - Accessos fallits` |
+| Condició | Nombre de missatges > **5** en **1 minut** |
+| Notificació | Email / Slack webhook |
+
+> Aquesta alerta detecta atacs de força bruta o de diccionari contra qualsevol dels 5 servidors del CPD.
+
 ### 2.5 02-aws/usuaris-admin.md
 
 *Documento vacío.*
@@ -2115,13 +2207,200 @@ Aquesta tecnologia és especialment adequada per a sistemes de videoconferència
 
 ### Plataforma de videoconferència
 
+```bash
 sudo apt install jitsi-meet
-
+```
 
 ### Dependències principals
 
+```bash
 sudo apt install openjdk-17-jre-headless
 sudo apt install nginx
+```
+
+---
+
+### 5.2 05-videoconferencia/Servei de Videoconferència.md
+
+# RA8 — Servei de Videoconferència
+
+## Jitsi Meet (WebRTC)
+
+**Servidor:** SRV-Conferencies · IP: `3.234.196.49` · Port: `443`
+
+---
+
+## 1. Descripció del servei de videoconferència
+
+**Jitsi Meet** és una solució de videoconferència open source que funciona directament al navegador sense necessitat d'instal·lar cap aplicació addicional. InnovateTech l'utilitza per a reunions internes, formació corporativa i videotrucades entre departaments.
+
+El servei es basa en el protocol **WebRTC** (Web Real-Time Communication), que permet comunicació de veu, vídeo i dades directament entre navegadors amb xifrat integrat i baix retard.
+
+### Components instal·lats
+
+| Component | Funció |
+|---|---|
+| nginx | Servidor web que serveix la interfície de Jitsi |
+| prosody | Servidor XMPP per a la senyalització de les trucades |
+| jicofo | Coordinador de conferències |
+| jitsi-videobridge2 | Gestiona els fluxos de vídeo i àudio entre participants |
+
+### Característiques tècniques
+
+| Paràmetre | Valor |
+|---|---|
+| Solució | Jitsi Meet |
+| Protocol | WebRTC |
+| Servidor | SRV-Conferencies |
+| IP pública | `3.234.196.49` |
+| URL d'accés | `https://3.234.196.49` |
+| Certificat SSL | Auto-signat (self-signed) |
+
+---
+
+## 2. Protocol WebRTC
+
+**WebRTC (Web Real-Time Communication)** és el protocol que fa possible la videoconferència directament al navegador. Característiques principals:
+
+- **Comunicació P2P** directa entre participants sense passar pel servidor.
+- **Xifrat integrat** de tot el tràfic de vídeo i àudio (DTLS-SRTP).
+- **Baix retard** gràcies a UDP (port 10000).
+- **Sense plugins** — funciona nativament a Chrome, Firefox, Edge i Safari.
+- **Adaptació automàtica** de qualitat segons l'ample de banda disponible.
+
+> El port **10000/UDP** és imprescindible per al flux de vídeo i àudio entre participants. Sense ell WebRTC no funciona.
+
+---
+
+## 3. Instal·lació
+
+### Pas 1 — Configurar el hostname
+
+```bash
+sudo hostnamectl set-hostname srv-conferencia
+```
+
+Editar `/etc/hosts` i afegir la línia:
+
+```
+3.234.196.49   srv-conferencia
+```
+
+### Pas 2 — Afegir el repositori oficial de Jitsi
+
+```bash
+sudo apt install -y curl gnupg2 apt-transport-https ca-certificates
+
+curl -fsSL https://download.jitsi.org/jitsi-key.gpg.key | \
+     sudo gpg --dearmor -o /usr/share/keyrings/jitsi-keyring.gpg
+
+echo 'deb [signed-by=/usr/share/keyrings/jitsi-keyring.gpg] https://download.jitsi.org stable/' | \
+     sudo tee /etc/apt/sources.list.d/jitsi-stable.list
+```
+
+### Pas 3 — Instal·lar Jitsi Meet
+
+```bash
+sudo apt update
+sudo apt install jitsi-meet -y
+```
+
+Durant la instal·lació:
+
+- **Hostname** → `3.234.196.49`
+- **Certificat SSL** → seleccionar **"Generate a new self-signed certificate"**
+
+---
+
+## 4. Configuració post-instal·lació
+
+### Problema detectat: site per defecte de NGINX
+
+Jitsi instal·la la seva configuració a NGINX, però el site `default` la sobreescriu mostrant la pàgina per defecte de NGINX.
+
+**Solució:**
+
+```bash
+sudo rm /etc/nginx/sites-enabled/default
+sudo systemctl restart nginx
+```
+
+Verificar que només queda el site de Jitsi:
+
+```bash
+ls /etc/nginx/sites-enabled/
+# Ha de mostrar: 3.234.196.49.conf
+```
+
+---
+
+## 5. Ports oberts
+
+AWS Security Group — Inbound Rules:
+
+| Protocol | Port | Origen | Descripció |
+|---|---|---|---|
+| TCP | 22 | 0.0.0.0/0 | SSH |
+| TCP | 80 | 0.0.0.0/0 | HTTP |
+| TCP | 443 | 0.0.0.0/0 | HTTPS Jitsi |
+| TCP | 4443 | 0.0.0.0/0 | Jitsi fallback TCP |
+| UDP | 10000 | 0.0.0.0/0 | WebRTC media (**imprescindible**) |
+
+---
+
+## 6. Verificar que tots els serveis estan actius
+
+```bash
+sudo systemctl status nginx
+sudo systemctl status prosody
+sudo systemctl status jicofo
+sudo systemctl status jitsi-videobridge2
+```
+
+Tots han de mostrar `active (running)`.
+
+---
+
+## 7. Validació del servei
+
+### Prova 1 — Pàgina principal de Jitsi Meet
+
+Obrir al navegador: `https://3.234.196.49`
+
+La pàgina d'inici de Jitsi Meet s'ha de carregar correctament (és normal veure un avís de certificat auto-signat; acceptar-lo per continuar).
+
+### Prova 2 — Crear una sala
+
+Introduir un nom de sala al camp de text i clicar **"Start meeting"**. La sala es crea instantàniament sense necessitat de registre.
+
+### Prova 3 — Videotrucada amb 2 participants
+
+Obrir la mateixa URL des de dos navegadors (o dos dispositius) i verificar que la transmissió de vídeo i àudio funciona entre ambdós.
+
+### Prova 4 — Compartir pantalla
+
+Fer clic al botó de compartir pantalla durant la reunió i verificar que l'altre participant la veu correctament.
+
+### Prova 5 — Xat integrat
+
+Verificar que el xat de text lateral funciona durant la videotrucada.
+
+### Prova 6 — Logs del servidor
+
+```bash
+sudo journalctl -u jitsi-videobridge2 --no-pager | tail -20
+```
+
+---
+
+## 8. Incidències i solucions
+
+| ID | Incidència | Causa | Solució |
+|---|---|---|---|
+| I-001 | Jitsi no carregava al navegador | Site `default` de NGINX sobreescrivia la configuració | `sudo rm /etc/nginx/sites-enabled/default` + reiniciar nginx |
+| I-002 | `ERR_CONNECTION_TIMED_OUT` | Port 80 no obert al Security Group AWS | Afegir regla Inbound TCP 80 `0.0.0.0/0` |
+| I-003 | Avís de certificat al navegador | Certificat SSL auto-signat | Normal en laboratori; acceptar l'excepció al navegador |
+| I-004 | Videotrucada sense vídeo/àudio | Port 10000/UDP no obert | Afegir regla Inbound UDP 10000 `0.0.0.0/0` |
 
 ---
 
