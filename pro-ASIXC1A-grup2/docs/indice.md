@@ -292,6 +292,236 @@ La xarxa es segmenta per controlar l'accés i disminuir els riscos:
 - Monitoratge de rendiment i condicions ambientals.
 - Revisions periòdiques del cablejat i de l'equipament de xarxa.
 
+---
+
+## Especificacions físiques dels equips
+
+Aquesta secció detalla l'equipament físic seleccionat per al CPD, amb les especificacions tècniques de cada dispositiu i la justificació de l'elecció en funció de la càrrega de servei documentada (100–150 usuaris finals simultanis, 5 serveis principals independents).
+
+---
+
+### Servidors
+
+#### Servidor 1 — LDAP + SFTP
+**Model: Dell PowerEdge R250 (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2334 (4 nuclis / 8 fils, 3,4 GHz base / 4,8 GHz turbo) |
+| RAM | 16 GB DDR4 ECC 3200 MHz (2 ranures lliures per a expansió) |
+| Emmagatzematge | 2× 960 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 1 GbE integrades (Intel i350) |
+| Alimentació | PSU simple 450 W (80 PLUS Bronze) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~110 W en càrrega típica |
+
+**Justificació:** LDAP i SFTP s'allotgen al mateix servidor perquè el servei SFTP s'autentica directament contra OpenLDAP via SSSD: tenir-los en la mateixa màquina elimina la latència de xarxa en cada verificació de credencials i simplifica la gestió de permisos. OpenLDAP és molt lleuger (50 consultes/min no superen uns pocs MB de RAM ni el 5% de CPU), de manera que el Dell PowerEdge R250, el servidor d'entrada 1U de Dell, és més que suficient per als dos serveis combinats. Els 16 GB ECC garanteixen estabilitat en operació 24/7, els SSD de 960 GB en RAID 1 proporcionen espai adequat per als directoris home dels 4 usuaris SFTP i creixement futur, i les 2 NICs 1 GbE son suficients per a les transferències de fitxers i les consultes de directori en xarxa interna.
+
+---
+
+#### Servidor 2 — Web (Nginx + PHP-FPM)
+**Model: Dell PowerEdge R250 (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2334 (4 nuclis / 8 fils, 3,4 GHz base / 4,8 GHz turbo) |
+| RAM | 16 GB DDR4 ECC 3200 MHz (2 ranures lliures per a expansió) |
+| Emmagatzematge | 2× 480 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 1 GbE integrades (Intel i350) |
+| Alimentació | PSU simple 450 W (80 PLUS Bronze) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~100 W en càrrega típica |
+
+**Justificació:** El servidor web executa Nginx + PHP-FPM per servir el panell d'administració (`index.php`) a fins a 100 connexions concurrents. Nginx és un servidor web molt eficient en memòria (els workers comparteixen recursos), i PHP-FPM amb 100 workers paral·lels consumeix aproximadament 3–4 GB de RAM, molt per sota dels 16 GB disponibles. El Xeon E-2334 amb 8 fils gestiona les sol·licituds paral·leles sense cues. S'utilitza el mateix model que el Servidor 1 (Dell PowerEdge R250) per reduir l'inventari de peces de recanvi i facilitar la gestió, ja que ambdós servidors tenen perfils de càrrega equivalents. Els SSD de 480 GB en RAID 1 són suficients per als fitxers de l'aplicació web i els logs de Nginx.
+
+---
+
+#### Servidor 3 — Streaming Àudio (Icecast2)
+**Model: Dell PowerEdge R250 (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2314 (4 nuclis / 4 fils, 2,8 GHz base / 4,5 GHz turbo) |
+| RAM | 8 GB DDR4 ECC 3200 MHz (expandible) |
+| Emmagatzematge | 2× 480 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 1 GbE integrades (Intel i350) |
+| Alimentació | PSU simple 450 W (80 PLUS Bronze) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~80 W en càrrega típica |
+
+**Justificació:** Icecast2 és un servei de relay d'àudio: rep un únic flux del broadcaster i el distribueix als oients sense transcodificar. El consum de CPU és mínim (< 5% per a 50 oients simultanis) i la RAM que ocupa és d'uns 100–200 MB en operació. El consum de xarxa de 50 oients a 320 Kbps representa ~16 Mbps, una fracció de la capacitat d'una NIC 1 GbE (1000 Mbps). Per aquests motius, el Dell PowerEdge R250 amb el Xeon E-2314 (versió de 4 fils, més econòmica) és l'elecció correcta: no té sentit dimensionar més un servei que mai superarà el 10% dels recursos del servidor. El pressupost estalviat aquí es pot invertir en el servidor de vídeo, que sí requereix maquinari més potent.
+
+---
+
+#### Servidor 4 — Streaming Vídeo (NGINX-RTMP + HLS)
+**Model: Dell PowerEdge R350 (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2378 (8 nuclis / 16 fils, 2,6 GHz base / 4,8 GHz turbo) |
+| RAM | 32 GB DDR4 ECC 3200 MHz (2× 16 GB) |
+| Emmagatzematge | 2× 960 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 10 GbE (Intel X550-T2, PCIe) |
+| Alimentació | PSU doble redundant 700 W (80 PLUS Gold) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~180 W en càrrega típica |
+
+**Justificació:** El servidor de vídeo és el que requereix maquinari més potent de tot el CPD. NGINX-RTMP rep el flux de l'emissor i el mòdul HLS el divideix en segments `.ts` que escriu contínuament a disc: 20 fluxos simultanis a 4 Mbps cadascun representen ~80 Mbps de trànsit de sortida, i amb 50 visualitzadors el pic pot arribar a ~200 Mbps, una xifra que saturaria completament una NIC de 1 GbE. Per això les NICs 10 GbE (Intel X550-T2) són imprescindibles. El Xeon E-2378 amb 8 nuclis gestiona la generació paral·lela de segments HLS i les connexions RTMP entrants sense bloquejos. Els 32 GB de RAM permeten mantenir els segments actius en memòria (buffer) per servir-los ràpidament. Els SSD de 960 GB emmagatzemen els segments HLS temporals i el contingut VOD. La PSU redundant protegeix el servei de vídeo, que és el més crític per a l'experiència de l'usuari, davant de qualsevol fallada elèctrica.
+
+---
+
+#### Servidor 5 — Base de dades (MariaDB)
+**Model: Dell PowerEdge R350 (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2378 (8 nuclis / 16 fils, 2,6 GHz base / 4,8 GHz turbo) |
+| RAM | 32 GB DDR4 ECC 3200 MHz (2× 16 GB) |
+| Emmagatzematge | 2× 960 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 1 GbE integrades (Intel i350) |
+| Alimentació | PSU doble redundant 700 W (80 PLUS Gold) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~160 W en càrrega típica |
+
+**Justificació:** MariaDB és el servei que rep connexions de múltiples servidors alhora: l'aplicació web, el servidor de streaming i els backups nocturns accedeixen simultàniament a les 12 taules de la base de dades InnovateTech. El rendiment d'un servidor de bases de dades depèn principalment de dues coses: la RAM (per al buffer pool d'InnoDB, que ha de ser el 50–70% de la RAM total per evitar lectures de disc) i la velocitat de disc (per a les escriptures de transaccions i el log binari). Amb 32 GB, s'assignen 20 GB al buffer pool d'InnoDB, mantenint totes les taules actives en memòria i eliminant pràcticament els accesos a disc en lectura. El Xeon E-2378 amb 16 fils gestiona les 50 connexions concurrents documentades sense esperes. S'utilitza el mateix model que el Servidor 4 (R350) per unificar peces de recanvi i facilitar la substitució en cas d'avaria. La PSU redundant protegeix la integritat de les transaccions en curs.
+
+---
+
+#### Servidor 6 — Backups Automatitzats
+**Model: HP ProLiant DL20 Gen10 Plus (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2314 (4 nuclis / 4 fils, 2,8 GHz base / 4,5 GHz turbo) |
+| RAM | 16 GB DDR4 ECC 3200 MHz (1× 16 GB) |
+| Emmagatzematge | 2× 480 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 1 GbE integrades (Intel i350) |
+| Alimentació | PSU simple 290 W (80 PLUS Bronze) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~80 W en càrrega típica |
+
+**Justificació:** El servidor de backups executa únicament 4 treballs programats de nit (transferència de 150–200 GB diaris cap al NAS i a AWS S3) i roman pràcticament inactiu durant el dia. Per a una càrrega batch nocturna no té sentit invertir en maquinari d'alt rendiment. El HP ProLiant DL20 Gen10 Plus és el servidor 1U d'entrada de HP: el més compacte i econòmic certificat per a funcionament 24/7. El seu consum de ~80 W minimitza la càrrega del SAI del Rack 1. S'ha triat HP per diversificar fabricant respecte als Dell dels altres servidors, reduint el risc que una fallada de lot (firmware defectuós, peça en comú) afecti tots els servidors simultàniament. Els SSD de 480 GB en RAID 1 emmagatzemen el staging temporal de les còpies abans de la seva transferència definitiva.
+
+---
+
+### Dispositius d'emmagatzematge NAS
+
+#### NAS Primari — RAID 5
+**Model: Synology RS1221+ (2U Rack)**
+
+| Component | Especificació |
+|---|---|
+| CPU | AMD Ryzen V1500B (4 nuclis, 2,2 GHz) |
+| RAM | 8 GB DDR4 ECC (expandible fins a 32 GB) |
+| Bahies | 8× 3,5" SATA Hot-swap |
+| Discos instal·lats | 4× Seagate IronWolf Pro 8 TB SATA (ST8000NT001) |
+| Configuració RAID | RAID 5 → **24 TB útils** (1 disc de tolerància) |
+| Interfícies | 4× NIC 1 GbE + 2× ranures PCIe per a expansió 10 GbE |
+| Factor de forma | 2U Rack |
+| Consum estimat | ~50 W en càrrega típica |
+
+**Justificació:** El Synology RS1221+ és un NAS de format rack pensat per a entorns empresarials amb alta disponibilitat. La CPU AMD Ryzen V1500B gestiona eficientment les operacions de lectura/escriptura paral·leles dels 4 treballs de backup nocturns sense crear cues. La memòria ECC prevé la corrupció silenciosa de dades (bit rot), especialment rellevant en emmagatzematge a llarg termini. Els discos Seagate IronWolf Pro estan fabricats específicament per a NAS en operació 24/7, amb una taxa de càrrega de 300 TB/any molt superior als discos de consum estàndard, i inclouen tecnologia IronWolf Health Management per monitoratge proactiu. Amb RAID 5 sobre 4 discos s'obtenen 24 TB útils, suficients per a mesos de còpies incrementals (200 GB/dia × 30 dies = ~6 TB de retenció mensual), amb marge per a les còpies setmanals completes.
+
+---
+
+#### NAS Secundari — RAID 6
+**Model: Synology RS1221+ (2U Rack)**
+
+| Component | Especificació |
+|---|---|
+| CPU | AMD Ryzen V1500B (4 nuclis, 2,2 GHz) |
+| RAM | 8 GB DDR4 ECC (expandible fins a 32 GB) |
+| Bahies | 8× 3,5" SATA Hot-swap |
+| Discos instal·lats | 6× Seagate IronWolf Pro 8 TB SATA (ST8000NT001) |
+| Configuració RAID | RAID 6 → **32 TB útils** (2 discos de tolerància) |
+| Interfícies | 4× NIC 1 GbE + 2× ranures PCIe per a expansió 10 GbE |
+| Factor de forma | 2U Rack |
+| Consum estimat | ~60 W en càrrega típica |
+
+**Justificació:** S'utilitza la mateixa plataforma que el NAS primari per simplificar la gestió, les peces de recanvi i la configuració de replicació automàtica (Synology Hyper Backup pot replicar directament entre dos RS1221+). RAID 6 amb 6 discos ofereix tolerància a 2 fallades de disc simultànies, molt superior al RAID 5 del NAS primari, cosa essencial per a la còpia secundària on la pèrdua de dades seria catastròfica. La capacitat útil de 32 TB (8 TB × 6 − 2 discos de paritat) permet emmagatzemar còpies de retenció més llarga que el primari. Les ranures PCIe permeten afegir una tarja 10 GbE en el futur si el creixement del volum de backups ho requereix.
+
+---
+
+### Commutadors de xarxa
+
+#### Switch Core
+**Model: Cisco Catalyst 1000-24T-4G-L**
+
+| Component | Especificació |
+|---|---|
+| Ports d'accés | 24× GbE RJ45 |
+| Uplinks | 4× SFP 1G (fibra o coure) |
+| Capacitat de commutació | 56 Gbps |
+| Taxa de reenviament | 41,67 Mpps |
+| VLANs | Fins a 4094 (IEEE 802.1Q) |
+| Funcionalitats | QoS (4 cues), STP/RSTP, SNMP v1/v2c/v3, SSH v2, ACLs, IGMP Snooping |
+| Factor de forma | 1U Rack |
+| Consum | ~32 W |
+
+**Justificació:** El Cisco Catalyst 1000 és la referència del mercat per a switches gestionables en petites i mitjanes empreses. El model 24T-4G-L té ports suficients per connectar els 4 servidors, els 2 NAS, el firewall pfSense/OPNsense, el KVM i els equips d'administració, amb 4 uplinks SFP per a la fibra òptica entre racks (Rack 1 ↔ Rack 2 ↔ Rack 3). El suport de 4094 VLANs cobreix àmpliament les tres VLANs definides (VLAN 10, 20, 30). La funcionalitat QoS amb 4 cues permet prioritzar el trànsit de streaming del Servidor 3 davant del trànsit de gestió, garantint la qualitat del servei multimèdia. L'IGMP Snooping optimitza el trànsit multicast d'Icecast. La fiabilitat i l'ecosistema de suport de Cisco justifiquen l'elecció en un entorn de producció.
+
+---
+
+#### Switch d'Accés
+**Model: Cisco Catalyst 1000-16T-2G-L**
+
+| Component | Especificació |
+|---|---|
+| Ports d'accés | 16× GbE RJ45 |
+| Uplinks | 2× SFP 1G |
+| Capacitat de commutació | 36 Gbps |
+| Taxa de reenviament | 26,79 Mpps |
+| VLANs | Fins a 4094 (IEEE 802.1Q) |
+| Funcionalitats | QoS, STP/RSTP, SNMP v1/v2c/v3, SSH v2, ACLs |
+| Factor de forma | 1U Rack |
+| Consum | ~24 W |
+
+**Justificació:** El model d'accés de la mateixa família Cisco Catalyst 1000 garanteix compatibilitat total amb el switch core: mateixa interfície de gestió (Cisco IOS-based), mateixa sintaxi de configuració de VLANs i QoS, i actualitzacions de firmware coordinades. Les 16 portes GbE són suficients per a les connexions dels servidors del Rack 1 als NAS del Rack 3 i als ports restants del Rack 2. Els 2 uplinks SFP connecten per fibra al switch core. Usar la mateixa plataforma redueix la corba d'aprenentatge de l'administrador i simplifica el troubleshooting, ja que no cal dominar dues CLI diferents.
+
+---
+
+### KVM sobre IP
+
+#### Consola de gestió centralitzada
+**Model: ATEN KVM over IP CS1316 (16 ports)**
+
+| Component | Especificació |
+|---|---|
+| Ports KVM | 16× RJ45 (cable adaptador KVM Cat5e/6) |
+| Accés remot | Via IP (navegador web HTML5 / client Java) |
+| Resolució màxima | 1920×1200 |
+| Seguretat | TLS 1.2, autenticació per nivell d'usuari, registre d'accessos |
+| Usuaris simultanis | 1 local + 1 remot |
+| Factor de forma | 1U Rack |
+| Consum | ~10 W |
+
+**Justificació:** El KVM sobre IP ATEN CS1316 permet accedir a la consola de qualsevol dels 4 servidors de forma remota des de la VLAN d'Administració (VLAN 20), sense necessitat d'estar físicament al CPD. Això és crític per a tasques de recuperació on SSH no està disponible: restauració de BIOS/UEFI, reinstal·lació del sistema operatiu, resolució de panics del kernel o errors de configuració de xarxa que deixen el servidor inabastable. Els 16 ports permeten gestionar els 4 servidors actuals i fins a 12 equips addicionals si el CPD creix en el futur. L'accés per TLS 1.2 s'integra amb el control d'accés restringit de la VLAN 20.
+
+---
+
+### Resum d'equipament i ocupació de racks
+
+| Rack | Equip | Servei | Model | U de rack |
+|---|---|---|---|---|
+| Rack 1 | Servidor 1 | LDAP + SFTP | Dell PowerEdge R250 | 1U |
+| Rack 1 | Servidor 2 | Web (Nginx + PHP-FPM) | Dell PowerEdge R250 | 1U |
+| Rack 1 | Servidor 3 | Streaming Àudio (Icecast2) | Dell PowerEdge R250 | 1U |
+| Rack 1 | Servidor 4 | Streaming Vídeo (NGINX-RTMP) | Dell PowerEdge R350 | 1U |
+| Rack 1 | Servidor 5 | Base de dades (MariaDB) | Dell PowerEdge R350 | 1U |
+| Rack 1 | Servidor 6 | Backups | HP ProLiant DL20 Gen10+ | 1U |
+| Rack 1 | Patch Panel Cat6A #1 | — | — | 1U |
+| Rack 1 | Patch Panel Cat6A #2 | — | — | 1U |
+| Rack 2 | Switch Core | Distribució VLANs | Cisco Catalyst 1000-24T-4G-L | 1U |
+| Rack 2 | Switch d'Accés | Connexió servidors/NAS | Cisco Catalyst 1000-16T-2G-L | 1U |
+| Rack 2 | KVM sobre IP | Consola remota | ATEN CS1316 | 1U |
+| Rack 2 | Patch Panel Fibra | — | — | 1U |
+| Rack 3 | NAS Primari | Backups locals (RAID 5) | Synology RS1221+ | 2U |
+| Rack 3 | NAS Secundari | Backups secundaris (RAID 6) | Synology RS1221+ | 2U |
+
+> Ocupació: 8U al Rack 1, 4U al Rack 2 i 4U al Rack 3 (racks de 42U estàndard). Queda ample marge per a creixement futur en tots tres racks.
+
+---
+
 ### 1.3 01-cpd-fisic/1.3-prevencio-rrll.md
 
 # Prevenció de riscos laborals (RRLL)
