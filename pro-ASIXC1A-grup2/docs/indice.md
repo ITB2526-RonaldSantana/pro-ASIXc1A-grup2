@@ -6,62 +6,60 @@
 
 | # | Mòdul | Contingut |
 |---|---|---|
-| 01 | [CPD Físic](#01-cpd-físic) | Infraestructura elèctrica, IT, RRLL, seguretat, ubicació |
-| 02 | [AWS](#02-aws) | Ansible, LDAP, Graylog, usuaris, Web + SFTP |
-| 03 | [Àudio](#03-àudio) | Servei de streaming d'àudio (Icecast2) |
-| 04 | [Vídeo](#04-vídeo) | Servei de streaming de vídeo (NGINX-RTMP + HLS) |
-| 05 | [Videoconferència](#05-videoconferència) | Protocol WebRTC i Jitsi Meet |
-| 06 | [Amplada de banda](#06-amplada-de-banda) | Mesura de xarxa contra el servidor de streaming |
-| 07 | [Base de dades](#07-base-de-dades) | Diagrama E/R, model relacional, rols, triggers, backups |
-| 08 | [1665](#08-1665) | Optimització, seguretat de dades, transformació digital |
-| 09 | [App Web](#09-app-web) | Panel de gestió CPD — `index.php` (PHP + CSS + JS) |
+| 01 | CPD Físic | Infraestructura elèctrica, IT, RRLL, seguretat, ubicació |
+| 02 | AWS | Ansible, LDAP, Graylog, usuaris, Web + SFTP |
+| 03 | Àudio | Servei de streaming d'àudio (Icecast2) |
+| 04 | Vídeo | Servei de streaming de vídeo (NGINX-RTMP + HLS) |
+| 05 | Videoconferència | Protocol WebRTC i Jitsi Meet |
+| 06 | Amplada de banda | Mesura de xarxa contra el servidor de streaming |
+| 07 | Base de dades | Diagrama E/R, model relacional, rols, triggers, backups |
+| 09 | App Web | Panel de gestió CPD — `index.php` (PHP + CSS + JS) |
 
 ### Detall de seccions
 
 **01 — CPD Físic**
-- [1.1 Infraestructura elèctrica](01-cpd-fisic/1.1-infraestructura-electrica.md)
-- [1.2 Infraestructura IT](01-cpd-fisic/1.2-infraestructura-it.md)
-- [1.3 Prevenció de riscos laborals](01-cpd-fisic/1.3-prevencio-rrll.md)
-- [1.4 Seguretat física i lògica](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
-- [1.5 Ubicació física](01-cpd-fisic/1.5-ubicacio.md)
+- 1.1 Infraestructura elèctrica
+- 1.2 Infraestructura IT
+- 1.3 Prevenció de riscos laborals
+- 1.4 Seguretat física i lògica
+- 1.5 Ubicació física
 
 **02 — AWS**
-- [2.1 Gestió amb Ansible](02-aws/ansible.md)
-- [2.2 Servei de logs (Graylog)](02-aws/servei-logs-graylog.md)
-- [2.3 LDAP](02-aws/ldap.md)
-- [2.4 Usuaris administradors](02-aws/usuaris-admin.md)
-- [2.5 Web + SFTP](02-aws/web-sftp.md)
+- 2.1 Gestió amb Ansible
+- 2.2 Servei de logs (Graylog)
+- 2.3 LDAP
+- 2.4 Usuaris administradors
+- 2.5 Web + SFTP
 
 **03 — Àudio**
-- [3.1 Descripció del servei d'àudio](03-audio/Descripció_de_la_funcionalitat_Audio.md)
+- 3.1 Descripció del servei d'àudio
 
 **04 — Vídeo**
-- [4.1 Descripció del servei de vídeo](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
+- 4.1 Descripció del servei de vídeo
 
 **05 — Videoconferència**
-- [5.1 Protocol WebRTC](05-videoconferencia/Descripció_Protocol_WebRTC.md)
-- [5.2 Servei Jitsi Meet](05-videoconferencia/Servei%20de%20Videoconferència.md)
+- 5.1 Protocol WebRTC
+- 5.2 Servei Jitsi Meet
 
 **06 — Amplada de banda**
-- 6.1 Mesura d'amplada de banda → [vegeu secció 09](#06-amplada-de-banda)
+- 6.1 Mesura d'amplada de banda
 
 **07 — Base de dades**
-- [7.1 Backup i event](07-bd/backup-event.md)
-- [7.2 Diagrama E/R](07-bd/er-diagrama.md)
-- [7.3 Model relacional](07-bd/model-relacional.md)
-- [7.4 Rols i permisos](07-bd/rols-permisos.md)
-- [7.5 Triggers](07-bd/triggers.md)
+- 7.1 Backup i event
+- 7.2 Diagrama E/R
+- 7.3 Model relacional
+- 7.4 Rols i permisos
+- 7.5 Triggers
 
 **09 — App Web**
-- [9.1 Panel de gestió CPD (`index.php`)](#91-webindexphp--panel-de-gestió-cpd)
+- 9.1 Panel de gestió CPD (`index.php`)
 
 ---
 
 ## 01. CPD Físic
 
-### 1.1 01-cpd-fisic/1.1-infraestructura-electrica.md
+### 1.1 Infraestructura elèctrica
 
-# 1.1 Infraestructura elèctrica
 
 ## Objectiu i criteris de disseny
 
@@ -167,9 +165,8 @@ Això assegura protecció dedicada i facilita la prova i substitució de cada un
 - Mesura de temperatura i humitat al voltant dels SAIs i generador.
 - Inspecció anual del cablejat i connexions.
 
-### 1.2 01-cpd-fisic/1.2-infraestructura-it.md
+### 1.2 Infraestructura IT
 
-# 1.2 Infraestructura IT
 
 ## Objectiu i arquitectures
 
@@ -484,9 +481,8 @@ Aquesta secció detalla l'equipament físic seleccionat per al CPD, amb les espe
 
 ---
 
-### 1.3 01-cpd-fisic/1.3-prevencio-rrll.md
+### 1.3 Prevenció de riscos laborals
 
-# Prevenció de riscos laborals (RRLL)
 
 ## Objectiu
 
@@ -568,9 +564,8 @@ L'avaluació de riscos es basa en:
 - UNE-EN 12464-1 d'il·luminació dels llocs de treball.
 - TIA-942 per a infraestructures CPD.
 
-### 1.4 01-cpd-fisic/1.4-seguretat-fisica-logica.md
+### 1.4 Seguretat física i lògica
 
-# Seguretat física i lògica
 
 ## Seguretat física
 
@@ -671,9 +666,8 @@ Aplicar el principi del mínim privilegi i segregar les xarxes per reduir l'impa
 
 > RAID protegeix contra fallades de disc, però no substitueix els backups fora de lloc.
 
-### 1.5 01-cpd-fisic/1.5-ubicacio.md
+### 1.5 Ubicació física del CPD
 
-# Ubicació física del CPD
 
 ## Criteris d'elecció
 
@@ -758,9 +752,8 @@ Aquesta distribució optimitza el flux d'aire i millora l'eficiència de refrige
 
 ## 02. AWS
 
-### 2.1 02-aws/ansible.md
+### 2.1 Gestió de les màquines amb Ansible
 
-# 2.1 Gestió de les màquines amb Ansible
 
 ## 2.1.1 Decisió adoptada
 
@@ -1159,11 +1152,7 @@ També verifiquem que s'ha canviat el hostname:
 | <img src="../capturas/02-aws/VERIFICACIONHOSTNAMELADP.png" alt="captura19_ansible" width="800"> |
 | :---: |
 | Verificació Hostname LDAP|
-### 2.2 02-aws/arquitectura.md
-
-*Documento vacío.*
-
-# 2.3 02-aws/ldap.md
+### 2.3 LDAP (OpenLDAP)
 
 Aquesta es una de les màquines que es gestiona amb amb ansible per lo que tota la configuració es fa desde el node de gestió mitjançant un playbook.
 
@@ -1358,9 +1347,8 @@ Ens conectem via ssh amb l'usuari de gestió i amb filtres ldapsearch mirem que 
 | :---: |
 | Llista de grups |
 
-### 2.4 02-aws/servei-logs-graylog.md
+### 2.4 Servei de centralització de logs — Graylog
 
-# Servei de centralització de logs — Graylog
 
 ## Descripció del servei
 
@@ -1664,11 +1652,7 @@ Des de **Alerts → Conditions** es pot configurar una alerta que notifiqui per 
 
 > Aquesta alerta detecta atacs de força bruta o de diccionari contra qualsevol dels 5 servidors del CPD.
 
-### 2.5 02-aws/usuaris-admin.md
-
-*Documento vacío.*
-
-# 2.6 02-aws/web-sftp.md
+### 2.6 Web + SFTP
 
 ## 2.6.1 Servei SFTP
 
@@ -2079,9 +2063,8 @@ Referència: [02-aws](02-aws)
 
 ## 03. Àudio
 
-### 3.1 03-audio/Descripció_de_la_funcionalitat_Audio.md
+### 3.1 Servei d'Àudio (Icecast2)
 
-# Servei d'Àudio
 
 ## Descripció de la funcionalitat
 
@@ -2124,9 +2107,8 @@ sudo apt install vlc
 
 ## 04. Vídeo
 
-### 4.1 04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md
+### 4.1 Servei de Vídeo (NGINX-RTMP + HLS)
 
-# Servei de Vídeo
 
 ## Descripció de la funcionalitat
 
@@ -2171,9 +2153,8 @@ sudo apt install vlc
 
 ## 05. Videoconferència
 
-### 5.1 05-videoconferencia/Descripció_Protocol_WebRTC.md
+### 5.1 Protocol WebRTC
 
-# Protocol WebRTC
 
 ## Descripció
 
@@ -2220,9 +2201,8 @@ sudo apt install nginx
 
 ---
 
-### 5.2 05-videoconferencia/Servei de Videoconferència.md
+### 5.2 Servei de Videoconferència — Jitsi Meet
 
-# RA8 — Servei de Videoconferència
 
 ## Jitsi Meet (WebRTC)
 
@@ -2444,7 +2424,7 @@ detallen els diferents blocs documentals que cobreixen cada check de la rúbrica
 
 ---
 
-### 7.1 07-bd/backup-event.md
+### 7.1 Backup i event
 
 #### 7.1.1 Activació del planificador d'events
 
@@ -2492,7 +2472,7 @@ SELECT * FROM CONTROL_BACKUP ORDER BY id_backup DESC LIMIT 1\G
 
 ---
 
-### 7.2 07-bd/er-diagrama.md
+### 7.2 Diagrama E/R
 
 **Comandament** (per obtenir el diagrama): des del MySQL Workbench,
 `Database → Reverse Engineer...` sobre l'esquema `InnovateTech`.
@@ -2535,7 +2515,7 @@ exportar el diagrama a PNG.
 
 ---
 
-### 7.3 07-bd/model-relacional.md
+### 7.3 Model relacional
 
 #### 7.3.1 Obtenció de les sentències `CREATE TABLE`
 
@@ -2619,7 +2599,7 @@ SELECT * FROM VIDEO;
 
 ---
 
-### 7.4 07-bd/rols-permisos.md
+### 7.4 Rols i permisos
 
 #### 7.4.1 Visualització dels rols i permisos d'admin
 
@@ -2683,7 +2663,7 @@ cat user.sql
 
 ---
 
-### 7.5 07-bd/triggers.md
+### 7.5 Triggers
 
 > **Nota tècnica:** la taula `AVIS` és `MyISAM` (no transaccional). Així els avisos
 > que insereixen els triggers persisteixen malgrat el `ROLLBACK` que provoca el
@@ -2811,25 +2791,9 @@ DESCRIBE AVIS;
 
 > Tots els elements estan implementats i documentats a la base de dades **InnovateTech**.
 
-## 08. 1665
-
-### 8.1 08-1665/ra3-optimitzacio.md
-
-*Documento vacío.*
-
-### 8.2 08-1665/ra5-seguretat-dades.md
-
-*Documento vacío.*
-
-### 8.3 08-1665/ra6-transformacio-digital.md
-
-*Documento vacío.*
-
----
-
 ## 09. App Web
 
-### 9.1 web/index.php — Panel de gestió CPD
+### 9.1 Panel de gestió CPD (index.php)
 
 Panel de gestión CPD de InnovateTech. Archivo único (`index.php`) que contiene el backend en PHP, los estilos CSS y el frontend en JavaScript (arquitectura SPA).
 
