@@ -802,8 +802,8 @@ Aquesta distribució optimitza el flux d'aire i millora l'eficiència de refrige
 
 ## 2.1.1 Decisió adoptada
 
-Per a la gestió i configuració dels servidors del CPD he decidit utilitzar **Ansible** com a eina d'automatització. Això significa que totes les instal·lacions, configuracions i desplegaments es fan des d'una màquina de control mitjançant playbooks, sense haver d'accedir manualment a cada servidor.
-S'administressin i configuressin 3 maquines i 4 serveis amb ansible, aquesta és la distribució:
+Per a la gestió i configuració dels servidors del CPD hem decidit utilitzar **Ansible** com a eina d'automatització. Això significa que totes les instal·lacions, configuracions i desplegaments es fan des d'una màquina de control mitjançant playbooks, sense haver d'accedir manualment a cada servidor.
+S'administressin i configuressin 2 maquines i 3 serveis amb ansible, aquesta és la distribució:
 
 - Servidor 1 ( Servei Web + SFTP )
 - Servidor 2A ( LDAP )
@@ -852,7 +852,7 @@ ansible-cpd/
 ```
 ### inventory.ini
  
-Conté la llista de màquines que Ansible gestionarà, agrupades per funció. El Servidor 2 apareix en dos grups diferents perquè allotja dos serveis independents: LDAP i Graylog.
+Conté la llista de màquines que Ansible gestionarà, agrupades per funció.
  
 ### site.yml
  
@@ -867,7 +867,7 @@ Conté les variables que comparteixen diversos rols, com ara el domini LDAP, la 
 Cada rol és independent i conté tot el necessari per desplegar un servei:
  
 - `tasks/main.yml` — els passos d'instal·lació i configuració
-- `templates/` — fitxers de configuració amb variables (vhost de Nginx, `proftpd.conf`, fitxers LDIF, `graylog.conf`)
+- `templates/` — fitxers de configuració amb variables (vhost de Nginx, `proftpd.conf`, fitxers LDIF)
 - `vars/main.yml` — variables pròpies del servei (llista d'usuaris LDAP, ports, directoris)
 - `handlers/main.yml` — accions reactives com reiniciar un servei quan canvia la seva configuració
 
@@ -1213,7 +1213,7 @@ Primer de tot cal configurar una nova entrada en el nostre site.yml perquè asso
 | :---: |
 | Confiuració site.yml |
 
-Ara cal editar el fitxer de variables del rol en aquest cas roles/slapd/vars/main.yml, on definirem el domini i la llista de usuaris. A partir d'aquí, el playbook es pot executar tantes vegades com vulguis perquè utilitza un bucle dinàmic (loop) que s'adapta automàticament a la quantitat d'usuaris sense haver de modificar mai el codi de les tasques. A més, gràcies a la condició failed_when, Ansible detecta si un usuari ja s'havia creat en una execució anterior (Already exists), saltant-se els comptes vells de forma segura per centrar-se únicament a injectar els nous registres processats mitjançant les plantilles Jinja2. Això garanteix un sistema totalment idempotent, net i escalable per al teu entorn SFTP.
+Ara cal editar el fitxer de variables del rol en aquest cas roles/slapd/vars/main.yml, on definirem el domini i la llista de usuaris. A partir d'aquí, el playbook es pot executar tantes vegades com vulguis perquè utilitza un bucle dinàmic (loop) que s'adapta automàticament a la quantitat d'usuaris sense haver de modificar mai el codi de les tasques. A més, gràcies a la condició failed_when, Ansible detecta si un usuari ja s'havia creat en una execució anterior (Already exists), saltant-se els comptes vells de forma segura per centrar-se únicament a injectar els nous registres processats mitjançant les plantilles Jinja2. Això garanteix un sistema totalment idempotent, net i escalable per al nostre entorn SFTP.
 
 Arxiu en format de text:
 
