@@ -155,14 +155,14 @@ Aquesta segregació facilita el manteniment i limita l'impacte de fallades a un 
 
 | Equip | Unitats | W/unitat | Total W |
 |---|---|---|---|
-| Servidors (4 equivalents) | 4 | 300 W | 1.200 W |
+| Servidors (6 unitats) | 6 | 300 W | 1.800 W |
 | Switches (core + accés) | 2 | 80 W | 160 W |
 | NAS primari + secundari | 2 | 120 W | 240 W |
 | KVM + patch panels | 1 | 30 W | 30 W |
 | Unitats CRAC (climatització) | 2 | 400 W | 800 W |
-| **Subtotal** | | | **2.430 W** |
-| **Marge de seguretat +20 %** | | | **+486 W** |
-| **Càrrega total estimada** | | | **≈ 2.900 W** |
+| **Subtotal** | | | **3.030 W** |
+| **Marge de seguretat +20 %** | | | **+606 W** |
+| **Càrrega total estimada** | | | **≈ 3.640 W** |
 
 Aquest dimensionament incorpora un marge per a futurs creixements i per a desviacions del consum estimat.
 
@@ -180,7 +180,7 @@ S'instal·len **3 SAIs de 3.000 VA / 2.700 W**, un per rack:
 
 | SAI | Rack | Càrrega protegida | Mòduls EBM |
 |---|---|---|---|
-| SAI 1 | Rack 1 — Servidors | Servidors 1–4 | 2 mòduls |
+| SAI 1 | Rack 1 — Servidors | Servidors 1–6 | 2 mòduls |
 | SAI 2 | Rack 2 — Xarxa | Switches, firewall, KVM | 2 mòduls |
 | SAI 3 | Rack 3 — Emmagatzematge | NAS primari i secundari | 1 mòdul |
 
@@ -226,12 +226,14 @@ Aquesta secció descriu com s'organitzen els serveis del CPD, la xarxa de comuni
 
 La infraestructura IT es distribueix en servidors amb funcions específiques per evitar interferències entre serveis i permetre una gestió més clara.
 
-| Servidor | Funció principal | Instància tipus |
+| Servidor | Funció principal | Equivalent AWS |
 |---|---|---|
-| Servidor 1 | Web i SFTP — Apache/Nginx, OpenSSH autenticat amb LDAP | EC2 t3.small |
-| Servidor 2 | LDAP i logs — OpenLDAP, Graylog, OpenSearch | EC2 t3.small |
-| Servidor 3 | Streaming àudio/vídeo i base de dades — Icecast, NGINX-RTMP, MariaDB | EC2 t3.medium |
-| Servidor 4 | Backups automatitzats | EC2 t3.micro |
+| Servidor 1 | LDAP + SFTP — OpenLDAP, OpenSSH (SSSD integrat) | EC2 t3.small |
+| Servidor 2 | Web — Nginx + PHP-FPM | EC2 t3.small |
+| Servidor 3 | Streaming àudio — Icecast2 | EC2 t3.small |
+| Servidor 4 | Streaming vídeo — NGINX-RTMP + HLS | EC2 t3.medium |
+| Servidor 5 | Base de dades — MariaDB | EC2 t3.medium |
+| Servidor 6 | Backups automatitzats | EC2 t3.micro |
 
 Aquesta separació facilita l'escalabilitat i minimitza l'impacte de fallades de servei.
 
@@ -244,7 +246,7 @@ Aquest disseny es basa en una estimació d'ús orientada a 100–150 usuaris fin
 - **Streaming d'àudio i vídeo**: 20 fluxos simultanis de reproducció, 50 oients/visualitzadors concorrents i 50 connexions a la base de dades.
 - **Backups**: 4 treballs programats per nit amb transferència de 150–200 GB diaris.
 
-Aquesta quantificació justifica l'ús d'instàncies EC2 de tipus t3.small per serveis de gestió i directoris, i t3.medium per a càrregues de streaming i BD amb memòria addicional.
+Aquesta quantificació justifica l'ús d'instàncies EC2 de tipus t3.small per als serveis lleugers (LDAP+SFTP, web, àudio), t3.medium per a les càrregues més exigents (vídeo i base de dades) i t3.micro per al servidor de backups, que només treballa en horari nocturn.
 
 ## Gestió centralitzada amb Ansible
 
@@ -465,7 +467,7 @@ Aquesta secció detalla l'equipament físic seleccionat per al CPD, amb les espe
 | Factor de forma | 1U Rack |
 | Consum | ~32 W |
 
-**Justificació:** El Cisco Catalyst 1000 és la referència del mercat per a switches gestionables en petites i mitjanes empreses. El model 24T-4G-L té ports suficients per connectar els 4 servidors, els 2 NAS, el firewall pfSense/OPNsense, el KVM i els equips d'administració, amb 4 uplinks SFP per a la fibra òptica entre racks (Rack 1 ↔ Rack 2 ↔ Rack 3). El suport de 4094 VLANs cobreix àmpliament les tres VLANs definides (VLAN 10, 20, 30). La funcionalitat QoS amb 4 cues permet prioritzar el trànsit de streaming del Servidor 3 davant del trànsit de gestió, garantint la qualitat del servei multimèdia. L'IGMP Snooping optimitza el trànsit multicast d'Icecast. La fiabilitat i l'ecosistema de suport de Cisco justifiquen l'elecció en un entorn de producció.
+**Justificació:** El Cisco Catalyst 1000 és la referència del mercat per a switches gestionables en petites i mitjanes empreses. El model 24T-4G-L té ports suficients per connectar els 6 servidors, els 2 NAS, el firewall pfSense/OPNsense, el KVM i els equips d'administració, amb 4 uplinks SFP per a la fibra òptica entre racks (Rack 1 ↔ Rack 2 ↔ Rack 3). El suport de 4094 VLANs cobreix àmpliament les tres VLANs definides (VLAN 10, 20, 30). La funcionalitat QoS amb 4 cues permet prioritzar el trànsit de streaming del Servidor 3 davant del trànsit de gestió, garantint la qualitat del servei multimèdia. L'IGMP Snooping optimitza el trànsit multicast d'Icecast. La fiabilitat i l'ecosistema de suport de Cisco justifiquen l'elecció en un entorn de producció.
 
 ---
 
@@ -502,7 +504,7 @@ Aquesta secció detalla l'equipament físic seleccionat per al CPD, amb les espe
 | Factor de forma | 1U Rack |
 | Consum | ~10 W |
 
-**Justificació:** El KVM sobre IP ATEN CS1316 permet accedir a la consola de qualsevol dels 4 servidors de forma remota des de la VLAN d'Administració (VLAN 20), sense necessitat d'estar físicament al CPD. Això és crític per a tasques de recuperació on SSH no està disponible: restauració de BIOS/UEFI, reinstal·lació del sistema operatiu, resolució de panics del kernel o errors de configuració de xarxa que deixen el servidor inabastable. Els 16 ports permeten gestionar els 4 servidors actuals i fins a 12 equips addicionals si el CPD creix en el futur. L'accés per TLS 1.2 s'integra amb el control d'accés restringit de la VLAN 20.
+**Justificació:** El KVM sobre IP ATEN CS1316 permet accedir a la consola de qualsevol dels 6 servidors de forma remota des de la VLAN d'Administració (VLAN 20), sense necessitat d'estar físicament al CPD. Això és crític per a tasques de recuperació on SSH no està disponible: restauració de BIOS/UEFI, reinstal·lació del sistema operatiu, resolució de panics del kernel o errors de configuració de xarxa que deixen el servidor inabastable. Els 16 ports permeten gestionar els 6 servidors actuals i fins a 10 equips addicionals si el CPD creix en el futur. L'accés per TLS 1.2 s'integra amb el control d'accés restringit de la VLAN 20.
 
 ---
 
