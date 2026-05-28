@@ -58,6 +58,10 @@
 
 ## 01. CPD Físic
 
+![Vista frontal del CPD — 3 racks](../capturas/01-cpd-fisic/cpd_vista_frontal.svg)
+
+![Vista isomètrica del CPD](../capturas/01-cpd-fisic/cpd_isometric_v2.svg)
+
 ### 1.1 Infraestructura elèctrica
 
 
@@ -215,6 +219,8 @@ L'automatització amb **Ansible** aporta:
 - Inventari estructurat per rols i grups.
 
 ## Xarxa i segmentació
+
+![Mapa de xarxa CPD InnovateTech](../capturas/01-cpd-fisic/mapa_xarxa_v2.svg)
 
 La xarxa es segmenta per controlar l'accés i disminuir els riscos:
 
