@@ -2072,51 +2072,12 @@ detallen els diferents blocs documentals que cobreixen cada check de la rúbrica
 
 ### 7.1 07-bd/backup-event.md
 
-#### 7.1.1 Activació del planificador d'events
+7.1.1 Script de backup backup_setmanal.sh
+Ubicació: /home/PPM/backup_setmanal.sh
+Permisos: chmod +x /home/PPM/backup_setmanal.sh
 
-**Comandament:**
-```sql
-SHOW VARIABLES LIKE 'event_scheduler';
-```
+![backup/setmanal](../capturas/07-bd/er-diagrama/backupsetmanal.png)
 
-Resultat esperat: `Value = ON`. Si està desactivat, activar amb `SET GLOBAL event_scheduler = ON;`.
-
-![event_scheduler_on](../capturas/07-bd/er-diagrama/event_scheduler.png)
-
----
-
-#### 7.1.2 Creació de l'event `backup_setmanal`
-
-**Comandament (definició completa):**
-```sql
-SHOW CREATE EVENT backup_setmanal\G
-```
-
-![creacio_event](../capturas/07-bd/er-diagrama/backup_semanal.png)
-
----
-
-#### 7.1.3 Verificació dels fitxers CSV generats
-
-**Comandament (des de la terminal del sistema):**
-```bash
-ls -la /tmp/backup_*.csv
-```
-
-![fitxers_csv_backup](./img/fitxers_csv_backup.png)
-
----
-
-#### 7.1.4 Registre a la taula `CONTROL_BACKUP`
-
-**Comandament:**
-```sql
-SELECT * FROM CONTROL_BACKUP ORDER BY id_backup DESC LIMIT 1\G
-```
-
-![control_backup_registre](./img/control_backup_registre.png)
-
----
 
 ### 7.2 07-bd/er-diagrama.md
 
@@ -2152,12 +2113,6 @@ Vam escriure un script SQL (`InnovateTech.sql`) que crea totes les taules amb
 Vam executar l'script i vam usar l'eina *Reverse Engineer* del MySQL Workbench, que
 llegeix l'esquema real i dibuixa automàticament taules, atributs i claus.
 
-#### 7.2.5 Ajust manual i exportació
-
-Vam reorganitzar la disposició de les taules per a una millor llegibilitat i vam
-exportar el diagrama a PNG.
-
-![RAPJ-E-R](./img/RAPJ-E-R.png)
 
 ---
 
@@ -2181,7 +2136,7 @@ SHOW CREATE TABLE USUARI\G
 SHOW CREATE TABLE TRUCADA\G
 ```
 
-![show_create_table_trucada](./img/show_create_table_trucada.png)
+![show_create_table_trucada](../capturas/07-bd/er-diagrama/createtabletrucada.png)
 
 ---
 
@@ -2192,7 +2147,7 @@ SHOW CREATE TABLE TRUCADA\G
 DESCRIBE USUARI;
 ```
 
-![check_restrictions_usuari](../capturas/07-bd/er-diagrama/Describe%20usuari.png)
+![check_restrictions_usuari](../capturas/07-bd/er-diagrama/Descrube%20usuari.png)
 
 ---
 
@@ -2265,7 +2220,7 @@ SHOW GRANTS FOR 'admin'@'%';
 SHOW GRANTS;
 ```
 
-![comprovacio_permisos_vendes](./img/comprovacio_permisos_vendes.png)
+![comprovacio_permisos_vendes](../capturas/07-bd/er-diagrama/Grantsvendes.png)
 
 ---
 
@@ -2304,7 +2259,7 @@ cat user.sql
 |---|---|
 | Nom d'usuari buit | ![error_arguments](../capturas/07-bd/er-diagrama/errornombrevacio.png) |
 | Rol invàlid | ![error_rol_invalid](../capturas/07-bd/er-diagrama/errorrolnovalido.png) |
-| Usuari root prohibit | ![error_usuari_existent](./img/error_usuari_existent.png) |
+| Usuari root prohibit | ![error_usuari_existent](../capturas/07-bd/er-diagrama/usuarirootyaexiste.png) |
 | Contrasenyes diferents | ![error_contrasenyes](../capturas/07-bd/er-diagrama/errorcontrase;a.png) |
 
 ---
@@ -2396,14 +2351,6 @@ UPDATE EMPLEAT SET nom = 'X' WHERE dni = '12345678A';
 
 ![error_auditoria_treballador](../capturas/07-bd/er-diagrama/modifacionuser.png)
 
-**Registre a `AVIS`:**
-```sql
-SELECT * FROM AVIS WHERE taula_afectada='EMPLEAT' AND operacio_intentada='UPDATE' ORDER BY data_hora DESC LIMIT 1\G
-```
-
-![avis_auditoria](./img/avis_auditoria.png)
-XDDD
----
 
 #### 7.5.5 Estructura de la taula `AVIS`
 
@@ -2412,30 +2359,97 @@ XDDD
 DESCRIBE AVIS;
 ```
 
-![estructura_taula_avis](./img/estructura_taula_avis.png)
+![estructura_taula_avis](../capturas/07-bd/er-diagrama/DESCRIBEAVIS.png
+)
+
+> Tots els elements estan implementats i documentats a la base de dades **InnovateTech**.
+
+### 7.6 Integració amb el servidor de vídeo (catàleg automàtic)
+
+Per mantenir actualitzada la taula `VIDEO` amb els vídeos que es pengen al servidor de streaming (NGINX + RTMP), s’ha implementat un **script de monitorització** que detecta canvis a la carpeta `/var/www/html/videos`, extreu metadades (títol, durada, descripció, categoria) i sincronitza la base de dades automàticament.
 
 ---
 
-### 7.6 Resum de compliance (checks superats)
+#### 7.6.1 Script `monitor_video_unico.sh`
 
-| Check | Document | Captura clau |
-|---|---|---|
-| Diagrama E/R complet i cardinalitzat | er-diagrama.md | diagrama_ER.png / RAPJ-E-R.png |
-| Model relacional amb PK, FK | model-relacional.md | show_create_table_usuari.png, show_create_table_trucada.png |
-| BD amb PK, FK, NOT NULL, UNIQUE, CHECK | model-relacional.md | check_restrictions_usuari.png, check_unique_email.png, check_puntuacio_range.png |
-| Dades de prova | model-relacional.md | select_departament.png, select_empleat.png, select_usuari.png, select_trucada.png, select_video.png |
-| 4 rols creats amb permisos | rols-permisos.md | show_grants_admin.png, comprovacio_permisos_vendes.png |
-| Script de creació d'usuaris funcional | rols-permisos.md | crear_usuari_execucions.png, crear_usuari_ok.png |
-| Script genera .sql amb CREATE USER + GRANT | rols-permisos.md | contingut_sql_generat.png |
-| Script inclou GRANT FILE | rols-permisos.md | grant_file_al_script.png |
-| Script gestiona errors | rols-permisos.md | error_arguments.png, error_rol_invalid.png, error_usuari_existent.png, error_contrasenyes.png |
-| Trigger quota minuts mensuals | triggers.md | error_quota_minuts.png, avis_quota_minuts.png |
-| Trigger quota trucades diàries | triggers.md | error_quota_diaria.png, avis_quota_diaria.png |
-| Taula d'avisos i triggers d'auditoria | triggers.md | error_auditoria_treballador.png, avis_auditoria.png, estructura_taula_avis.png |
-| Trigger de bloqueig d'usuaris | triggers.md | bloquejar_usuari.png, error_usuari_bloquejat.png, avis_bloqueig.png |
-| Event periòdic de backup | backup-event.md | event_scheduler_on.png, creacio_event.png, fitxers_csv_backup.png, control_backup_registre.png |
+**Ubicació:** `/home/ubuntu/monitor_video_unico.sh` (servidor de vídeo)  
+**Funcionament:** s’executa com a servei `systemd` i vigila events `create`, `modify` i `delete`.  
+**Contingut del script:**
+![SCRIPT MONITOR VIDEO](../capturas/07-bd/er-diagrama/monitorsh.png)
+![SCRIPT MONITOR VIDEO](../capturas/07-bd/er-diagrama/monitorsh1.png)
+![SCRIPT MONITOR VIDEO](../capturas/07-bd/er-diagrama/monitor2sh.png)
 
-> Tots els elements estan implementats i documentats a la base de dades **InnovateTech**.
+**7.6.2 Creació automàtica** del fitxer de metadades
+Quan es copia un vídeo nou a /var/www/html/videos/, el script no l’insereix immediatament. En lloc d’això, crea un fitxer .meta amb una plantilla buida.
+
+Comandament (copiar vídeo):
+
+bash
+cp /ruta/prova.mp4 /var/www/html/videos/
+
+![SCRIPT MONITOR VIDEO](../capturas/07-bd/er-diagrama/monitor3sh.png)
+
+**7.6.3 Servei systemd per a l’execució permanent**
+Per garantir que el monitor s’executi sempre (fins i tot després de reinicis), es configura un servei systemd.
+
+Fitxer /etc/systemd/system/monitor-video.service:
+
+ini
+[Unit]
+Description=Monitor de vídeos per a BD
+After=network.target
+
+[Service]
+ExecStart=/home/ubuntu/monitor_video_unico.sh
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
+Comandes per activar-lo:
+
+![SCRIPT MONITOR VIDEO](../capturas/07-bd/er-diagrama/monitorservice.png)
+
+
+sudo systemctl daemon-reload 
+
+sudo systemctl enable monitor-video.service
+
+sudo systemctl start monitor-video.service
+
+sudo systemctl status monitor-video.service
+
+![SCRIPT MONITOR VIDEO](../capturas/07-bd/er-diagrama/statusmonitorservice.png)
+
+**7.6.4 Cerca de vídeos Cerca de vídeos per títol, categoria o paraules clau**
+![SCRIPT MONITOR VIDEO](../capturas/07-bd/er-diagrama/descibevideoXD.png)
+
+SELECT * FROM VIDEO WHERE titol LIKE '%tutorial%';
+![SCRIPT MONITOR VIDEO](../capturas/07-bd/er-diagrama/DESCRIPCIONITB.png)
+
+SELECT * FROM VIDEO WHERE categoria = 'Tutorial';
+![SCRIPT MONITOR VIDEO](../capturas/07-bd/er-diagrama/CATEGORIAITB.png)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## 08. 1665
 
