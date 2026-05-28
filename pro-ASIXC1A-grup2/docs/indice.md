@@ -1988,18 +1988,32 @@ En aquest cas no fa falta editar el site.yml perquè anteriorment configurant el
     - /var/lib/php/opcache
   failed_when: false
 
-# ── 5. VIRTUALHOST ────────────────────────────────────────────────────
-- name: Desplegar configuració del virtualhost
+# ── 5. CERTIFICATS SSL (Autosignats) ──────────────────────────────────
+- name: Crear directori per als certificats SSL
+  ansible.builtin.file:
+    path: /etc/nginx/ssl
+    state: directory
+    mode: '0700'
+    owner: root
+    group: root
+
+- name: Generar clau privada i certificat de seguretat SSL
+  ansible.builtin.command:
+    cmd: "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt -subj '/CN={{ nginx_server_name }}'"
+    creates: /etc/nginx/ssl/nginx.crt
+
+# ── 6. VIRTUALHOST ────────────────────────────────────────────────────
+- name: Desplegar configuració del virtualhost (HTTPS)
   ansible.builtin.template:
     src: vhost.conf.j2
     dest: /etc/nginx/conf.d/app.conf
     mode: '0644'
   notify: Reiniciar nginx
 
-# ── 6. FIREWALL ───────────────────────────────────────────────────────
-- name: Obrir port 80 al firewall
+# ── 7. FIREWALL ───────────────────────────────────────────────────────
+- name: Obrir ports 80 i 443 al firewall
   ansible.builtin.command:
-    cmd: firewall-cmd --permanent --add-service=http
+    cmd: "firewall-cmd --permanent --add-service=http --add-service=https"
   changed_when: true
   failed_when: false
 
@@ -2009,18 +2023,23 @@ En aquest cas no fa falta editar el site.yml perquè anteriorment configurant el
   changed_when: true
   failed_when: false
 
-# ── 7. VERIFICACIÓ ────────────────────────────────────────────────────
-- name: Verificar que nginx respon al port 80
+# ── FORÇAR APLICACIÓ DE CANVIS ────────────────────────────────────────
+- name: Forçar el reinici dels serveis abans de la verificació
+  ansible.builtin.meta: flush_handlers
+
+# ── 8. VERIFICACIÓ ────────────────────────────────────────────────────
+- name: Verificar que nginx respon correctament per HTTPS
   ansible.builtin.uri:
-    url: "http://localhost:80"
+    url: "https://localhost:443"
     status_code: 200
+    validate_certs: false
   register: nginx_check
   retries: 3
   delay: 5
 
 - name: Mostrar resultat de la verificació
   ansible.builtin.debug:
-    msg: "Nginx operatiu — codi HTTP: {{ nginx_check.status }}"
+    msg: "Nginx operatiu de forma segura — codi HTTP: {{ nginx_check.status }}"
 
 ```
 
