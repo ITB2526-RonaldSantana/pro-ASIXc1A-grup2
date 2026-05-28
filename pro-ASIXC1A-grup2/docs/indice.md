@@ -62,14 +62,10 @@ La carpeta `capturas/` conté imatges i captures organitzades per temàtiques. A
 Referència: [01-cpd-fisic](01-cpd-fisic)
 
 ### 07-bd
- - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
- - `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
-
-Referència: [07-bd](07-bd)
-
-### 07-bd
-- `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
 - `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
+- `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
+- `capturas/07-bd/er-diagrama/event_scheduler.png` — Estat del planificador d'events de MariaDB.
+- `capturas/07-bd/er-diagrama/backup_semanal.png` — Configuració de l'event de backup setmanal.
 
 Referència: [07-bd](07-bd)
 
@@ -1819,7 +1815,7 @@ SHOW VARIABLES LIKE 'event_scheduler';
 
 Resultat esperat: `Value = ON`. Si està desactivat, activar amb `SET GLOBAL event_scheduler = ON;`.
 
-![event_scheduler_on](./img/event_scheduler_on.png)
+![event_scheduler_on](../capturas/07-bd/er-diagrama/event_scheduler.png)
 
 ---
 
@@ -1830,7 +1826,7 @@ Resultat esperat: `Value = ON`. Si està desactivat, activar amb `SET GLOBAL eve
 SHOW CREATE EVENT backup_setmanal\G
 ```
 
-![creacio_event](./img/creacio_event.png)
+![creacio_event](../capturas/07-bd/er-diagrama/backup_semanal.png)
 
 ---
 
@@ -1861,7 +1857,7 @@ SELECT * FROM CONTROL_BACKUP ORDER BY id_backup DESC LIMIT 1\G
 **Comandament** (per obtenir el diagrama): des del MySQL Workbench,
 `Database → Reverse Engineer...` sobre l'esquema `InnovateTech`.
 
-![diagrama_ER](./img/diagrama_ER.png)
+![diagrama_ER](../capturas/07-bd/er-diagrama/RAPJ-E-R.png)
 
 El procés detallat es descriu als subapartats següents.
 
@@ -1908,7 +1904,7 @@ exportar el diagrama a PNG.
 SHOW CREATE TABLE USUARI\G
 ```
 
-![show_create_table_usuari](./img/show_create_table_usuari.png)
+![show_create_table_usuari](../capturas/07-bd/er-diagrama/usuari.png)
 
 ---
 
@@ -1930,7 +1926,7 @@ SHOW CREATE TABLE TRUCADA\G
 DESCRIBE USUARI;
 ```
 
-![check_restrictions_usuari](./img/check_restrictions_usuari.png)
+![check_restrictions_usuari](../capturas/07-bd/er-diagrama/Describe%20usuari.png)
 
 ---
 
@@ -1944,7 +1940,7 @@ VALUES ('Test', 'joan.garcia@innovatech.com', 'actiu', 'intern');
 
 Resultat: `ERROR 1062 (23000): Duplicate entry 'joan.garcia@innovatech.com' for key 'email'.`
 
-![check_unique_email](./img/check_unique_email.png)
+![check_unique_email](../capturas/07-bd/er-diagrama/duplicate-error.png)
 
 ---
 
@@ -1958,7 +1954,7 @@ VALUES (1, 2, NOW(), 1, 10);
 
 Resultat: `ERROR 4025 (23000): CONSTRAINT chk_puntuacio failed for InnovateTech.TRUCADA.`
 
-![check_puntuacio_range](./img/check_puntuacio_range.png)
+![check_puntuacio_range](../capturas/07-bd/er-diagrama/restrriccion.png)
 
 ---
 
@@ -1975,11 +1971,11 @@ SELECT * FROM VIDEO;
 
 | Taula | Captura |
 |---|---|
-| DEPARTAMENT | ![select_departament](./img/select_departament.png) |
-| EMPLEAT | ![select_empleat](./img/select_empleat.png) |
-| USUARI | ![select_usuari](./img/select_usuari.png) |
-| TRUCADA | ![select_trucada](./img/select_trucada.png) |
-| VIDEO | ![select_video](./img/select_video.png) |
+| DEPARTAMENT | ![select_departament](../capturas/07-bd/er-diagrama/select%20departament.png) |
+| EMPLEAT | ![select_empleat](../capturas/07-bd/er-diagrama/select%20empleat.png) |
+| USUARI | ![select_usuari](../capturas/07-bd/er-diagrama/select%20usuari.png) |
+| TRUCADA | ![select_trucada](../capturas/07-bd/er-diagrama/select%20trucada.png) |
+| VIDEO | ![select_video](../capturas/07-bd/er-diagrama/select%20video.png) |
 
 ---
 
@@ -1992,7 +1988,7 @@ SELECT * FROM VIDEO;
 SHOW GRANTS FOR 'admin'@'%';
 ```
 
-![show_grants_admin](./img/show_grants_admin.png)
+![show_grants_admin](../capturas/07-bd/er-diagrama/admingrants.png)
 
 ---
 
@@ -2014,9 +2010,8 @@ SHOW GRANTS;
 ./crear_usuari.sh
 ```
 
-![crear_usuari_execucions](./img/crear_usuari_execucions.png)
+![crear_usuari_execucions](../capturas/07-bd/er-diagrama/crearuser.sh.png)
 
-![crear_usuari_ok](./img/crear_usuari_ok.png)
 
 ---
 
@@ -2024,16 +2019,16 @@ SHOW GRANTS;
 
 **Comandament:**
 ```bash
-cat jair_grant.sql
+cat user.sql
 ```
 
-![contingut_sql_generat](./img/contingut_sql_generat.png)
+![contingut_sql_generat](../capturas/07-bd/er-diagrama/michaelsql.png)
 
 ---
 
 #### 7.4.5 Presència de `GRANT FILE` al script generat
 
-![grant_file_al_script](./img/grant_file_al_script.png)
+![grant_file_al_script](../capturas/07-bd/er-diagrama/scripcrearuser.png)
 
 ---
 
@@ -2041,10 +2036,10 @@ cat jair_grant.sql
 
 | Error | Captura |
 |---|---|
-| Nom d'usuari buit | ![error_arguments](./img/error_arguments.png) |
-| Rol invàlid | ![error_rol_invalid](./img/error_rol_invalid.png) |
+| Nom d'usuari buit | ![error_arguments](../capturas/07-bd/er-diagrama/errornombrevacio.png) |
+| Rol invàlid | ![error_rol_invalid](../capturas/07-bd/er-diagrama/errorrolnovalido.png) |
 | Usuari root prohibit | ![error_usuari_existent](./img/error_usuari_existent.png) |
-| Contrasenyes diferents | ![error_contrasenyes](./img/error_contrasenyes.png) |
+| Contrasenyes diferents | ![error_contrasenyes](../capturas/07-bd/er-diagrama/errorcontrase;a.png) |
 
 ---
 
@@ -2066,14 +2061,14 @@ VALUES (1, 2, NOW(), DATE_ADD(NOW(), INTERVAL 600 MINUTE), 36000, 1);
 
 Resultat: `ERROR 1644 (45000): Has superat els 500 minuts aquest mes.`
 
-![error_quota_minuts](./img/error_quota_minuts.png)
+![error_quota_minuts](../capturas/07-bd/er-diagrama/trigger500minuts.png)
 
 **Comandament per veure l'avís registrat:**
 ```sql
 SELECT * FROM AVIS WHERE detall LIKE '%minuts%' ORDER BY data_hora DESC LIMIT 1\G
 ```
 
-![avis_quota_minuts](./img/avis_quota_minuts.png)
+![avis_quota_minuts](../capturas/07-bd/er-diagrama/aviso500minutos.png)
 
 ---
 
@@ -2087,14 +2082,14 @@ VALUES (1, 2, NOW(), DATE_ADD(NOW(), INTERVAL 1 MINUTE), 60, 1);
 
 Resultat: `ERROR 1644 (45000): Ja has fet 10 trucades avui.`
 
-![error_quota_diaria](./img/error_quota_diaria.png)
+![error_quota_diaria](../capturas/07-bd/er-diagrama/triggeruserbloqueado.png)
 
 **Avís a `AVIS`:**
 ```sql
 SELECT * FROM AVIS WHERE detall LIKE '%diàries%' ORDER BY data_hora DESC LIMIT 1\G
 ```
 
-![avis_quota_diaria](./img/avis_quota_diaria.png)
+![avis_quota_diaria](../capturas/07-bd/er-diagrama/avisollamadas.png)
 
 ---
 
@@ -2105,7 +2100,7 @@ SELECT * FROM AVIS WHERE detall LIKE '%diàries%' ORDER BY data_hora DESC LIMIT 
 UPDATE USUARI SET estat = 'bloquejat' WHERE id_usuari = 5;
 ```
 
-![bloquejar_usuari](./img/bloquejar_usuari.png)
+![bloquejar_usuari](../capturas/07-bd/er-diagrama/userbloqueadodef.png)
 
 **Intent de trucada amb usuari bloquejat:**
 ```sql
@@ -2115,14 +2110,14 @@ VALUES (5, 1, NOW(), DATE_ADD(NOW(), INTERVAL 5 MINUTE), 300, 1);
 
 Resultat: `ERROR 1644 (45000): Usuari bloquejat. No pot fer trucades..`
 
-![error_usuari_bloquejat](./img/error_usuari_bloquejat.png)
+![error_usuari_bloquejat](../capturas/07-bd/er-diagrama/nollamadaspapu.png)
 
 **Avís a `AVIS`:**
 ```sql
 SELECT * FROM AVIS WHERE detall LIKE '%bloquejat%' ORDER BY data_hora DESC LIMIT 1\G
 ```
 
-![avis_bloqueig](./img/avis_bloqueig.png)
+![avis_bloqueig](../capturas/07-bd/er-diagrama/avisonollamadas.png)
 
 ---
 
@@ -2133,7 +2128,7 @@ SELECT * FROM AVIS WHERE detall LIKE '%bloquejat%' ORDER BY data_hora DESC LIMIT
 UPDATE EMPLEAT SET nom = 'X' WHERE dni = '12345678A';
 ```
 
-![error_auditoria_treballador](./img/error_auditoria_treballador.png)
+![error_auditoria_treballador](../capturas/07-bd/er-diagrama/modifacionuser.png)
 
 **Registre a `AVIS`:**
 ```sql
