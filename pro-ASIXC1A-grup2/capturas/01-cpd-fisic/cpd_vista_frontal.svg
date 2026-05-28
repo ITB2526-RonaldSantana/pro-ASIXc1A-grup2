@@ -1,0 +1,154 @@
+<svg width="100%" viewBox="0 0 680 520" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Vista frontal del CPD InnovateTech — 3 racks</title>
+<desc>Vista frontal dels tres racks del CPD amb tots els components: servidors, xarxa, emmagatzematge, SAIs, CRAC i seguretat</desc>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+<!-- SALA – marc exterior -->
+<rect x="20" y="20" width="640" height="460" rx="4" fill="none" stroke="rgba(31,30,29,0.3)" stroke-width="1.5"/>
+<!-- SOSTRE TÈCNIC -->
+<rect x="20" y="20" width="640" height="18" rx="4" fill="#f5f4ed" stroke="rgba(31,30,29,0.3)" stroke-width="0.5"/>
+<text x="340" y="33" text-anchor="middle" dominant-baseline="central" fill="#3d3d3a" font-family="sans-serif" font-size="12">Sostre tècnic — cablejat elèctric i retorn aire calent</text>
+<!-- SÒL TÈCNIC -->
+<rect x="20" y="462" width="640" height="18" rx="4" fill="#f5f4ed" stroke="rgba(31,30,29,0.3)" stroke-width="0.5"/>
+<text x="340" y="475" text-anchor="middle" dominant-baseline="central" fill="#3d3d3a" font-family="sans-serif" font-size="12">Sòl tècnic 40 cm — cablejat de dades i distribució d'aire fred</text>
+<!-- CRAC ESQUERRA -->
+<rect x="32" y="48" width="64" height="406" rx="6" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+<text x="64" y="220" text-anchor="middle" dominant-baseline="central" transform="rotate(-90 64 220)" fill="#085041" font-family="sans-serif" font-size="14" font-weight="500">CRAC 1</text>
+<text x="64" y="240" text-anchor="middle" dominant-baseline="central" transform="rotate(-90 64 240)" fill="#0f6e56" font-family="sans-serif" font-size="12">12.000 BTU/h</text>
+<line x1="42" y1="80" x2="86" y2="80" stroke="rgba(31,30,29,0.15)" stroke-width="0.5"/>
+<line x1="42" y1="96" x2="86" y2="96" stroke="rgba(31,30,29,0.15)" stroke-width="0.5"/>
+<line x1="42" y1="112" x2="86" y2="112" stroke="rgba(31,30,29,0.15)" stroke-width="0.5"/>
+<line x1="42" y1="128" x2="86" y2="128" stroke="rgba(31,30,29,0.15)" stroke-width="0.5"/>
+<line x1="42" y1="144" x2="86" y2="144" stroke="rgba(31,30,29,0.15)" stroke-width="0.5"/>
+<line x1="42" y1="160" x2="86" y2="160" stroke="rgba(31,30,29,0.15)" stroke-width="0.5"/>
+<!-- Flux aire fred esquerra -->
+<path d="M96 150 L112 150" stroke="#378ADD" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<path d="M96 200 L112 200" stroke="#378ADD" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<path d="M96 250 L112 250" stroke="#378ADD" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<!-- RACK 1 – Servidors -->
+<rect x="112" y="48" width="164" height="406" rx="6" fill="#eeedf" stroke="#534ab7" stroke-width="0.5"/>
+<rect x="112" y="48" width="164" height="406" rx="6" fill="#eeedfe" stroke="#534ab7" stroke-width="0.5"/>
+<text x="194" y="66" text-anchor="middle" dominant-baseline="central" fill="#3c3489" font-family="sans-serif" font-size="14" font-weight="500">Rack 1 — Servidors</text>
+<!-- Patch panel -->
+<rect x="120" y="76" width="148" height="22" rx="3" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+<text x="194" y="87" text-anchor="middle" dominant-baseline="central" fill="#5f5e5a" font-family="sans-serif" font-size="12">Patch panel 24p Cat6A</text>
+<!-- Srv 1: LDAP+SFTP -->
+<rect x="120" y="104" width="148" height="40" rx="4" fill="#eeedfe" stroke="#534ab7" stroke-width="0.5"/>
+<text x="194" y="118" text-anchor="middle" dominant-baseline="central" fill="#3c3489" font-family="sans-serif" font-size="13" font-weight="500">Servidor 1</text>
+<text x="194" y="134" text-anchor="middle" dominant-baseline="central" fill="#534ab7" font-family="sans-serif" font-size="11">LDAP + SFTP</text>
+<circle cx="258" cy="112" r="3" fill="#1d9e75"/>
+<!-- Srv 2: Web -->
+<rect x="120" y="150" width="148" height="40" rx="4" fill="#eeedfe" stroke="#534ab7" stroke-width="0.5"/>
+<text x="194" y="164" text-anchor="middle" dominant-baseline="central" fill="#3c3489" font-family="sans-serif" font-size="13" font-weight="500">Servidor 2</text>
+<text x="194" y="180" text-anchor="middle" dominant-baseline="central" fill="#534ab7" font-family="sans-serif" font-size="11">Web (Nginx + PHP)</text>
+<circle cx="258" cy="158" r="3" fill="#1d9e75"/>
+<!-- Srv 3: Àudio -->
+<rect x="120" y="196" width="148" height="40" rx="4" fill="#eeedfe" stroke="#534ab7" stroke-width="0.5"/>
+<text x="194" y="210" text-anchor="middle" dominant-baseline="central" fill="#3c3489" font-family="sans-serif" font-size="13" font-weight="500">Servidor 3</text>
+<text x="194" y="226" text-anchor="middle" dominant-baseline="central" fill="#534ab7" font-family="sans-serif" font-size="11">Àudio (Icecast2)</text>
+<circle cx="258" cy="204" r="3" fill="#1d9e75"/>
+<!-- Srv 4: Vídeo -->
+<rect x="120" y="242" width="148" height="40" rx="4" fill="#eeedfe" stroke="#534ab7" stroke-width="0.5"/>
+<text x="194" y="256" text-anchor="middle" dominant-baseline="central" fill="#3c3489" font-family="sans-serif" font-size="13" font-weight="500">Servidor 4</text>
+<text x="194" y="272" text-anchor="middle" dominant-baseline="central" fill="#534ab7" font-family="sans-serif" font-size="11">Vídeo (NGINX-RTMP)</text>
+<circle cx="258" cy="250" r="3" fill="#1d9e75"/>
+<!-- Srv 5: BD -->
+<rect x="120" y="288" width="148" height="40" rx="4" fill="#eeedfe" stroke="#534ab7" stroke-width="0.5"/>
+<text x="194" y="302" text-anchor="middle" dominant-baseline="central" fill="#3c3489" font-family="sans-serif" font-size="13" font-weight="500">Servidor 5</text>
+<text x="194" y="318" text-anchor="middle" dominant-baseline="central" fill="#534ab7" font-family="sans-serif" font-size="11">Base de dades (MariaDB)</text>
+<circle cx="258" cy="296" r="3" fill="#1d9e75"/>
+<!-- Patch panel 2 -->
+<rect x="120" y="334" width="148" height="22" rx="3" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+<text x="194" y="345" text-anchor="middle" dominant-baseline="central" fill="#5f5e5a" font-family="sans-serif" font-size="12">Patch panel 24p Cat6A</text>
+<!-- SAI 1 -->
+<rect x="120" y="362" width="148" height="42" rx="4" fill="#faeedb" stroke="#854f0b" stroke-width="0.5"/>
+<text x="194" y="378" text-anchor="middle" dominant-baseline="central" fill="#633806" font-family="sans-serif" font-size="14" font-weight="500">SAI 1 — 3000VA</text>
+<text x="194" y="396" text-anchor="middle" dominant-baseline="central" fill="#854f0b" font-family="sans-serif" font-size="12">2 mòduls EBM · 25 min</text>
+<!-- RACK 2 – Xarxa -->
+<rect x="288" y="48" width="164" height="406" rx="6" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+<text x="370" y="66" text-anchor="middle" dominant-baseline="central" fill="#085041" font-family="sans-serif" font-size="14" font-weight="500">Rack 2 — Xarxa</text>
+<rect x="296" y="76" width="148" height="22" rx="3" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+<text x="370" y="87" text-anchor="middle" dominant-baseline="central" fill="#0f6e56" font-family="sans-serif" font-size="12">Switch core Cisco Cat.1000-24T</text>
+<rect x="296" y="104" width="148" height="22" rx="3" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+<text x="370" y="115" text-anchor="middle" dominant-baseline="central" fill="#0f6e56" font-family="sans-serif" font-size="12">Switch accés Cisco Cat.1000-16T</text>
+<rect x="296" y="132" width="148" height="22" rx="3" fill="#fcebeb" stroke="#a32d2d" stroke-width="0.5"/>
+<text x="370" y="143" text-anchor="middle" dominant-baseline="central" fill="#a32d2d" font-family="sans-serif" font-size="12">Firewall pfSense / OPNsense</text>
+<rect x="296" y="160" width="148" height="22" rx="3" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+<text x="370" y="171" text-anchor="middle" dominant-baseline="central" fill="#5f5e5a" font-family="sans-serif" font-size="12">Patch panel 24p Cat6A</text>
+<rect x="296" y="188" width="148" height="22" rx="3" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+<text x="370" y="199" text-anchor="middle" dominant-baseline="central" fill="#5f5e5a" font-family="sans-serif" font-size="12">Patch panel fibra òptica</text>
+<rect x="296" y="216" width="148" height="22" rx="3" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+<text x="370" y="227" text-anchor="middle" dominant-baseline="central" fill="#5f5e5a" font-family="sans-serif" font-size="12">KVM sobre IP (ATEN CS1316)</text>
+<rect x="296" y="244" width="148" height="22" rx="3" fill="#faeedb" stroke="#854f0b" stroke-width="0.5"/>
+<text x="370" y="255" text-anchor="middle" dominant-baseline="central" fill="#854f0b" font-family="sans-serif" font-size="12">Sensor Tª/HR · 18–27°C · 40–60%</text>
+<!-- SAI 2 -->
+<rect x="296" y="362" width="148" height="42" rx="4" fill="#faeedb" stroke="#854f0b" stroke-width="0.5"/>
+<text x="370" y="378" text-anchor="middle" dominant-baseline="central" fill="#633806" font-family="sans-serif" font-size="14" font-weight="500">SAI 2 — 3000VA</text>
+<text x="370" y="396" text-anchor="middle" dominant-baseline="central" fill="#854f0b" font-family="sans-serif" font-size="12">2 mòduls EBM · 25 min</text>
+<!-- RACK 3 – Emmagatzematge -->
+<rect x="464" y="48" width="164" height="406" rx="6" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+<text x="546" y="66" text-anchor="middle" dominant-baseline="central" fill="#0c447c" font-family="sans-serif" font-size="14" font-weight="500">Rack 3 — Emmagatzematge</text>
+<!-- NAS Primari -->
+<rect x="472" y="76" width="148" height="64" rx="4" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+<text x="546" y="96" text-anchor="middle" dominant-baseline="central" fill="#0c447c" font-family="sans-serif" font-size="14" font-weight="500">NAS Primari</text>
+<text x="546" y="112" text-anchor="middle" dominant-baseline="central" fill="#185fa5" font-family="sans-serif" font-size="12">Synology RS1221+ · RAID 5</text>
+<text x="546" y="128" text-anchor="middle" dominant-baseline="central" fill="#185fa5" font-family="sans-serif" font-size="12">24 TB útils · Còpia 1</text>
+<!-- NAS Secundari -->
+<rect x="472" y="148" width="148" height="64" rx="4" fill="#e6f1fb" stroke="#185fa5" stroke-width="0.5"/>
+<text x="546" y="168" text-anchor="middle" dominant-baseline="central" fill="#0c447c" font-family="sans-serif" font-size="14" font-weight="500">NAS Secundari</text>
+<text x="546" y="184" text-anchor="middle" dominant-baseline="central" fill="#185fa5" font-family="sans-serif" font-size="12">Synology RS1221+ · RAID 6</text>
+<text x="546" y="200" text-anchor="middle" dominant-baseline="central" fill="#185fa5" font-family="sans-serif" font-size="12">32 TB útils · Còpia 2</text>
+<rect x="472" y="220" width="148" height="22" rx="3" fill="#f1efe8" stroke="#5f5e5a" stroke-width="0.5"/>
+<text x="546" y="231" text-anchor="middle" dominant-baseline="central" fill="#5f5e5a" font-family="sans-serif" font-size="12">Patch panel fibra</text>
+<!-- SAI 3 -->
+<rect x="472" y="362" width="148" height="42" rx="4" fill="#faeedb" stroke="#854f0b" stroke-width="0.5"/>
+<text x="546" y="378" text-anchor="middle" dominant-baseline="central" fill="#633806" font-family="sans-serif" font-size="14" font-weight="500">SAI 3 — 3000VA</text>
+<text x="546" y="396" text-anchor="middle" dominant-baseline="central" fill="#854f0b" font-family="sans-serif" font-size="12">1 mòdul EBM · 15 min</text>
+<!-- CRAC DRETA -->
+<rect x="632" y="48" width="26" height="406" rx="6" fill="#e1f5ee" stroke="#0f6e56" stroke-width="0.5"/>
+<text x="645" y="220" text-anchor="middle" dominant-baseline="central" transform="rotate(90 645 220)" fill="#085041" font-family="sans-serif" font-size="14" font-weight="500">CRAC 2</text>
+<text x="645" y="240" text-anchor="middle" dominant-baseline="central" transform="rotate(90 645 240)" fill="#0f6e56" font-family="sans-serif" font-size="12">12.000 BTU/h</text>
+<line x1="634" y1="80" x2="656" y2="80" stroke="rgba(31,30,29,0.15)" stroke-width="0.5"/>
+<line x1="634" y1="96" x2="656" y2="96" stroke="rgba(31,30,29,0.15)" stroke-width="0.5"/>
+<line x1="634" y1="112" x2="656" y2="112" stroke="rgba(31,30,29,0.15)" stroke-width="0.5"/>
+<line x1="634" y1="128" x2="656" y2="128" stroke="rgba(31,30,29,0.15)" stroke-width="0.5"/>
+<!-- Flux aire calent cap a CRAC dreta -->
+<path d="M630 150 L628 150" stroke="#D85A30" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<path d="M630 200 L628 200" stroke="#D85A30" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+<!-- Connexions entre racks -->
+<line x1="276" y1="100" x2="288" y2="100" stroke="#0f6e56" stroke-width="1" stroke-dasharray="3 2"/>
+<line x1="276" y1="130" x2="288" y2="130" stroke="#0f6e56" stroke-width="1" stroke-dasharray="3 2"/>
+<line x1="452" y1="100" x2="464" y2="100" stroke="#0f6e56" stroke-width="1" stroke-dasharray="3 2"/>
+<line x1="452" y1="130" x2="464" y2="130" stroke="#0f6e56" stroke-width="1" stroke-dasharray="3 2"/>
+<!-- CCTV -->
+<circle cx="44" cy="44" r="7" fill="#f7ecec" stroke="#7f2c28" stroke-width="0.7"/>
+<circle cx="44" cy="44" r="3" fill="#7f2c28" opacity="0.7"/>
+<circle cx="636" cy="44" r="7" fill="#f7ecec" stroke="#7f2c28" stroke-width="0.7"/>
+<circle cx="636" cy="44" r="3" fill="#7f2c28" opacity="0.7"/>
+<!-- Detectors incendis -->
+<circle cx="200" cy="30" r="5" fill="#e9f1dc" stroke="#265b19" stroke-width="0.7"/>
+<circle cx="340" cy="30" r="5" fill="#e9f1dc" stroke="#265b19" stroke-width="0.7"/>
+<circle cx="480" cy="30" r="5" fill="#e9f1dc" stroke="#265b19" stroke-width="0.7"/>
+<!-- Porta + control accés -->
+<rect x="20" y="300" width="12" height="80" fill="#f5f4ed" stroke="rgba(31,30,29,0.3)" stroke-width="1.5"/>
+<rect x="20" y="388" width="18" height="14" rx="3" fill="#f7ecec" stroke="#7f2c28" stroke-width="0.5"/>
+<text x="26" y="415" text-anchor="middle" fill="#3d3d3a" font-family="sans-serif" font-size="12">RFID</text>
+<!-- LLEGENDA -->
+<rect x="294" y="280" width="162" height="140" rx="8" fill="#f5f4ed" stroke="rgba(31,30,29,0.15)" stroke-width="0.5"/>
+<text x="375" y="300" text-anchor="middle" fill="#141413" font-family="sans-serif" font-size="14" font-weight="500">Llegenda</text>
+<rect x="306" y="312" width="10" height="10" rx="2" fill="#d6e4f6" stroke="#534ab7" stroke-width="0.5"/>
+<text x="322" y="321" fill="#3d3d3a" font-family="sans-serif" font-size="12">Rack 1 — Servidors (5u)</text>
+<rect x="306" y="330" width="10" height="10" rx="2" fill="#e9f1dc" stroke="#0f6e56" stroke-width="0.5"/>
+<text x="322" y="339" fill="#3d3d3a" font-family="sans-serif" font-size="12">Rack 2 — Xarxa</text>
+<rect x="306" y="348" width="10" height="10" rx="2" fill="#d6e4f6" stroke="#185fa5" stroke-width="0.5"/>
+<text x="322" y="357" fill="#3d3d3a" font-family="sans-serif" font-size="12">Rack 3 — Emmagatzematge</text>
+<rect x="306" y="366" width="10" height="10" rx="2" fill="#f6eedf" stroke="#854f0b" stroke-width="0.5"/>
+<text x="322" y="375" fill="#3d3d3a" font-family="sans-serif" font-size="12">SAI / UPS</text>
+<line x1="306" y1="390" x2="316" y2="390" stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
+<text x="322" y="394" fill="#3d3d3a" font-family="sans-serif" font-size="12">Aire fred</text>
+<line x1="306" y1="408" x2="316" y2="408" stroke="#D85A30" stroke-width="2" stroke-linecap="round"/>
+<text x="322" y="412" fill="#3d3d3a" font-family="sans-serif" font-size="12">Aire calent</text>
+</svg>

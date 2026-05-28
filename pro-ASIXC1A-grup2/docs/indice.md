@@ -6,109 +6,64 @@
 
 | # | Mòdul | Contingut |
 |---|---|---|
-| 01 | [CPD Físic](#01-cpd-físic) | Infraestructura elèctrica, IT, RRLL, seguretat, ubicació |
-| 02 | [AWS](#02-aws) | Ansible, LDAP, Graylog, usuaris, Web + SFTP |
-| 03 | [Àudio](#03-àudio) | Servei de streaming d'àudio (Icecast2) |
-| 04 | [Vídeo](#04-vídeo) | Servei de streaming de vídeo (NGINX-RTMP + HLS) |
-| 05 | [Videoconferència](#05-videoconferència) | Protocol WebRTC i Jitsi Meet |
-| 06 | [Amplada de banda](#06-amplada-de-banda) | Mesura de xarxa contra el servidor de streaming |
-| 07 | [Base de dades](#07-base-de-dades) | Diagrama E/R, model relacional, rols, triggers, backups |
-| 08 | [1665](#08-1665) | Optimització, seguretat de dades, transformació digital |
-| 09 | [App Web](#09-app-web) | Panel de gestió CPD — `index.php` (PHP + CSS + JS) |
+| 01 | CPD Físic | Infraestructura elèctrica, IT, RRLL, seguretat, ubicació |
+| 02 | AWS | Ansible, LDAP, Graylog, usuaris, Web + SFTP |
+| 03 | Àudio | Servei de streaming d'àudio (Icecast2) |
+| 04 | Vídeo | Servei de streaming de vídeo (NGINX-RTMP + HLS) |
+| 05 | Videoconferència | Protocol WebRTC i Jitsi Meet |
+| 06 | Amplada de banda | Mesura de xarxa contra el servidor de streaming |
+| 07 | Base de dades | Diagrama E/R, model relacional, rols, triggers, backups |
+| 09 | App Web | Panel de gestió CPD — `index.php` (PHP + CSS + JS) |
 
 ### Detall de seccions
 
 **01 — CPD Físic**
-- [1.1 Infraestructura elèctrica](01-cpd-fisic/1.1-infraestructura-electrica.md)
-- [1.2 Infraestructura IT](01-cpd-fisic/1.2-infraestructura-it.md)
-- [1.3 Prevenció de riscos laborals](01-cpd-fisic/1.3-prevencio-rrll.md)
-- [1.4 Seguretat física i lògica](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
-- [1.5 Ubicació física](01-cpd-fisic/1.5-ubicacio.md)
+- 1.1 Infraestructura elèctrica
+- 1.2 Infraestructura IT
+- 1.3 Prevenció de riscos laborals
+- 1.4 Seguretat física i lògica
+- 1.5 Ubicació física
 
 **02 — AWS**
-- [2.1 Gestió amb Ansible](02-aws/ansible.md)
-- [2.2 Servei de logs (Graylog)](02-aws/servei-logs-graylog.md)
-- [2.3 LDAP](02-aws/ldap.md)
-- [2.4 Usuaris administradors](02-aws/usuaris-admin.md)
-- [2.5 Web + SFTP](02-aws/web-sftp.md)
+- 2.1 Gestió amb Ansible
+- 2.2 Servei de logs (Graylog)
+- 2.3 LDAP
+- 2.4 Usuaris administradors
+- 2.5 Web + SFTP
 
 **03 — Àudio**
-- [3.1 Descripció del servei d'àudio](03-audio/Descripció_de_la_funcionalitat_Audio.md)
+- 3.1 Descripció del servei d'àudio
 
 **04 — Vídeo**
-- [4.1 Descripció del servei de vídeo](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
+- 4.1 Descripció del servei de vídeo
 
 **05 — Videoconferència**
-- [5.1 Protocol WebRTC](05-videoconferencia/Descripció_Protocol_WebRTC.md)
+- 5.1 Protocol WebRTC
+- 5.2 Servei Jitsi Meet
 
 **06 — Amplada de banda**
-- 6.1 Mesura d'amplada de banda → [vegeu secció 09](#06-amplada-de-banda)
+- 6.1 Mesura d'amplada de banda
 
 **07 — Base de dades**
-- [7.1 Backup i event](07-bd/backup-event.md)
-- [7.2 Diagrama E/R](07-bd/er-diagrama.md)
-- [7.3 Model relacional](07-bd/model-relacional.md)
-- [7.4 Rols i permisos](07-bd/rols-permisos.md)
-- [7.5 Triggers](07-bd/triggers.md)
+- 7.1 Backup i event
+- 7.2 Diagrama E/R
+- 7.3 Model relacional
+- 7.4 Rols i permisos
+- 7.5 Triggers
 
-**08 — 1665**
-- *Pendent de documentar*
-
-**09 — App Web**
-- [9.1 Panel de gestió CPD (`index.php`)](#91-webindexphp--panel-de-gestió-cpd)
-
----
-
-## Captures (carpeta `capturas/`)
-
-La carpeta `capturas/` conté imatges organitzades per temàtiques com a suport visual de la documentació.
-
-### 01-cpd-fisic
-- `capturas/01-cpd-fisic/CPD-LOGICA.svg` — Diagrama lògic del CPD.
-- `capturas/01-cpd-fisic/VISTAISOMETRICA.svg` — Vista isomètrica del CPD.
-- `capturas/01-cpd-fisic/VISTA2D.svg` — Vista 2D del CPD.
-- `capturas/01-cpd-fisic/LOGICA-SAIS.svg` — Diagrama de l'alimentació i dels SAIs.
-- `capturas/01-cpd-fisic/infraestructura-it.png` — Esquema d'infraestructura IT i distribució dels racks.
-- `capturas/01-cpd-fisic/RED.png` — Topologia de xarxa del CPD.
-
-![CPD - Diagrama lògic](../capturas/01-cpd-fisic/CPD-LOGICA.svg)
-![CPD - Vista isomètrica](../capturas/01-cpd-fisic/VISTAISOMETRICA.svg)
-![CPD - Vista 2D](../capturas/01-cpd-fisic/VISTA2D.svg)
-![CPD - SAI](../capturas/01-cpd-fisic/LOGICA-SAIS.svg)
-![CPD - Infraestructura IT](../capturas/01-cpd-fisic/infraestructura-it.png)
-![CPD - Xarxa](../capturas/01-cpd-fisic/RED.png)
-
-Referència: [01-cpd-fisic](01-cpd-fisic)
-
-### 07-bd
- - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
- - `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
-
-Referència: [07-bd](07-bd)
-
-### 07-bd
-- `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
-- `capturas/07-bd/er-diagrama/event_scheduler.png` — Estat del planificador d'events de MariaDB.
-- `capturas/07-bd/er-diagrama/backup_semanal.png` — Configuració de l'event de backup setmanal.
-
-Referència: [07-bd](07-bd)
-
-### Altres carpetes
-- `capturas/03-audio/README.md`
-- `capturas/04-video/README.md`
-- `capturas/05-videoconferencia/README.md`
-- `capturas/06-amplada-banda/README.md`
-- `capturas/08-1665/README.md`
-
-Aquestes carpetes estan presents però no contenen imatges addicionals per a la documentación actual.
+**08 — App Web**
+- 8.1 Panel de gestió CPD (`index.php`)
 
 ---
 
 ## 01. CPD Físic
 
-### 1.1 01-cpd-fisic/1.1-infraestructura-electrica.md
+![Vista frontal del CPD — 3 racks](../capturas/01-cpd-fisic/cpd_vista_frontal.svg)
 
-# 1.1 Infraestructura elèctrica
+![Vista isomètrica del CPD](../capturas/01-cpd-fisic/cpd_isometric_v2.svg)
+
+### 1.1 Infraestructura elèctrica
+
 
 ## Objectiu i criteris de disseny
 
@@ -214,9 +169,8 @@ Això assegura protecció dedicada i facilita la prova i substitució de cada un
 - Mesura de temperatura i humitat al voltant dels SAIs i generador.
 - Inspecció anual del cablejat i connexions.
 
-### 1.2 01-cpd-fisic/1.2-infraestructura-it.md
+### 1.2 Infraestructura IT
 
-# 1.2 Infraestructura IT
 
 ## Objectiu i arquitectures
 
@@ -265,6 +219,8 @@ L'automatització amb **Ansible** aporta:
 - Inventari estructurat per rols i grups.
 
 ## Xarxa i segmentació
+
+![Mapa de xarxa CPD InnovateTech](../capturas/01-cpd-fisic/mapa_xarxa_v2.svg)
 
 La xarxa es segmenta per controlar l'accés i disminuir els riscos:
 
@@ -531,9 +487,8 @@ Aquesta secció detalla l'equipament físic seleccionat per al CPD, amb les espe
 
 ---
 
-### 1.3 01-cpd-fisic/1.3-prevencio-rrll.md
+### 1.3 Prevenció de riscos laborals
 
-# Prevenció de riscos laborals (RRLL)
 
 ## Objectiu
 
@@ -615,9 +570,8 @@ L'avaluació de riscos es basa en:
 - UNE-EN 12464-1 d'il·luminació dels llocs de treball.
 - TIA-942 per a infraestructures CPD.
 
-### 1.4 01-cpd-fisic/1.4-seguretat-fisica-logica.md
+### 1.4 Seguretat física i lògica
 
-# Seguretat física i lògica
 
 ## Seguretat física
 
@@ -718,9 +672,8 @@ Aplicar el principi del mínim privilegi i segregar les xarxes per reduir l'impa
 
 > RAID protegeix contra fallades de disc, però no substitueix els backups fora de lloc.
 
-### 1.5 01-cpd-fisic/1.5-ubicacio.md
+### 1.5 Ubicació física del CPD
 
-# Ubicació física del CPD
 
 ## Criteris d'elecció
 
@@ -805,9 +758,8 @@ Aquesta distribució optimitza el flux d'aire i millora l'eficiència de refrige
 
 ## 02. AWS
 
-### 2.1 02-aws/ansible.md
+### 2.1 Gestió de les màquines amb Ansible
 
-# 2.1 Gestió de les màquines amb Ansible
 
 ## 2.1.1 Decisió adoptada
 
@@ -1206,11 +1158,7 @@ També verifiquem que s'ha canviat el hostname:
 | <img src="../capturas/02-aws/VERIFICACIONHOSTNAMELADP.png" alt="captura19_ansible" width="800"> |
 | :---: |
 | Verificació Hostname LDAP|
-### 2.2 02-aws/arquitectura.md
-
-*Documento vacío.*
-
-# 2.3 02-aws/ldap.md
+### 2.3 LDAP (OpenLDAP)
 
 Aquesta es una de les màquines que es gestiona amb amb ansible per lo que tota la configuració es fa desde el node de gestió mitjançant un playbook.
 
@@ -1405,15 +1353,312 @@ Ens conectem via ssh amb l'usuari de gestió i amb filtres ldapsearch mirem que 
 | :---: |
 | Llista de grups |
 
-### 2.4 02-aws/servei-logs-graylog.md
+### 2.4 Servei de centralització de logs — Graylog
 
-*Documento vacío.*
 
-### 2.5 02-aws/usuaris-admin.md
+## Descripció del servei
 
-*Documento vacío.*
+El servei de centralització de logs permet recollir, emmagatzemar i analitzar en temps real tots els registres d'activitat generats pels servidors del CPD d'InnovateTech. Qualsevol esdeveniment que passi a qualsevol màquina queda registrat en un únic punt, facilitant la detecció d'errors, la monitorització i l'auditoria del sistema.
 
-# 2.6 02-aws/web-sftp.md
+## Tecnologies utilitzades
+
+| Component | Tecnologia | Funció |
+|---|---|---|
+| Servidor de logs | Graylog 5.x | Recepció, classificació i visualització de logs |
+| Motor de cerca | OpenSearch 2.x | Indexació i emmagatzematge dels logs |
+| Base de dades | MongoDB 6.0 | Configuració i metadades de Graylog |
+| Agent client | rsyslog | Enviament de logs des de cada servidor |
+| Infraestructura | AWS EC2 t3.medium | Instància on corre el servei |
+
+## Arquitectura
+
+```
+Servidor LDAP+SFTP  ─┐
+Servidor Web        ─┤
+Servidor Àudio      ─┤  rsyslog (UDP 514)  ──►  Graylog  ──►  OpenSearch
+Servidor Vídeo      ─┤                              │
+Servidor BD         ─┘                          MongoDB
+                                                    │
+                                               Web UI :9000
+```
+
+Tots els servidors clients envien els seus logs via **UDP al port 514** cap al servidor Graylog. Graylog els indexa a OpenSearch i els fa accessibles a través de la interfície web.
+
+## Infraestructura AWS
+
+- **Instància**: EC2 t3.medium (4 GB RAM — necessari per córrer MongoDB + OpenSearch + Graylog simultàniament).
+- **IP elàstica**: assignada a la instància per garantir que la URL d'accés no canvia entre reinicis.
+- **Security Groups**:
+
+| Port | Protocol | Origen | Descripció |
+|---|---|---|---|
+| 9000 | TCP | 0.0.0.0/0 | Interfície web Graylog |
+| 514 | UDP | VPC CIDR | Recepció de logs dels clients |
+| 22 | TCP | IP administrador | Accés SSH |
+
+## Configuració del servidor
+
+### Graylog — paràmetres principals (`/etc/graylog/server/server.conf`)
+
+```ini
+password_secret = <secret_96_chars>
+root_password_sha2 = <sha256_de_la_contrasenya>
+http_bind_address = 0.0.0.0:9000
+http_external_uri = http://IP_ELASTICA:9000/
+elasticsearch_hosts = http://127.0.0.1:9200
+mongodb_uri = mongodb://localhost/graylog
+root_timezone = Europe/Madrid
+message_journal_max_size = 1gb
+```
+
+> El paràmetre `message_journal_max_size` s'ha ajustat a 1 GB per adaptar-se a la mida del disc de la instància. El valor per defecte de 5 GB superava l'espai disponible i impedia l'arrencada del servei.
+
+### OpenSearch — paràmetres principals (`/etc/opensearch/opensearch.yml`)
+
+```yaml
+cluster.name: graylog
+node.name: graylog-node1
+network.host: 127.0.0.1
+http.port: 9200
+discovery.type: single-node
+plugins.security.disabled: true
+action.auto_create_index: false
+bootstrap.memory_lock: true
+```
+
+> `plugins.security.disabled: true` és necessari per a ús en xarxa interna. OpenSearch activa la seguretat per defecte, cosa que impedeix la connexió de Graylog sense certificats SSL.
+
+### Memòria JVM d'OpenSearch (`/etc/opensearch/jvm.options.d/heap.options`)
+
+```
+-Xms512m
+-Xmx512m
+```
+
+> Limitat a 512 MB per deixar memòria suficient per a MongoDB i Graylog a la mateixa instància.
+
+## Configuració dels clients
+
+Cada servidor que ha d'enviar logs té instal·lat **rsyslog** amb el fitxer `/etc/rsyslog.d/graylog.conf`:
+
+```
+*.* @IP_PRIVADA_GRAYLOG:514;RSYSLOG_SyslogProtocol23Format
+```
+
+- `*.*` — envia tots els logs de qualsevol nivell de severitat.
+- `@` — protocol UDP (més lleuger, adequat per a logs interns).
+- `IP_PRIVADA_GRAYLOG` — s'utilitza la IP privada de la VPC, no la IP elàstica, per mantenir el trànsit dins de la xarxa interna d'AWS.
+
+> En Amazon Linux 2023, rsyslog **no ve instal·lat per defecte** i cal instal·lar-lo manualment amb `sudo dnf install -y rsyslog`.
+
+## Inputs configurats a Graylog
+
+| Input | Port | Protocol | Estat |
+|---|---|---|---|
+| Syslog UDP | 514 | UDP | Running |
+
+Els inputs es configuren des de **System → Inputs** a la interfície web i defineixen com Graylog escolta els logs entrants.
+
+## Incidències i solucions
+
+### Graylog no arrencava — espai en disc insuficient
+
+**Error**: `Journal directory has not enough free space. You need to provide additional 1573 MB`
+
+**Causa**: el valor per defecte de `message_journal_max_size` és 5120 MB, superior a l'espai lliure disponible al disc de la instància.
+
+**Solució**: reduir el paràmetre a 1 GB al `server.conf`:
+```ini
+message_journal_max_size = 1gb
+```
+
+### La instància anava molt lenta
+
+**Causa**: MongoDB + OpenSearch + Graylog consumien tota la RAM d'una instància t3.small (2 GB).
+
+**Solució**: canviar la instància a t3.medium (4 GB RAM) des de la consola d'AWS.
+
+### rsyslog no existia a Amazon Linux 2023
+
+**Causa**: Amazon Linux 2023 no inclou rsyslog per defecte, a diferència d'Ubuntu.
+
+**Solució**: instal·lar-lo manualment:
+```bash
+sudo dnf install -y rsyslog
+sudo systemctl enable rsyslog
+sudo systemctl start rsyslog
+```
+
+### Els logs no apareixien a Graylog
+
+**Causa**: el fitxer `/etc/rsyslog.conf` no existia. A Amazon Linux 2023 la configuració va a `/etc/rsyslog.d/`.
+
+**Solució**: crear el fitxer `/etc/rsyslog.d/graylog.conf` amb la regla de reenviament.
+
+## Verificació del funcionament
+
+```bash
+# Estat dels serveis
+sudo systemctl status mongod opensearch graylog-server rsyslog
+
+# Port 514 escoltant
+sudo ss -ulnp | grep 514
+
+# Enviar log de prova
+logger -p syslog.info "Test log des de $(hostname)"
+```
+
+A la web UI → **Search** el missatge apareix en temps real.
+
+## Accés a la interfície web
+
+```
+URL:        http://IP_ELASTICA:9000
+Usuari:     admin
+```
+
+> S'utilitza IP elàstica per garantir que la URL no canvia entre reinicis de la instància.
+
+---
+
+## Filtrat d'accessos a les màquines
+
+Graylog rep via rsyslog els logs de tots els servidors, incloent-hi els missatges del dimoni SSH (`sshd`) i del sistema PAM. Això permet filtrar en temps real tots els accessos a qualsevol màquina del CPD: inicis de sessió vàlids, inicis fallits i tancaments de sessió.
+
+### Origen dels missatges
+
+Els missatges d'autenticació provenen principalment de dues fonts:
+
+| Procés | Tipus de missatge |
+|---|---|
+| `sshd` | Connexions SSH acceptades, rebutjades i desconnexions |
+| `pam_unix(sshd:session)` | Obertura i tancament de sessions PAM |
+| `sudo` | Execucions de comandes amb privilegis elevats |
+
+Exemples de línies de log generades a cada event:
+
+```
+# Login correcte per contrasenya
+sshd[1842]: Accepted password for usuari_gestiorapj from 10.0.1.15 port 51234 ssh2
+
+# Login correcte per clau pública
+sshd[1842]: Accepted publickey for usuari_gestiorapj from 10.0.1.15 port 51235 ssh2
+
+# Login fallit
+sshd[1843]: Failed password for root from 203.0.113.5 port 44322 ssh2
+
+# Intent amb usuari inexistent
+sshd[1844]: Invalid user admin from 203.0.113.5 port 44323
+
+# Logout / desconnexió
+sshd[1842]: Disconnected from user usuari_gestiorapj 10.0.1.15 port 51234
+
+# Sessió PAM oberta i tancada
+pam_unix(sshd:session): session opened for user usuari_gestiorapj by (uid=0)
+pam_unix(sshd:session): session closed for user usuari_gestiorapj
+```
+
+---
+
+### Cerques a la web UI de Graylog
+
+Des de **Search** (`http://IP_ELASTICA:9000/search`) s'introdueix la consulta al camp de cerca. La sintaxi bàsica és:
+
+- `message:"text exacte"` — cerca frase exacta dins del cos del missatge.
+- `OR` — qualsevol de les condicions.
+- `AND` — totes les condicions.
+- `source:hostname` — filtra per servidor d'origen.
+
+#### Tots els events SSH de totes les màquines
+
+```
+message:sshd
+```
+
+#### Logins vàlids (contrasenya o clau pública)
+
+```
+message:"Accepted password" OR message:"Accepted publickey"
+```
+
+#### Logins fallits
+
+```
+message:"Failed password" OR message:"Failed publickey" OR message:"Invalid user"
+```
+
+#### Tancaments de sessió (logouts)
+
+```
+message:"Disconnected from" OR message:"session closed"
+```
+
+#### Resum complet d'accessos (vàlids + fallits + logouts)
+
+```
+message:"Accepted password" OR message:"Accepted publickey" OR message:"Failed password" OR message:"Invalid user" OR message:"Disconnected from" OR message:"session closed"
+```
+
+#### Filtre per màquina concreta
+
+Afegir `AND source:NOM_HOST` a qualsevol consulta anterior per limitar-la a un servidor específic:
+
+```
+(message:"Accepted password" OR message:"Failed password") AND source:webftp
+```
+
+---
+
+### Cerques desades (Saved Searches)
+
+Per no haver de reescriure les consultes, es poden desar des del botó **Save search** que apareix al costat del camp de cerca.
+
+| Nom suggerit | Consulta |
+|---|---|
+| SSH - Logins vàlids | `message:"Accepted password" OR message:"Accepted publickey"` |
+| SSH - Logins fallits | `message:"Failed password" OR message:"Invalid user"` |
+| SSH - Logouts | `message:"Disconnected from" OR message:"session closed"` |
+| SSH - Tots els accessos | `message:sshd` |
+
+---
+
+### Streams per categorització automàtica
+
+Els **Streams** permeten que Graylog classifiqui cada missatge entrant automàticament sense haver de cercar manualment. Es creen des de **Streams → Create stream**.
+
+#### Stream: Logins fallits SSH
+
+| Camp | Valor |
+|---|---|
+| Nom | `SSH - Accessos fallits` |
+| Regla | `message` conté `Failed password` |
+| Regla | `message` conté `Invalid user` (condició OR) |
+| Matching | Almenys 1 regla |
+
+#### Stream: Logins vàlids SSH
+
+| Camp | Valor |
+|---|---|
+| Nom | `SSH - Accessos vàlids` |
+| Regla | `message` conté `Accepted password` |
+| Regla | `message` conté `Accepted publickey` (condició OR) |
+| Matching | Almenys 1 regla |
+
+---
+
+### Alerta per força bruta
+
+Des de **Alerts → Conditions** es pot configurar una alerta que notifiqui per email si un host genera més de N logins fallits en un interval de temps:
+
+| Paràmetre | Valor recomanat |
+|---|---|
+| Stream | `SSH - Accessos fallits` |
+| Condició | Nombre de missatges > **5** en **1 minut** |
+| Notificació | Email / Slack webhook |
+
+> Aquesta alerta detecta atacs de força bruta o de diccionari contra qualsevol dels 5 servidors del CPD.
+
+### 2.6 Web + SFTP
 
 ## 2.6.1 Servei SFTP
 
@@ -1743,18 +1988,32 @@ En aquest cas no fa falta editar el site.yml perquè anteriorment configurant el
     - /var/lib/php/opcache
   failed_when: false
 
-# ── 5. VIRTUALHOST ────────────────────────────────────────────────────
-- name: Desplegar configuració del virtualhost
+# ── 5. CERTIFICATS SSL (Autosignats) ──────────────────────────────────
+- name: Crear directori per als certificats SSL
+  ansible.builtin.file:
+    path: /etc/nginx/ssl
+    state: directory
+    mode: '0700'
+    owner: root
+    group: root
+
+- name: Generar clau privada i certificat de seguretat SSL
+  ansible.builtin.command:
+    cmd: "openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt -subj '/CN={{ nginx_server_name }}'"
+    creates: /etc/nginx/ssl/nginx.crt
+
+# ── 6. VIRTUALHOST ────────────────────────────────────────────────────
+- name: Desplegar configuració del virtualhost (HTTPS)
   ansible.builtin.template:
     src: vhost.conf.j2
     dest: /etc/nginx/conf.d/app.conf
     mode: '0644'
   notify: Reiniciar nginx
 
-# ── 6. FIREWALL ───────────────────────────────────────────────────────
-- name: Obrir port 80 al firewall
+# ── 7. FIREWALL ───────────────────────────────────────────────────────
+- name: Obrir ports 80 i 443 al firewall
   ansible.builtin.command:
-    cmd: firewall-cmd --permanent --add-service=http
+    cmd: "firewall-cmd --permanent --add-service=http --add-service=https"
   changed_when: true
   failed_when: false
 
@@ -1764,18 +2023,23 @@ En aquest cas no fa falta editar el site.yml perquè anteriorment configurant el
   changed_when: true
   failed_when: false
 
-# ── 7. VERIFICACIÓ ────────────────────────────────────────────────────
-- name: Verificar que nginx respon al port 80
+# ── FORÇAR APLICACIÓ DE CANVIS ────────────────────────────────────────
+- name: Forçar el reinici dels serveis abans de la verificació
+  ansible.builtin.meta: flush_handlers
+
+# ── 8. VERIFICACIÓ ────────────────────────────────────────────────────
+- name: Verificar que nginx respon correctament per HTTPS
   ansible.builtin.uri:
-    url: "http://localhost:80"
+    url: "https://localhost:443"
     status_code: 200
+    validate_certs: false
   register: nginx_check
   retries: 3
   delay: 5
 
 - name: Mostrar resultat de la verificació
   ansible.builtin.debug:
-    msg: "Nginx operatiu — codi HTTP: {{ nginx_check.status }}"
+    msg: "Nginx operatiu de forma segura — codi HTTP: {{ nginx_check.status }}"
 
 ```
 
@@ -1796,74 +2060,6 @@ Accedim desde un navegador a la nostra ip pública elàstica de la màquina del 
 | <img src="../capturas/02-aws/SRV-WEBFTP-GRUP2/ACCESWEB.png" alt="CAPTURA5_NGINX" width="500"> |
 | :---: |
 | Verificació accés a la aplicació desde el navegador |
-
-### Capturas 02-aws
-- `capturas/02-aws/RED/VPC.png` — Diagrama de la VPC.
-- `capturas/02-aws/RED/SUBNETPublica.png` — Subnet pública.
-- `capturas/02-aws/RED/SUBNETPrivada.png` — Subnet privada.
-- `capturas/02-aws/RED/IGW-Publico.png` — Gateway d'internet públic.
-- `capturas/02-aws/RED/NAT-Privado.png` — NAT per a subnets privades.
-- `capturas/02-aws/RED/TABLAPRIVADA.png` — Taula de rutes de la subnet privada.
-- `capturas/02-aws/RED/ROUTEPUBLICA.png` — Regla de ruta pública.
-- `capturas/02-aws/RED/ROUTENAT.png` — Regla de ruta NAT.
-- `capturas/02-aws/RED/IPELASTICA.png` — IP elàstica configurada.
-- `capturas/02-aws/CREACION-NODO-ANSIBLE.png` — Creació del node Ansible.
-- `capturas/02-aws/ASIGNACION-IP-FIJA-PUBLICA.png` — Assignació d’IP pública fixa.
-- `capturas/02-aws/ESTRUCTURA-CARPETAS.png` — Estructura de carpetes de l’entorn Ansible.
-- `capturas/02-aws/CREDENCIALES-CONFIGURADAS.png` — Credencials d’AWS configurades.
-- `capturas/02-aws/INSTALACION-BOTO3.png` — Instal·lació de boto3.
-- `capturas/02-aws/VARIABLES_CREACIO_INSTANCIES.png` — Variables de creació d’instàncies.
-- `capturas/02-aws/VARIABLES-ROL.png` — Variables de rol.
-- `capturas/02-aws/SITE.png` — Fitxer site Ansible inicial.
-- `capturas/02-aws/SITE_ACTUALITZAT.png` — Fitxer site Ansible actualitzat.
-- `capturas/02-aws/INVENTORY.png` — Inventari Ansible.
-- `capturas/02-aws/INVENTARI_ACTUALITZAT.png` — Inventari Ansible actualitzat.
-- `capturas/02-aws/INVENTARI_ACTUALITZAT2.png` — Inventari Ansible addicional.
-- `capturas/02-aws/PINGINVENTARI.png` — Ping d’inventari Ansible.
-- `capturas/02-aws/PING_INVENTARI2.png` — Ping d’inventari Ansible addicional.
-- `capturas/02-aws/EJECUCION1.png` — Execució Ansible pas 1.
-- `capturas/02-aws/EJECUCION2.png` — Execució Ansible pas 2.
-- `capturas/02-aws/EJECUCION3.png` — Execució Ansible pas 3.
-- `capturas/02-aws/EXECUCIO_COMU.png` — Execució comuna d’Ansible.
-- `capturas/02-aws/VERIFICACION1.png` — Verificació Ansible pas 1.
-- `capturas/02-aws/VERIFICACION2.png` — Verificació Ansible pas 2.
-- `capturas/02-aws/VERIFICACION3.png` — Verificació Ansible pas 3.
-- `capturas/02-aws/GENERAR_CLAU.png` — Generació de clau SSH.
-- `capturas/02-aws/VARIABLES_COMUNS.png` — Variables comunes.
-- `capturas/02-aws/HANDLERCOMUN.png` — Handlers comuns.
-- `capturas/02-aws/SRV-ANSIBLE-GRUP2/SRV-ANS.png` — Captura del servidor Ansible.
-- `capturas/02-aws/SRV-LDAP-GRUP2/SRV-LDAP.png` — Captura del servidor LDAP.
-- `capturas/02-aws/SRV-BBDD-GRUP2/SRV-BBDD.png` — Captura del servidor de bases de dades.
-- `capturas/02-aws/SRV-LOGS-GRUP2/SRV-LOGS.png` — Captura del servidor de logs.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION1.png` — Procés de creació Web/SFTP, pas 1.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION2.png` — Procés de creació Web/SFTP, pas 2.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION3.png` — Procés de creació Web/SFTP, pas 3.
-- `capturas/02-aws/SRV-WEBFTP-GRUP2/CREACION4.png` — Procés de creació Web/SFTP, pas 4.
-- `capturas/02-aws/SRV-LDAP-GRUP2/SITEYML_LDAP.png` — Fitxer site LDAP.
-- `capturas/02-aws/SRV-LDAP-GRUP2/JINJA_BASE.png` — Plantilla Jinja base LDAP.
-- `capturas/02-aws/SRV-LDAP-GRUP2/JINJA_USUARIS.png` — Plantilla Jinja de creació d’usuaris.
-- `capturas/02-aws/SRV-LDAP-GRUP2/EJECUCION1.png` — Execució de playbook LDAP.
-- `capturas/02-aws/SRV-LDAP-GRUP2/EJECUCION2.png` — Execució de playbook LDAP (resultats).
-- `capturas/02-aws/SRV-LDAP-GRUP2/ESTRUCTURA_BASE.png` — Estructura base del directori LDAP.
-- `capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_USUARIS.png` — Llista d’usuaris LDAP.
-- `capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_USUARIS2.png` — Llista addicional d’usuaris LDAP.
-- `capturas/02-aws/SRV-LDAP-GRUP2/LLISTA_GRUPS.png` — Llista de grups LDAP.
-- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-JAVA.png` — Instal·lació de Java per Graylog.
-- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-MONGO.png` — Instal·lació de MongoDB.
-- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-OPENSEARCH.png` — Instal·lació d’OpenSearch.
-- `capturas/02-aws/SRV-LOGS-GRUP2/INSTALACION-GRAYLOG.png` — Instal·lació de Graylog.
-- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-OPENSEARCH.png` — Preparació d’OpenSearch.
-- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-OPENSEARCH2.png` — Segona preparació d’OpenSearch.
-- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-GRAYLOG.png` — Preparació de Graylog.
-- `capturas/02-aws/SRV-LOGS-GRUP2/PREPARACION-GRAYLOG2.png` — Segona preparació de Graylog.
-- `capturas/02-aws/SRV-LOGS-GRUP2/SERVERCONF-GRAYLOG.png` — Configuració del servidor Graylog.
-- `capturas/02-aws/SRV-LOGS-GRUP2/REPOSITORIO-MONGO.png` — Repositori MongoDB.
-- `capturas/02-aws/SRV-LOGS-GRUP2/REPOSITORIO-OPENSEARCH.png` — Repositori OpenSearch.
-- `capturas/02-aws/SRV-LOGS-GRUP2/HOME-JAVA.png` — Pàgina d’inici de Java.
-- `capturas/02-aws/SRV-LOGS-GRUP2/JAVA-COMPROBACION.png` — Comprovació de Java.
-- `capturas/02-aws/SRV-LOGS-GRUP2/MONGODB-COMPROBACION.png` — Comprovació de MongoDB.
-- `capturas/02-aws/SRV-LOGS-GRUP2/GRAYLOG-COMPROBACION.png` — Comprovació de Graylog.
-- `capturas/02-aws/SRV-LOGS-GRUP2/GRAYLOG-PAGINA.png` — Pàgina de Graylog.
 
 ![VPC](../capturas/02-aws/RED/VPC.png)
 ![Subnet pública](../capturas/02-aws/RED/SUBNETPublica.png)
@@ -1892,9 +2088,8 @@ Referència: [02-aws](02-aws)
 
 ## 03. Àudio
 
-### 3.1 03-audio/Descripció_de_la_funcionalitat_Audio.md
+### 3.1 Servei d'Àudio (Icecast2)
 
-# Servei d'Àudio
 
 ## Descripció de la funcionalitat
 
@@ -1937,9 +2132,8 @@ sudo apt install vlc
 
 ## 04. Vídeo
 
-### 4.1 04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md
+### 4.1 Servei de Vídeo (NGINX-RTMP + HLS)
 
-# Servei de Vídeo
 
 ## Descripció de la funcionalitat
 
@@ -1984,9 +2178,8 @@ sudo apt install vlc
 
 ## 05. Videoconferència
 
-### 5.1 05-videoconferencia/Descripció_Protocol_WebRTC.md
+### 5.1 Protocol WebRTC
 
-# Protocol WebRTC
 
 ## Descripció
 
@@ -2020,13 +2213,199 @@ Aquesta tecnologia és especialment adequada per a sistemes de videoconferència
 
 ### Plataforma de videoconferència
 
+```bash
 sudo apt install jitsi-meet
-
+```
 
 ### Dependències principals
 
+```bash
 sudo apt install openjdk-17-jre-headless
 sudo apt install nginx
+```
+
+---
+
+### 5.2 Servei de Videoconferència — Jitsi Meet
+
+
+## Jitsi Meet (WebRTC)
+
+**Servidor:** SRV-Conferencies · IP: `3.234.196.49` · Port: `443`
+
+---
+
+## 1. Descripció del servei de videoconferència
+
+**Jitsi Meet** és una solució de videoconferència open source que funciona directament al navegador sense necessitat d'instal·lar cap aplicació addicional. InnovateTech l'utilitza per a reunions internes, formació corporativa i videotrucades entre departaments.
+
+El servei es basa en el protocol **WebRTC** (Web Real-Time Communication), que permet comunicació de veu, vídeo i dades directament entre navegadors amb xifrat integrat i baix retard.
+
+### Components instal·lats
+
+| Component | Funció |
+|---|---|
+| nginx | Servidor web que serveix la interfície de Jitsi |
+| prosody | Servidor XMPP per a la senyalització de les trucades |
+| jicofo | Coordinador de conferències |
+| jitsi-videobridge2 | Gestiona els fluxos de vídeo i àudio entre participants |
+
+### Característiques tècniques
+
+| Paràmetre | Valor |
+|---|---|
+| Solució | Jitsi Meet |
+| Protocol | WebRTC |
+| Servidor | SRV-Conferencies |
+| IP pública | `3.234.196.49` |
+| URL d'accés | `https://3.234.196.49` |
+| Certificat SSL | Auto-signat (self-signed) |
+
+---
+
+## 2. Protocol WebRTC
+
+**WebRTC (Web Real-Time Communication)** és el protocol que fa possible la videoconferència directament al navegador. Característiques principals:
+
+- **Comunicació P2P** directa entre participants sense passar pel servidor.
+- **Xifrat integrat** de tot el tràfic de vídeo i àudio (DTLS-SRTP).
+- **Baix retard** gràcies a UDP (port 10000).
+- **Sense plugins** — funciona nativament a Chrome, Firefox, Edge i Safari.
+- **Adaptació automàtica** de qualitat segons l'ample de banda disponible.
+
+> El port **10000/UDP** és imprescindible per al flux de vídeo i àudio entre participants. Sense ell WebRTC no funciona.
+
+---
+
+## 3. Instal·lació
+
+### Pas 1 — Configurar el hostname
+
+```bash
+sudo hostnamectl set-hostname srv-conferencia
+```
+
+Editar `/etc/hosts` i afegir la línia:
+
+```
+3.234.196.49   srv-conferencia
+```
+
+### Pas 2 — Afegir el repositori oficial de Jitsi
+
+```bash
+sudo apt install -y curl gnupg2 apt-transport-https ca-certificates
+
+curl -fsSL https://download.jitsi.org/jitsi-key.gpg.key | \
+     sudo gpg --dearmor -o /usr/share/keyrings/jitsi-keyring.gpg
+
+echo 'deb [signed-by=/usr/share/keyrings/jitsi-keyring.gpg] https://download.jitsi.org stable/' | \
+     sudo tee /etc/apt/sources.list.d/jitsi-stable.list
+```
+
+### Pas 3 — Instal·lar Jitsi Meet
+
+```bash
+sudo apt update
+sudo apt install jitsi-meet -y
+```
+
+Durant la instal·lació:
+
+- **Hostname** → `3.234.196.49`
+- **Certificat SSL** → seleccionar **"Generate a new self-signed certificate"**
+
+---
+
+## 4. Configuració post-instal·lació
+
+### Problema detectat: site per defecte de NGINX
+
+Jitsi instal·la la seva configuració a NGINX, però el site `default` la sobreescriu mostrant la pàgina per defecte de NGINX.
+
+**Solució:**
+
+```bash
+sudo rm /etc/nginx/sites-enabled/default
+sudo systemctl restart nginx
+```
+
+Verificar que només queda el site de Jitsi:
+
+```bash
+ls /etc/nginx/sites-enabled/
+# Ha de mostrar: 3.234.196.49.conf
+```
+
+---
+
+## 5. Ports oberts
+
+AWS Security Group — Inbound Rules:
+
+| Protocol | Port | Origen | Descripció |
+|---|---|---|---|
+| TCP | 22 | 0.0.0.0/0 | SSH |
+| TCP | 80 | 0.0.0.0/0 | HTTP |
+| TCP | 443 | 0.0.0.0/0 | HTTPS Jitsi |
+| TCP | 4443 | 0.0.0.0/0 | Jitsi fallback TCP |
+| UDP | 10000 | 0.0.0.0/0 | WebRTC media (**imprescindible**) |
+
+---
+
+## 6. Verificar que tots els serveis estan actius
+
+```bash
+sudo systemctl status nginx
+sudo systemctl status prosody
+sudo systemctl status jicofo
+sudo systemctl status jitsi-videobridge2
+```
+
+Tots han de mostrar `active (running)`.
+
+---
+
+## 7. Validació del servei
+
+### Prova 1 — Pàgina principal de Jitsi Meet
+
+Obrir al navegador: `https://3.234.196.49`
+
+La pàgina d'inici de Jitsi Meet s'ha de carregar correctament (és normal veure un avís de certificat auto-signat; acceptar-lo per continuar).
+
+### Prova 2 — Crear una sala
+
+Introduir un nom de sala al camp de text i clicar **"Start meeting"**. La sala es crea instantàniament sense necessitat de registre.
+
+### Prova 3 — Videotrucada amb 2 participants
+
+Obrir la mateixa URL des de dos navegadors (o dos dispositius) i verificar que la transmissió de vídeo i àudio funciona entre ambdós.
+
+### Prova 4 — Compartir pantalla
+
+Fer clic al botó de compartir pantalla durant la reunió i verificar que l'altre participant la veu correctament.
+
+### Prova 5 — Xat integrat
+
+Verificar que el xat de text lateral funciona durant la videotrucada.
+
+### Prova 6 — Logs del servidor
+
+```bash
+sudo journalctl -u jitsi-videobridge2 --no-pager | tail -20
+```
+
+---
+
+## 8. Incidències i solucions
+
+| ID | Incidència | Causa | Solució |
+|---|---|---|---|
+| I-001 | Jitsi no carregava al navegador | Site `default` de NGINX sobreescrivia la configuració | `sudo rm /etc/nginx/sites-enabled/default` + reiniciar nginx |
+| I-002 | `ERR_CONNECTION_TIMED_OUT` | Port 80 no obert al Security Group AWS | Afegir regla Inbound TCP 80 `0.0.0.0/0` |
+| I-003 | Avís de certificat al navegador | Certificat SSL auto-signat | Normal en laboratori; acceptar l'excepció al navegador |
+| I-004 | Videotrucada sense vídeo/àudio | Port 10000/UDP no obert | Afegir regla Inbound UDP 10000 `0.0.0.0/0` |
 
 ---
 
@@ -2070,7 +2449,7 @@ detallen els diferents blocs documentals que cobreixen cada check de la rúbrica
 
 ---
 
-### 7.1 07-bd/backup-event.md
+### 7.1 Backup i event
 
 7.1.1 Script de backup backup_setmanal.sh
 Ubicació: /home/PPM/backup_setmanal.sh
@@ -2079,7 +2458,7 @@ Permisos: chmod +x /home/PPM/backup_setmanal.sh
 ![backup/setmanal](../capturas/07-bd/er-diagrama/backupsetmanal.png)
 
 
-### 7.2 07-bd/er-diagrama.md
+### 7.2 Diagrama E/R
 
 **Comandament** (per obtenir el diagrama): des del MySQL Workbench,
 `Database → Reverse Engineer...` sobre l'esquema `InnovateTech`.
@@ -2116,7 +2495,7 @@ llegeix l'esquema real i dibuixa automàticament taules, atributs i claus.
 
 ---
 
-### 7.3 07-bd/model-relacional.md
+### 7.3 Model relacional
 
 #### 7.3.1 Obtenció de les sentències `CREATE TABLE`
 
@@ -2200,7 +2579,7 @@ SELECT * FROM VIDEO;
 
 ---
 
-### 7.4 07-bd/rols-permisos.md
+### 7.4 Rols i permisos
 
 #### 7.4.1 Visualització dels rols i permisos d'admin
 
@@ -2264,7 +2643,7 @@ cat user.sql
 
 ---
 
-### 7.5 07-bd/triggers.md
+### 7.5 Triggers
 
 > **Nota tècnica:** la taula `AVIS` és `MyISAM` (no transaccional). Així els avisos
 > que insereixen els triggers persisteixen malgrat el `ROLLBACK` que provoca el
@@ -2451,25 +2830,9 @@ SELECT * FROM VIDEO WHERE categoria = 'Tutorial';
 
 
 
-## 08. 1665
+## 08. App Web
 
-### 8.1 08-1665/ra3-optimitzacio.md
-
-*Documento vacío.*
-
-### 8.2 08-1665/ra5-seguretat-dades.md
-
-*Documento vacío.*
-
-### 8.3 08-1665/ra6-transformacio-digital.md
-
-*Documento vacío.*
-
----
-
-## 09. App Web
-
-### 9.1 web/index.php — Panel de gestió CPD
+### 8.1 Panel de gestió CPD (index.php)
 
 Panel de gestión CPD de InnovateTech. Archivo único (`index.php`) que contiene el backend en PHP, los estilos CSS y el frontend en JavaScript (arquitectura SPA).
 
@@ -2513,7 +2876,7 @@ index.php
 
 ---
 
-#### 9.1.1 PHP — Backend
+#### 8.1.1 PHP — Backend
 
 **Constantes de configuración**
 
@@ -2577,7 +2940,7 @@ index.php
 
 ---
 
-#### 9.1.2 HTML + CSS
+#### 8.1.2 HTML + CSS
 
 **Paleta de colores (variables CSS `:root`):**
 
@@ -2609,7 +2972,7 @@ index.php
 
 ---
 
-#### 9.1.3 JavaScript — Frontend
+#### 8.1.3 JavaScript — Frontend
 
 **Sidebar con emojis:**
 
@@ -2639,7 +3002,7 @@ index.php
 
 ---
 
-#### 9.1.4 Tablas de la BD utilizadas por la app
+#### 8.1.4 Tablas de la BD utilizadas por la app
 
 | Tabla | Uso |
 |---|---|
