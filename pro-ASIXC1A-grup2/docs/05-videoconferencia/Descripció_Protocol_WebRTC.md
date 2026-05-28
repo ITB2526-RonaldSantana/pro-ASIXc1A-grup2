@@ -28,15 +28,7 @@ El funcionament de WebRTC es basa en tres fases principals:
 
 Aquesta tecnologia és especialment adequada per a sistemes de videoconferència empresarials, ja que permet comunicacions eficients, segures i accessibles des de qualsevol navegador modern.
 
-## Paquets utilitzats
-
-### Plataforma de videoconferència
-
-sudo apt install jitsi-meet
 
 
-### Dependències principals
 
-sudo apt install openjdk-17-jre-headless
-sudo apt install nginx
 
