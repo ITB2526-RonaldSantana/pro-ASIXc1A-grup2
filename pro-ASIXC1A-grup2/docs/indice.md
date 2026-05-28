@@ -2402,7 +2402,7 @@ SELECT * FROM AVIS WHERE taula_afectada='EMPLEAT' AND operacio_intentada='UPDATE
 ```
 
 ![avis_auditoria](./img/avis_auditoria.png)
-
+XDDD
 ---
 
 #### 7.5.5 Estructura de la taula `AVIS`
