@@ -51,8 +51,8 @@
 - 7.4 Rols i permisos
 - 7.5 Triggers
 
-**09 — App Web**
-- 9.1 Panel de gestió CPD (`index.php`)
+**08 — App Web**
+- 8.1 Panel de gestió CPD (`index.php`)
 
 ---
 
@@ -2797,9 +2797,9 @@ DESCRIBE AVIS;
 
 > Tots els elements estan implementats i documentats a la base de dades **InnovateTech**.
 
-## 09. App Web
+## 08. App Web
 
-### 9.1 Panel de gestió CPD (index.php)
+### 8.1 Panel de gestió CPD (index.php)
 
 Panel de gestión CPD de InnovateTech. Archivo único (`index.php`) que contiene el backend en PHP, los estilos CSS y el frontend en JavaScript (arquitectura SPA).
 
@@ -2843,7 +2843,7 @@ index.php
 
 ---
 
-#### 9.1.1 PHP — Backend
+#### 8.1.1 PHP — Backend
 
 **Constantes de configuración**
 
@@ -2907,7 +2907,7 @@ index.php
 
 ---
 
-#### 9.1.2 HTML + CSS
+#### 8.1.2 HTML + CSS
 
 **Paleta de colores (variables CSS `:root`):**
 
@@ -2939,7 +2939,7 @@ index.php
 
 ---
 
-#### 9.1.3 JavaScript — Frontend
+#### 8.1.3 JavaScript — Frontend
 
 **Sidebar con emojis:**
 
@@ -2969,7 +2969,7 @@ index.php
 
 ---
 
-#### 9.1.4 Tablas de la BD utilizadas por la app
+#### 8.1.4 Tablas de la BD utilizadas por la app
 
 | Tabla | Uso |
 |---|---|
