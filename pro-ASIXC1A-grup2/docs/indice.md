@@ -1,48 +1,67 @@
-# Documentación completa
-
-## Índice
-
-01. [01-cpd-fisic](01-cpd-fisic)
-  1.1 [1.1-infraestructura-electrica.md](01-cpd-fisic/1.1-infraestructura-electrica.md)
-  1.2 [1.2-infraestructura-it.md](01-cpd-fisic/1.2-infraestructura-it.md)
-  1.3 [1.3-prevencio-rrll.md](01-cpd-fisic/1.3-prevencio-rrll.md)
-  1.4 [1.4-seguretat-fisica-logica.md](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
-  1.5 [1.5-ubicacio.md](01-cpd-fisic/1.5-ubicacio.md)
-
-02. [02-aws](02-aws)
-  2.1 [ansible.md](02-aws/ansible.md)
-  2.2 [servei-logs-graylog.md](02-aws/servei-logs-graylog.md)
-  2.3 [ldap.md](02-aws/ldap.md)
-  2.4 [usuaris-admin.md](02-aws/usuaris-admin.md)
-  2.5 [web-sftp.md](02-aws/web-sftp.md)
-
-03. [03-audio](03-audio)
-  3.1 [Descripció_de_la_funcionalitat_Audio.md](03-audio/Descripció_de_la_funcionalitat_Audio.md)
-
-04. [04-video](04-video)
-  4.1 [Descripció_de_la_funcionalitat_Servei_de_Vídeo.md](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
-
-05. [05-videoconferencia](05-videoconferencia)
-  5.1 [Descripció_Protocol_WebRTC.md](05-videoconferencia/Descripció_Protocol_WebRTC.md)
-
-06. [06-amplada-banda](06-amplada-banda)
-  - Sin documentos disponibles
-
-07. [07-bd](07-bd)
-  7.1 [er-diagrama.md](07-bd/er-diagrama.md)
-  7.2 [model-relacional.md](07-bd/model-relacional.md)
-  7.3 [backup-event.md](07-bd/backup-event.md)
-  7.4 [rols-permisos.md](07-bd/rols-permisos.md)
-  7.5 [triggers.md](07-bd/triggers.md)
-
-08. [08-1665](08-1665)
-  - Sin documentos disponibles
+# Documentació completa del projecte InnovateTech CPD
 
 ---
 
-## Capturas (carpeta capturas/)
+## Índex
 
-La carpeta `capturas/` conté imatges i captures organitzades per temàtiques. Aquestes figures es poden utilitzar com a suport visual en les pàgines corresponents de la documentació.
+| # | Mòdul | Contingut |
+|---|---|---|
+| 01 | [CPD Físic](#01-cpd-físic) | Infraestructura elèctrica, IT, RRLL, seguretat, ubicació |
+| 02 | [AWS](#02-aws) | Ansible, LDAP, Graylog, usuaris, Web + SFTP |
+| 03 | [Àudio](#03-àudio) | Servei de streaming d'àudio (Icecast2) |
+| 04 | [Vídeo](#04-vídeo) | Servei de streaming de vídeo (NGINX-RTMP + HLS) |
+| 05 | [Videoconferència](#05-videoconferència) | Protocol WebRTC i Jitsi Meet |
+| 06 | [Amplada de banda](#06-amplada-de-banda) | Mesura de xarxa contra el servidor de streaming |
+| 07 | [Base de dades](#07-base-de-dades) | Diagrama E/R, model relacional, rols, triggers, backups |
+| 08 | [1665](#08-1665) | Optimització, seguretat de dades, transformació digital |
+| 09 | [App Web](#09-app-web) | Panel de gestió CPD — `index.php` (PHP + CSS + JS) |
+
+### Detall de seccions
+
+**01 — CPD Físic**
+- [1.1 Infraestructura elèctrica](01-cpd-fisic/1.1-infraestructura-electrica.md)
+- [1.2 Infraestructura IT](01-cpd-fisic/1.2-infraestructura-it.md)
+- [1.3 Prevenció de riscos laborals](01-cpd-fisic/1.3-prevencio-rrll.md)
+- [1.4 Seguretat física i lògica](01-cpd-fisic/1.4-seguretat-fisica-logica.md)
+- [1.5 Ubicació física](01-cpd-fisic/1.5-ubicacio.md)
+
+**02 — AWS**
+- [2.1 Gestió amb Ansible](02-aws/ansible.md)
+- [2.2 Servei de logs (Graylog)](02-aws/servei-logs-graylog.md)
+- [2.3 LDAP](02-aws/ldap.md)
+- [2.4 Usuaris administradors](02-aws/usuaris-admin.md)
+- [2.5 Web + SFTP](02-aws/web-sftp.md)
+
+**03 — Àudio**
+- [3.1 Descripció del servei d'àudio](03-audio/Descripció_de_la_funcionalitat_Audio.md)
+
+**04 — Vídeo**
+- [4.1 Descripció del servei de vídeo](04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md)
+
+**05 — Videoconferència**
+- [5.1 Protocol WebRTC](05-videoconferencia/Descripció_Protocol_WebRTC.md)
+
+**06 — Amplada de banda**
+- 6.1 Mesura d'amplada de banda → [vegeu secció 09](#06-amplada-de-banda)
+
+**07 — Base de dades**
+- [7.1 Backup i event](07-bd/backup-event.md)
+- [7.2 Diagrama E/R](07-bd/er-diagrama.md)
+- [7.3 Model relacional](07-bd/model-relacional.md)
+- [7.4 Rols i permisos](07-bd/rols-permisos.md)
+- [7.5 Triggers](07-bd/triggers.md)
+
+**08 — 1665**
+- *Pendent de documentar*
+
+**09 — App Web**
+- [9.1 Panel de gestió CPD (`index.php`)](#91-webindexphp--panel-de-gestió-cpd)
+
+---
+
+## Captures (carpeta `capturas/`)
+
+La carpeta `capturas/` conté imatges organitzades per temàtiques com a suport visual de la documentació.
 
 ### 01-cpd-fisic
 - `capturas/01-cpd-fisic/CPD-LOGICA.svg` — Diagrama lògic del CPD.
@@ -62,12 +81,6 @@ La carpeta `capturas/` conté imatges i captures organitzades per temàtiques. A
 Referència: [01-cpd-fisic](01-cpd-fisic)
 
 ### 07-bd
- - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
- - `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
-
-Referència: [07-bd](07-bd)
-
-### 07-bd
 - `capturas/07-bd/er-diagrama/RAPJ-SQL.png` — Diagrama de la base de dades SQL.
 - `capturas/07-bd/er-diagrama/RAPJ-E-R.png` — Diagrama entitat-relació.
 
@@ -84,7 +97,7 @@ Aquestes carpetes estan presents però no contenen imatges addicionals per a la 
 
 ---
 
-## 01. 01-cpd-fisic
+## 01. CPD Físic
 
 ### 1.1 01-cpd-fisic/1.1-infraestructura-electrica.md
 
@@ -278,6 +291,236 @@ La xarxa es segmenta per controlar l'accés i disminuir els riscos:
 - Configuració física separada per facilitar l'actualització d'un rack sense impactar els altres.
 - Monitoratge de rendiment i condicions ambientals.
 - Revisions periòdiques del cablejat i de l'equipament de xarxa.
+
+---
+
+## Especificacions físiques dels equips
+
+Aquesta secció detalla l'equipament físic seleccionat per al CPD, amb les especificacions tècniques de cada dispositiu i la justificació de l'elecció en funció de la càrrega de servei documentada (100–150 usuaris finals simultanis, 5 serveis principals independents).
+
+---
+
+### Servidors
+
+#### Servidor 1 — LDAP + SFTP
+**Model: Dell PowerEdge R250 (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2334 (4 nuclis / 8 fils, 3,4 GHz base / 4,8 GHz turbo) |
+| RAM | 16 GB DDR4 ECC 3200 MHz (2 ranures lliures per a expansió) |
+| Emmagatzematge | 2× 960 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 1 GbE integrades (Intel i350) |
+| Alimentació | PSU simple 450 W (80 PLUS Bronze) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~110 W en càrrega típica |
+
+**Justificació:** LDAP i SFTP s'allotgen al mateix servidor perquè el servei SFTP s'autentica directament contra OpenLDAP via SSSD: tenir-los en la mateixa màquina elimina la latència de xarxa en cada verificació de credencials i simplifica la gestió de permisos. OpenLDAP és molt lleuger (50 consultes/min no superen uns pocs MB de RAM ni el 5% de CPU), de manera que el Dell PowerEdge R250, el servidor d'entrada 1U de Dell, és més que suficient per als dos serveis combinats. Els 16 GB ECC garanteixen estabilitat en operació 24/7, els SSD de 960 GB en RAID 1 proporcionen espai adequat per als directoris home dels 4 usuaris SFTP i creixement futur, i les 2 NICs 1 GbE son suficients per a les transferències de fitxers i les consultes de directori en xarxa interna.
+
+---
+
+#### Servidor 2 — Web (Nginx + PHP-FPM)
+**Model: Dell PowerEdge R250 (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2334 (4 nuclis / 8 fils, 3,4 GHz base / 4,8 GHz turbo) |
+| RAM | 16 GB DDR4 ECC 3200 MHz (2 ranures lliures per a expansió) |
+| Emmagatzematge | 2× 480 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 1 GbE integrades (Intel i350) |
+| Alimentació | PSU simple 450 W (80 PLUS Bronze) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~100 W en càrrega típica |
+
+**Justificació:** El servidor web executa Nginx + PHP-FPM per servir el panell d'administració (`index.php`) a fins a 100 connexions concurrents. Nginx és un servidor web molt eficient en memòria (els workers comparteixen recursos), i PHP-FPM amb 100 workers paral·lels consumeix aproximadament 3–4 GB de RAM, molt per sota dels 16 GB disponibles. El Xeon E-2334 amb 8 fils gestiona les sol·licituds paral·leles sense cues. S'utilitza el mateix model que el Servidor 1 (Dell PowerEdge R250) per reduir l'inventari de peces de recanvi i facilitar la gestió, ja que ambdós servidors tenen perfils de càrrega equivalents. Els SSD de 480 GB en RAID 1 són suficients per als fitxers de l'aplicació web i els logs de Nginx.
+
+---
+
+#### Servidor 3 — Streaming Àudio (Icecast2)
+**Model: Dell PowerEdge R250 (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2314 (4 nuclis / 4 fils, 2,8 GHz base / 4,5 GHz turbo) |
+| RAM | 8 GB DDR4 ECC 3200 MHz (expandible) |
+| Emmagatzematge | 2× 480 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 1 GbE integrades (Intel i350) |
+| Alimentació | PSU simple 450 W (80 PLUS Bronze) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~80 W en càrrega típica |
+
+**Justificació:** Icecast2 és un servei de relay d'àudio: rep un únic flux del broadcaster i el distribueix als oients sense transcodificar. El consum de CPU és mínim (< 5% per a 50 oients simultanis) i la RAM que ocupa és d'uns 100–200 MB en operació. El consum de xarxa de 50 oients a 320 Kbps representa ~16 Mbps, una fracció de la capacitat d'una NIC 1 GbE (1000 Mbps). Per aquests motius, el Dell PowerEdge R250 amb el Xeon E-2314 (versió de 4 fils, més econòmica) és l'elecció correcta: no té sentit dimensionar més un servei que mai superarà el 10% dels recursos del servidor. El pressupost estalviat aquí es pot invertir en el servidor de vídeo, que sí requereix maquinari més potent.
+
+---
+
+#### Servidor 4 — Streaming Vídeo (NGINX-RTMP + HLS)
+**Model: Dell PowerEdge R350 (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2378 (8 nuclis / 16 fils, 2,6 GHz base / 4,8 GHz turbo) |
+| RAM | 32 GB DDR4 ECC 3200 MHz (2× 16 GB) |
+| Emmagatzematge | 2× 960 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 10 GbE (Intel X550-T2, PCIe) |
+| Alimentació | PSU doble redundant 700 W (80 PLUS Gold) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~180 W en càrrega típica |
+
+**Justificació:** El servidor de vídeo és el que requereix maquinari més potent de tot el CPD. NGINX-RTMP rep el flux de l'emissor i el mòdul HLS el divideix en segments `.ts` que escriu contínuament a disc: 20 fluxos simultanis a 4 Mbps cadascun representen ~80 Mbps de trànsit de sortida, i amb 50 visualitzadors el pic pot arribar a ~200 Mbps, una xifra que saturaria completament una NIC de 1 GbE. Per això les NICs 10 GbE (Intel X550-T2) són imprescindibles. El Xeon E-2378 amb 8 nuclis gestiona la generació paral·lela de segments HLS i les connexions RTMP entrants sense bloquejos. Els 32 GB de RAM permeten mantenir els segments actius en memòria (buffer) per servir-los ràpidament. Els SSD de 960 GB emmagatzemen els segments HLS temporals i el contingut VOD. La PSU redundant protegeix el servei de vídeo, que és el més crític per a l'experiència de l'usuari, davant de qualsevol fallada elèctrica.
+
+---
+
+#### Servidor 5 — Base de dades (MariaDB)
+**Model: Dell PowerEdge R350 (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2378 (8 nuclis / 16 fils, 2,6 GHz base / 4,8 GHz turbo) |
+| RAM | 32 GB DDR4 ECC 3200 MHz (2× 16 GB) |
+| Emmagatzematge | 2× 960 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 1 GbE integrades (Intel i350) |
+| Alimentació | PSU doble redundant 700 W (80 PLUS Gold) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~160 W en càrrega típica |
+
+**Justificació:** MariaDB és el servei que rep connexions de múltiples servidors alhora: l'aplicació web, el servidor de streaming i els backups nocturns accedeixen simultàniament a les 12 taules de la base de dades InnovateTech. El rendiment d'un servidor de bases de dades depèn principalment de dues coses: la RAM (per al buffer pool d'InnoDB, que ha de ser el 50–70% de la RAM total per evitar lectures de disc) i la velocitat de disc (per a les escriptures de transaccions i el log binari). Amb 32 GB, s'assignen 20 GB al buffer pool d'InnoDB, mantenint totes les taules actives en memòria i eliminant pràcticament els accesos a disc en lectura. El Xeon E-2378 amb 16 fils gestiona les 50 connexions concurrents documentades sense esperes. S'utilitza el mateix model que el Servidor 4 (R350) per unificar peces de recanvi i facilitar la substitució en cas d'avaria. La PSU redundant protegeix la integritat de les transaccions en curs.
+
+---
+
+#### Servidor 6 — Backups Automatitzats
+**Model: HP ProLiant DL20 Gen10 Plus (1U)**
+
+| Component | Especificació |
+|---|---|
+| CPU | Intel Xeon E-2314 (4 nuclis / 4 fils, 2,8 GHz base / 4,5 GHz turbo) |
+| RAM | 16 GB DDR4 ECC 3200 MHz (1× 16 GB) |
+| Emmagatzematge | 2× 480 GB SSD SATA 2,5" Hot-plug (RAID 1) |
+| Xarxa | 2× NIC 1 GbE integrades (Intel i350) |
+| Alimentació | PSU simple 290 W (80 PLUS Bronze) |
+| Factor de forma | 1U Rack |
+| Consum estimat | ~80 W en càrrega típica |
+
+**Justificació:** El servidor de backups executa únicament 4 treballs programats de nit (transferència de 150–200 GB diaris cap al NAS i a AWS S3) i roman pràcticament inactiu durant el dia. Per a una càrrega batch nocturna no té sentit invertir en maquinari d'alt rendiment. El HP ProLiant DL20 Gen10 Plus és el servidor 1U d'entrada de HP: el més compacte i econòmic certificat per a funcionament 24/7. El seu consum de ~80 W minimitza la càrrega del SAI del Rack 1. S'ha triat HP per diversificar fabricant respecte als Dell dels altres servidors, reduint el risc que una fallada de lot (firmware defectuós, peça en comú) afecti tots els servidors simultàniament. Els SSD de 480 GB en RAID 1 emmagatzemen el staging temporal de les còpies abans de la seva transferència definitiva.
+
+---
+
+### Dispositius d'emmagatzematge NAS
+
+#### NAS Primari — RAID 5
+**Model: Synology RS1221+ (2U Rack)**
+
+| Component | Especificació |
+|---|---|
+| CPU | AMD Ryzen V1500B (4 nuclis, 2,2 GHz) |
+| RAM | 8 GB DDR4 ECC (expandible fins a 32 GB) |
+| Bahies | 8× 3,5" SATA Hot-swap |
+| Discos instal·lats | 4× Seagate IronWolf Pro 8 TB SATA (ST8000NT001) |
+| Configuració RAID | RAID 5 → **24 TB útils** (1 disc de tolerància) |
+| Interfícies | 4× NIC 1 GbE + 2× ranures PCIe per a expansió 10 GbE |
+| Factor de forma | 2U Rack |
+| Consum estimat | ~50 W en càrrega típica |
+
+**Justificació:** El Synology RS1221+ és un NAS de format rack pensat per a entorns empresarials amb alta disponibilitat. La CPU AMD Ryzen V1500B gestiona eficientment les operacions de lectura/escriptura paral·leles dels 4 treballs de backup nocturns sense crear cues. La memòria ECC prevé la corrupció silenciosa de dades (bit rot), especialment rellevant en emmagatzematge a llarg termini. Els discos Seagate IronWolf Pro estan fabricats específicament per a NAS en operació 24/7, amb una taxa de càrrega de 300 TB/any molt superior als discos de consum estàndard, i inclouen tecnologia IronWolf Health Management per monitoratge proactiu. Amb RAID 5 sobre 4 discos s'obtenen 24 TB útils, suficients per a mesos de còpies incrementals (200 GB/dia × 30 dies = ~6 TB de retenció mensual), amb marge per a les còpies setmanals completes.
+
+---
+
+#### NAS Secundari — RAID 6
+**Model: Synology RS1221+ (2U Rack)**
+
+| Component | Especificació |
+|---|---|
+| CPU | AMD Ryzen V1500B (4 nuclis, 2,2 GHz) |
+| RAM | 8 GB DDR4 ECC (expandible fins a 32 GB) |
+| Bahies | 8× 3,5" SATA Hot-swap |
+| Discos instal·lats | 6× Seagate IronWolf Pro 8 TB SATA (ST8000NT001) |
+| Configuració RAID | RAID 6 → **32 TB útils** (2 discos de tolerància) |
+| Interfícies | 4× NIC 1 GbE + 2× ranures PCIe per a expansió 10 GbE |
+| Factor de forma | 2U Rack |
+| Consum estimat | ~60 W en càrrega típica |
+
+**Justificació:** S'utilitza la mateixa plataforma que el NAS primari per simplificar la gestió, les peces de recanvi i la configuració de replicació automàtica (Synology Hyper Backup pot replicar directament entre dos RS1221+). RAID 6 amb 6 discos ofereix tolerància a 2 fallades de disc simultànies, molt superior al RAID 5 del NAS primari, cosa essencial per a la còpia secundària on la pèrdua de dades seria catastròfica. La capacitat útil de 32 TB (8 TB × 6 − 2 discos de paritat) permet emmagatzemar còpies de retenció més llarga que el primari. Les ranures PCIe permeten afegir una tarja 10 GbE en el futur si el creixement del volum de backups ho requereix.
+
+---
+
+### Commutadors de xarxa
+
+#### Switch Core
+**Model: Cisco Catalyst 1000-24T-4G-L**
+
+| Component | Especificació |
+|---|---|
+| Ports d'accés | 24× GbE RJ45 |
+| Uplinks | 4× SFP 1G (fibra o coure) |
+| Capacitat de commutació | 56 Gbps |
+| Taxa de reenviament | 41,67 Mpps |
+| VLANs | Fins a 4094 (IEEE 802.1Q) |
+| Funcionalitats | QoS (4 cues), STP/RSTP, SNMP v1/v2c/v3, SSH v2, ACLs, IGMP Snooping |
+| Factor de forma | 1U Rack |
+| Consum | ~32 W |
+
+**Justificació:** El Cisco Catalyst 1000 és la referència del mercat per a switches gestionables en petites i mitjanes empreses. El model 24T-4G-L té ports suficients per connectar els 4 servidors, els 2 NAS, el firewall pfSense/OPNsense, el KVM i els equips d'administració, amb 4 uplinks SFP per a la fibra òptica entre racks (Rack 1 ↔ Rack 2 ↔ Rack 3). El suport de 4094 VLANs cobreix àmpliament les tres VLANs definides (VLAN 10, 20, 30). La funcionalitat QoS amb 4 cues permet prioritzar el trànsit de streaming del Servidor 3 davant del trànsit de gestió, garantint la qualitat del servei multimèdia. L'IGMP Snooping optimitza el trànsit multicast d'Icecast. La fiabilitat i l'ecosistema de suport de Cisco justifiquen l'elecció en un entorn de producció.
+
+---
+
+#### Switch d'Accés
+**Model: Cisco Catalyst 1000-16T-2G-L**
+
+| Component | Especificació |
+|---|---|
+| Ports d'accés | 16× GbE RJ45 |
+| Uplinks | 2× SFP 1G |
+| Capacitat de commutació | 36 Gbps |
+| Taxa de reenviament | 26,79 Mpps |
+| VLANs | Fins a 4094 (IEEE 802.1Q) |
+| Funcionalitats | QoS, STP/RSTP, SNMP v1/v2c/v3, SSH v2, ACLs |
+| Factor de forma | 1U Rack |
+| Consum | ~24 W |
+
+**Justificació:** El model d'accés de la mateixa família Cisco Catalyst 1000 garanteix compatibilitat total amb el switch core: mateixa interfície de gestió (Cisco IOS-based), mateixa sintaxi de configuració de VLANs i QoS, i actualitzacions de firmware coordinades. Les 16 portes GbE són suficients per a les connexions dels servidors del Rack 1 als NAS del Rack 3 i als ports restants del Rack 2. Els 2 uplinks SFP connecten per fibra al switch core. Usar la mateixa plataforma redueix la corba d'aprenentatge de l'administrador i simplifica el troubleshooting, ja que no cal dominar dues CLI diferents.
+
+---
+
+### KVM sobre IP
+
+#### Consola de gestió centralitzada
+**Model: ATEN KVM over IP CS1316 (16 ports)**
+
+| Component | Especificació |
+|---|---|
+| Ports KVM | 16× RJ45 (cable adaptador KVM Cat5e/6) |
+| Accés remot | Via IP (navegador web HTML5 / client Java) |
+| Resolució màxima | 1920×1200 |
+| Seguretat | TLS 1.2, autenticació per nivell d'usuari, registre d'accessos |
+| Usuaris simultanis | 1 local + 1 remot |
+| Factor de forma | 1U Rack |
+| Consum | ~10 W |
+
+**Justificació:** El KVM sobre IP ATEN CS1316 permet accedir a la consola de qualsevol dels 4 servidors de forma remota des de la VLAN d'Administració (VLAN 20), sense necessitat d'estar físicament al CPD. Això és crític per a tasques de recuperació on SSH no està disponible: restauració de BIOS/UEFI, reinstal·lació del sistema operatiu, resolució de panics del kernel o errors de configuració de xarxa que deixen el servidor inabastable. Els 16 ports permeten gestionar els 4 servidors actuals i fins a 12 equips addicionals si el CPD creix en el futur. L'accés per TLS 1.2 s'integra amb el control d'accés restringit de la VLAN 20.
+
+---
+
+### Resum d'equipament i ocupació de racks
+
+| Rack | Equip | Servei | Model | U de rack |
+|---|---|---|---|---|
+| Rack 1 | Servidor 1 | LDAP + SFTP | Dell PowerEdge R250 | 1U |
+| Rack 1 | Servidor 2 | Web (Nginx + PHP-FPM) | Dell PowerEdge R250 | 1U |
+| Rack 1 | Servidor 3 | Streaming Àudio (Icecast2) | Dell PowerEdge R250 | 1U |
+| Rack 1 | Servidor 4 | Streaming Vídeo (NGINX-RTMP) | Dell PowerEdge R350 | 1U |
+| Rack 1 | Servidor 5 | Base de dades (MariaDB) | Dell PowerEdge R350 | 1U |
+| Rack 1 | Servidor 6 | Backups | HP ProLiant DL20 Gen10+ | 1U |
+| Rack 1 | Patch Panel Cat6A #1 | — | — | 1U |
+| Rack 1 | Patch Panel Cat6A #2 | — | — | 1U |
+| Rack 2 | Switch Core | Distribució VLANs | Cisco Catalyst 1000-24T-4G-L | 1U |
+| Rack 2 | Switch d'Accés | Connexió servidors/NAS | Cisco Catalyst 1000-16T-2G-L | 1U |
+| Rack 2 | KVM sobre IP | Consola remota | ATEN CS1316 | 1U |
+| Rack 2 | Patch Panel Fibra | — | — | 1U |
+| Rack 3 | NAS Primari | Backups locals (RAID 5) | Synology RS1221+ | 2U |
+| Rack 3 | NAS Secundari | Backups secundaris (RAID 6) | Synology RS1221+ | 2U |
+
+> Ocupació: 8U al Rack 1, 4U al Rack 2 i 4U al Rack 3 (racks de 42U estàndard). Queda ample marge per a creixement futur en tots tres racks.
+
+---
 
 ### 1.3 01-cpd-fisic/1.3-prevencio-rrll.md
 
@@ -551,7 +794,7 @@ Aquesta distribució optimitza el flux d'aire i millora l'eficiència de refrige
 
 ---
 
-## 02. 02-aws
+## 02. AWS
 
 ### 2.1 02-aws/ansible.md
 
@@ -559,8 +802,8 @@ Aquesta distribució optimitza el flux d'aire i millora l'eficiència de refrige
 
 ## 2.1.1 Decisió adoptada
 
-Per a la gestió i configuració dels servidors del CPD he decidit utilitzar **Ansible** com a eina d'automatització. Això significa que totes les instal·lacions, configuracions i desplegaments es fan des d'una màquina de control mitjançant playbooks, sense haver d'accedir manualment a cada servidor.
-S'administressin i configuressin 3 maquines i 4 serveis amb ansible, aquesta és la distribució:
+Per a la gestió i configuració dels servidors del CPD hem decidit utilitzar **Ansible** com a eina d'automatització. Això significa que totes les instal·lacions, configuracions i desplegaments es fan des d'una màquina de control mitjançant playbooks, sense haver d'accedir manualment a cada servidor.
+S'administressin i configuressin 2 maquines i 3 serveis amb ansible, aquesta és la distribució:
 
 - Servidor 1 ( Servei Web + SFTP )
 - Servidor 2A ( LDAP )
@@ -609,7 +852,7 @@ ansible-cpd/
 ```
 ### inventory.ini
  
-Conté la llista de màquines que Ansible gestionarà, agrupades per funció. El Servidor 2 apareix en dos grups diferents perquè allotja dos serveis independents: LDAP i Graylog.
+Conté la llista de màquines que Ansible gestionarà, agrupades per funció.
  
 ### site.yml
  
@@ -624,7 +867,7 @@ Conté les variables que comparteixen diversos rols, com ara el domini LDAP, la 
 Cada rol és independent i conté tot el necessari per desplegar un servei:
  
 - `tasks/main.yml` — els passos d'instal·lació i configuració
-- `templates/` — fitxers de configuració amb variables (vhost de Nginx, `proftpd.conf`, fitxers LDIF, `graylog.conf`)
+- `templates/` — fitxers de configuració amb variables (vhost de Nginx, `proftpd.conf`, fitxers LDIF)
 - `vars/main.yml` — variables pròpies del servei (llista d'usuaris LDAP, ports, directoris)
 - `handlers/main.yml` — accions reactives com reiniciar un servei quan canvia la seva configuració
 
@@ -970,7 +1213,7 @@ Primer de tot cal configurar una nova entrada en el nostre site.yml perquè asso
 | :---: |
 | Confiuració site.yml |
 
-Ara cal editar el fitxer de variables del rol en aquest cas roles/slapd/vars/main.yml, on definirem el domini i la llista de usuaris. A partir d'aquí, el playbook es pot executar tantes vegades com vulguis perquè utilitza un bucle dinàmic (loop) que s'adapta automàticament a la quantitat d'usuaris sense haver de modificar mai el codi de les tasques. A més, gràcies a la condició failed_when, Ansible detecta si un usuari ja s'havia creat en una execució anterior (Already exists), saltant-se els comptes vells de forma segura per centrar-se únicament a injectar els nous registres processats mitjançant les plantilles Jinja2. Això garanteix un sistema totalment idempotent, net i escalable per al teu entorn SFTP.
+Ara cal editar el fitxer de variables del rol en aquest cas roles/slapd/vars/main.yml, on definirem el domini i la llista de usuaris. A partir d'aquí, el playbook es pot executar tantes vegades com vulguis perquè utilitza un bucle dinàmic (loop) que s'adapta automàticament a la quantitat d'usuaris sense haver de modificar mai el codi de les tasques. A més, gràcies a la condició failed_when, Ansible detecta si un usuari ja s'havia creat en una execució anterior (Already exists), saltant-se els comptes vells de forma segura per centrar-se únicament a injectar els nous registres processats mitjançant les plantilles Jinja2. Això garanteix un sistema totalment idempotent, net i escalable per al nostre entorn SFTP.
 
 Arxiu en format de text:
 
@@ -1638,7 +1881,7 @@ Referència: [02-aws](02-aws)
 
 ---
 
-## 03. 03-audio
+## 03. Àudio
 
 ### 3.1 03-audio/Descripció_de_la_funcionalitat_Audio.md
 
@@ -1683,7 +1926,7 @@ sudo apt install vlc
 
 ---
 
-## 04. 04-video
+## 04. Vídeo
 
 ### 4.1 04-video/Descripció_de_la_funcionalitat_Servei_de_Vídeo.md
 
@@ -1730,7 +1973,7 @@ sudo apt install vlc
 
 ---
 
-## 05. 05-videoconferencia
+## 05. Videoconferència
 
 ### 5.1 05-videoconferencia/Descripció_Protocol_WebRTC.md
 
@@ -1778,11 +2021,21 @@ sudo apt install nginx
 
 ---
 
-## 06. 06-amplada-banda
+## 06. Amplada de banda
 
-*Sin documentos disponibles en esta carpeta.*
+La mesura d'amplada de banda s'implementa directament a l'aplicació web (`index.php`). Vegeu la secció **09** per a la documentació completa del sistema de mesura.
 
-## 07. 07-bd
+**Resum del funcionament:**
+- L'administrador llança la mesura des del panell web (secció "📶 Amplada de banda").
+- El servidor executa `runMesuraBanda()` en segon pla (via `fastcgi_finish_request` o procés CLI).
+- S'intenta primer amb `speedtest-cli --simple`; si no està disponible, es fa servir `curl` contra el servidor de streaming (`23.23.53.151`).
+- Es mesuren baixada (Mbps), pujada (Mbps) i latència + jitter (ms) contra el servidor de streaming.
+- Criteris d'acceptabilitat: baixada ≥ 50 Mbps, pujada ≥ 10 Mbps, latència ≤ 150 ms.
+- Els resultats es guarden a la taula `MESURA_AMPLADA_BANDA`.
+
+També hi ha el script autònom `scripts/bandwidth_test.sh` que fa la mesura via `speedtest-cli` i inserta directament a la BD amb l'usuari MySQL `integracio`.
+
+## 07. Base de dades
 
 ### 7.0 Visió general de la base de dades
 
@@ -2176,7 +2429,7 @@ DESCRIBE AVIS;
 
 > Tots els elements estan implementats i documentats a la base de dades **InnovateTech**.
 
-## 08. 08-1665
+## 08. 1665
 
 ### 8.1 08-1665/ra3-optimitzacio.md
 
@@ -2189,5 +2442,197 @@ DESCRIBE AVIS;
 ### 8.3 08-1665/ra6-transformacio-digital.md
 
 *Documento vacío.*
+
+---
+
+## 09. App Web
+
+### 9.1 web/index.php — Panel de gestió CPD
+
+Panel de gestión CPD de InnovateTech. Archivo único (`index.php`) que contiene el backend en PHP, los estilos CSS y el frontend en JavaScript (arquitectura SPA).
+
+---
+
+#### Arquitectura general
+
+```
+index.php
+├── PHP (backend)          Líneas 1–341
+│   ├── Constantes y configuración
+│   ├── Modo CLI (fallback de medición)
+│   ├── Sesión y helpers de BD
+│   ├── Control de acceso por roles
+│   ├── runMesuraBanda()
+│   └── Router de acciones POST (API interna)
+│
+├── HTML + CSS             Líneas 342–530
+│   ├── Variables de diseño (:root)
+│   ├── Estilos de todos los componentes
+│   ├── Pantalla de login
+│   ├── Layout principal (sidebar + main)
+│   └── Modales (edición, vista, vídeo, valoración, nueva llamada)
+│
+└── JavaScript (frontend)  Líneas 640–1350
+    ├── Estado global
+    ├── Ringtone y polling de llamadas entrantes
+    ├── Login / Logout
+    ├── Sidebar con emojis por sección
+    ├── Dashboard
+    ├── Videoconferencia (Jitsi)
+    ├── Historial de llamadas
+    ├── Catálogo de vídeo (HLS/MP4/iframe)
+    ├── Amplada de banda
+    ├── Avisos / Auditoría
+    ├── Bloqueig d'usuaris
+    ├── Backups
+    ├── CRUD genérico de tablas
+    └── Utilidades (toast, formateo, post())
+```
+
+---
+
+#### 9.1.1 PHP — Backend
+
+**Constantes de configuración**
+
+| Constante | Valor | Descripción |
+|---|---|---|
+| `DB_HOST` | `32.197.67.184` | IP del servidor MySQL |
+| `DB_USER` | `webadmin` | Usuario de la base de datos |
+| `DB_PASS` | `pirineus` | Contraseña de la base de datos |
+| `DB_NAME` | `InnovateTech` | Nombre de la base de datos |
+| `JITSI_HOST` | `3.234.196.49` | Servidor Jitsi Meet para videoconferencias |
+| `STREAMING_HOST` | `23.23.53.151` | Servidor de streaming/vídeo (objetivo de las mediciones) |
+
+**Modo CLI** — Si el archivo se ejecuta con `php index.php mesura <uid>`, entra en modo CLI: conecta a la BD y llama directamente a `runMesuraBanda()`. Se usa como fallback cuando `fastcgi_finish_request()` no está disponible.
+
+**Helpers de BD:**
+- `getDB()` — Abre conexión MySQLi, muere con JSON de error si falla.
+- `dbq($db, $sql)` / `dbrow($db, $sql)` — Wrappers de query y fetch.
+
+**Control de acceso por roles (`$ROL_PERMISOS`):**
+
+| Rol | Tablas accesibles | Solo lectura |
+|---|---|---|
+| `admin` | Todas (13 tablas) | Ninguna |
+| `vendes` | TRUCADA, USUARI, VIDEO | USUARI, VIDEO |
+| `administracio` | EMPLEAT, DEPARTAMENT, USUARI, USUARI_ROL | Ninguna |
+| `treballador` | VIDEO, TRUCADA | VIDEO, TRUCADA |
+
+**`addAvis()`** — Registra eventos de auditoría en `AVIS` cuando un usuario intenta una operación no permitida.
+
+**`runMesuraBanda()`** — Medición de ancho de banda en segundo plano:
+- *Método 1 (preferente)*: `speedtest-cli --simple` → parsea Ping/Download/Upload.
+- *Método 2 fallback*: curl para bajada (streaming server → Cloudflare), POST para subida (httpbin → Cloudflare → TCP raw 5s).
+- Latencia + jitter: 6 conexiones TCP a `STREAMING_HOST:80`, descarta extremos, calcula media y desviación estándar.
+- Criterio: bajada ≥ 50 Mbps, subida ≥ 10 Mbps, latencia ≤ 150 ms → `acceptable`.
+
+**Router de acciones POST** — Todas las peticiones llegan como `POST action=...` y responden en JSON:
+
+| Action | Auth | Descripción |
+|---|---|---|
+| `login` | No | Valida email+contrasenya, crea sesión. Bloquea `extern`. |
+| `logout` | Sí | Destruye la sesión. |
+| `tables` | Sí | Tablas permitidas para el rol actual. |
+| `dashboard_stats` | Sí | Estadísticas por rol. |
+| `trucades` | Sí | Historial de llamadas (treballador: solo las suyas; administracio: denegado + audit). |
+| `iniciar_trucada` | Sí | Registra inicio en `TRUCADA`, valida estado del destinatario. |
+| `finalitzar_trucada` | Sí | Rellena `data_fi` y `durada_total`. |
+| `trucada_entrant` | Sí | Polling: devuelve llamada entrante activa en los últimos 5 min. |
+| `valorar_trucada` | Sí | Guarda puntuación 1–5 y comentario. |
+| `usuaris_llista` | Sí | Usuarios activos para llamar (treballador: solo internos). |
+| `videos` | Sí | Catálogo con búsqueda por título/categoría/descripción. |
+| `canals_audio` | Sí | Parámetros de `CONFIGURACIO_SERVIDOR` con prefijo `audio_`. |
+| `usuaris_gestio` | Admin | Lista todos los usuarios con rol y estado. |
+| `bloquejar_usuari` | Admin | Cambia estado a `bloquejat` + registra en `AVIS`. |
+| `desbloquejar_usuari` | Admin | Cambia estado a `actiu`. |
+| `executar_mesura_banda` | SuperAdmin | Lanza `runMesuraBanda()` en background. |
+| `mesures_banda` | SuperAdmin | Últimas 100 mediciones. |
+| `avisos_log` | SuperAdmin | Todos los registros de `AVIS`. |
+| `backups_log` | SuperAdmin | Todos los registros de `CONTROL_BACKUP`. |
+| `read` | Por rol | Lee tabla con búsqueda full-text, máx. 200 filas. |
+| `insert` / `update` / `delete` | Por rol (no readonly) | CRUD genérico. |
+
+---
+
+#### 9.1.2 HTML + CSS
+
+**Paleta de colores (variables CSS `:root`):**
+
+| Variable | Color | Uso |
+|---|---|---|
+| `--bg` | `#0a0a0f` | Fondo principal |
+| `--bg2` | `#111118` | Tarjetas y sidebar |
+| `--bg3` | `#1a1a24` | Inputs y cabeceras |
+| `--accent` | `#6c63ff` | Morado (botones, activos) |
+| `--accent2` | `#ff6584` | Rosa (degradados, alertas) |
+| `--success` | `#43e8b0` | Verde (éxito) |
+| `--font` | Syne | Tipografía principal |
+| `--mono` | DM Mono | Tipografía monospace |
+
+**Estructura HTML:**
+```
+#login-screen          Pantalla de login (oculta tras login)
+#app
+  aside.sidebar        Fijo 300px, secciones con emojis
+  main.main            Área de contenido dinámica (SPA)
+#modal                 CRUD edición
+#view-modal            CRUD visualización
+#video-modal           Reproductor de vídeo
+#rating-modal          Valoración 1–5 estrellas
+#newcall-modal         Selección de usuario para llamar
+#incoming-banner       Banner llamada entrante (fixed, top)
+#toast                 Notificación flotante
+```
+
+---
+
+#### 9.1.3 JavaScript — Frontend
+
+**Sidebar con emojis:**
+
+| Sección | Items |
+|---|---|
+| General | 🏠 Dashboard · 📹 Videoconferència · 📞 Historial · 🎬 Catàleg |
+| Administració | 🔒 Bloqueig · 📶 Amplada · 🔔 Avisos · 💾 Backups |
+| Base de dades | 🏢 DEPARTAMENT · 👤 EMPLEAT · 👥 USUARI · 🎭 ROL · 🔑 USUARI_ROL · ✅ GRUP_QUALITAT · 📞 TRUCADA · 🎬 VIDEO · 📶 MESURA_AMPLADA_BANDA · ⚙️ CONFIGURACIO_SERVIDOR · 🔔 AVIS · 💾 CONTROL_BACKUP · 🔐 CONTRASENYES |
+
+**Login:** el campo de email tiene sufijo visual `@innovatech.com`. Si el usuario no escribe `@`, se añade automáticamente en `doLogin()`.
+
+**Polling de llamadas:** `setInterval` cada 4 segundos → `trucada_entrant`. Si hay llamada, muestra banner con ringtone (MP3 o Web Audio API sintético). El receptor puede aceptar (abre Jitsi) o declinar (finaliza la llamada).
+
+**Videoconferència (Jitsi):** lazy-loading del script `external_api.js`. Sala nombrada `InnovateTech-Call-{id}`. Al cerrar: finaliza llamada en BD + abre modal de valoración. Para clientes externos: barra con enlace copiable.
+
+**Catàleg de vídeo:** `catEmoji(cat)` mapea categoría → emoji (📚 formació, 💼 vendes, 💻 tecnologia, 🔒 seguretat, etc.). Reproductor con soporte HLS (`hls.js`), MP4 nativo e iframe.
+
+**Amplada de banda:** botón "Executar mesura" → contador regresivo 60s → recarga automática de la tabla.
+
+**CRUD genérico:** funciona para cualquier tabla permitida. URLs en celdas se convierten en enlaces clicables automáticamente.
+
+**Utilidades:**
+- `post(data)` — `fetch POST` al mismo archivo, responde JSON.
+- `toast(msg, type)` — Notificación flotante 3 segundos.
+- `fmtDate(d)` — Fecha en formato catalán `dd/mm/yyyy hh:mm`.
+- `fmtDur(s)` — Segundos → `Xm Ys`.
+
+---
+
+#### 9.1.4 Tablas de la BD utilizadas por la app
+
+| Tabla | Uso |
+|---|---|
+| `USUARI` | Autenticación, listado, bloqueo |
+| `CONTRASENYES` | Hash de contraseña activa |
+| `USUARI_ROL` | Rol asignado a cada usuario |
+| `ROL` | Definición de roles |
+| `EMPLEAT` | CRUD de empleados |
+| `DEPARTAMENT` | CRUD de departamentos |
+| `TRUCADA` | Registro completo de llamadas |
+| `GRUP_QUALITAT` | Grupo de calidad de cada llamada |
+| `VIDEO` | Catálogo de vídeos |
+| `MESURA_AMPLADA_BANDA` | Historial de mediciones de red |
+| `CONFIGURACIO_SERVIDOR` | Parámetros del servidor (audio, etc.) |
+| `AVIS` | Log de auditoría |
+| `CONTROL_BACKUP` | Historial de backups |
 
 ---

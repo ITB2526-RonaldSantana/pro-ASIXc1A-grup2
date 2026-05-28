@@ -26,15 +26,4 @@ El servei utilitza:
 
 Aquest sistema permet donar suport a la comunicació corporativa, la formació interna i la distribució de continguts audiovisuals als clients de l’empresa.
 
-## Paquets utilitzats
 
-### Servidor de vídeo
-
-sudo apt install nginx
-sudo apt install libnginx-mod-rtmp
-sudo apt install ffmpeg
-
-
-### Client de reproducció
-
-sudo apt install vlc
