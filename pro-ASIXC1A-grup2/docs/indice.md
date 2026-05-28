@@ -352,23 +352,6 @@ Aquesta secció detalla l'equipament físic seleccionat per al CPD, amb les espe
 
 ---
 
-#### Servidor 6 — Backups Automatitzats
-**Model: HP ProLiant DL20 Gen10 Plus (1U)**
-
-| Component | Especificació |
-|---|---|
-| CPU | Intel Xeon E-2314 (4 nuclis / 4 fils, 2,8 GHz base / 4,5 GHz turbo) |
-| RAM | 16 GB DDR4 ECC 3200 MHz (1× 16 GB) |
-| Emmagatzematge | 2× 480 GB SSD SATA 2,5" Hot-plug (RAID 1) |
-| Xarxa | 2× NIC 1 GbE integrades (Intel i350) |
-| Alimentació | PSU simple 290 W (80 PLUS Bronze) |
-| Factor de forma | 1U Rack |
-| Consum estimat | ~80 W en càrrega típica |
-
-**Justificació:** El servidor de backups executa únicament 4 treballs programats de nit (transferència de 150–200 GB diaris cap al NAS i a AWS S3) i roman pràcticament inactiu durant el dia. Per a una càrrega batch nocturna no té sentit invertir en maquinari d'alt rendiment. El HP ProLiant DL20 Gen10 Plus és el servidor 1U d'entrada de HP: el més compacte i econòmic certificat per a funcionament 24/7. El seu consum de ~80 W minimitza la càrrega del SAI del Rack 1. S'ha triat HP per diversificar fabricant respecte als Dell dels altres servidors, reduint el risc que una fallada de lot (firmware defectuós, peça en comú) afecti tots els servidors simultàniament. Els SSD de 480 GB en RAID 1 emmagatzemen el staging temporal de les còpies abans de la seva transferència definitiva.
-
----
-
 ### Dispositius d'emmagatzematge NAS
 
 #### NAS Primari — RAID 5
@@ -473,7 +456,6 @@ Aquesta secció detalla l'equipament físic seleccionat per al CPD, amb les espe
 | Rack 1 | Servidor 3 | Streaming Àudio (Icecast2) | Dell PowerEdge R250 | 1U |
 | Rack 1 | Servidor 4 | Streaming Vídeo (NGINX-RTMP) | Dell PowerEdge R350 | 1U |
 | Rack 1 | Servidor 5 | Base de dades (MariaDB) | Dell PowerEdge R350 | 1U |
-| Rack 1 | Servidor 6 | Backups | HP ProLiant DL20 Gen10+ | 1U |
 | Rack 1 | Patch Panel Cat6A #1 | — | — | 1U |
 | Rack 1 | Patch Panel Cat6A #2 | — | — | 1U |
 | Rack 2 | Switch Core | Distribució VLANs | Cisco Catalyst 1000-24T-4G-L | 1U |
