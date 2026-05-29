@@ -187,7 +187,7 @@ La infraestructura IT es distribueix en servidors amb funcions específiques per
 | Servidor 3 | Streaming àudio — Icecast2 | EC2 t3.small |
 | Servidor 4 | Streaming vídeo — NGINX-RTMP + HLS | EC2 t3.medium |
 | Servidor 5 | Base de dades — MariaDB | EC2 t3.medium |
-| Servidor 6 | Backups automatitzats | EC2 t3.micro |
+| Servidor 6 | Logs | EC2 t3.medium |
 
 Aquesta separació facilita l'escalabilitat i minimitza l'impacte de fallades de servei.
 
